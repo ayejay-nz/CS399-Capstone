@@ -10,5 +10,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Happy Coders",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
 }
