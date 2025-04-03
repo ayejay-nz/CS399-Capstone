@@ -1,0 +1,14 @@
+services:
+  shuffle-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app                # Bind mount project files (Don't need to rebuild when updating code)
+      - /app/node_modules     # Don't override container node_modules
+    ports:
+      - "8000:8000"           
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+    command: npm run dev
