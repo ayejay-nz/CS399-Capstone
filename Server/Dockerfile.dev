@@ -1,0 +1,13 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Installation of dependencies
+COPY package*.json ./
+RUN npm install
+
+#COPY . .
+
+RUN npm install -g ts-node nodemon
+
+CMD ["npm", "run", "dev"]
