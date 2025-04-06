@@ -44,13 +44,13 @@ export default function GenerateMCQ() {
           <div className="flex justify-between items-center gap-4 mb-8">
             <div className="flex bg-white rounded-3xl p-1">
               <Button
-                variant={activeButton === "text" ? "default2" : "secondary"}
+                variant={activeButton === "text" ? "switch" : "secondary"}
                 onClick={() => setActiveButton("text")}
               >
                 text editor
               </Button>
               <Button
-                variant={activeButton === "form" ? "default2" : "secondary"}
+                variant={activeButton === "form" ? "switch" : "secondary"}
                 onClick={() => setActiveButton("form")}
               >
                 form editor
