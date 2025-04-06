@@ -38,10 +38,10 @@ export default function GenerateMCQ() {
         </nav>
 
         <div
-          className="flex-grow p-4 md:p-6 lg:p-8"
+          className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 py-4"
           style={{ backgroundColor: "oklch(18% 0 0)" }}
         >
-          <div className="flex justify-between items-center gap-4 mb-8">
+          <div className="flex justify-between gap-4 mb-8 mt-5">
             <div className="flex bg-white rounded-3xl p-1">
               <Button
                 variant={activeButton === "text" ? "switch" : "secondary"}
@@ -56,13 +56,13 @@ export default function GenerateMCQ() {
                 form editor
               </Button>
             </div>
-            <div className="pr-8 flex gap-2">
+            <div className=" flex gap-2">
               <Button variant="secondary">upload file</Button>
               <Button variant="secondary">generate exam</Button>
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-6 h-full mx-auto w-[95%] max-w-[1800px]">
+          <div className="flex flex-col lg:flex-row gap-6 h-full max-w-[1800px]">
             {/* Left box */}
             <div
               className="flex-1 rounded-lg p-6"
