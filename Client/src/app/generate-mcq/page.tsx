@@ -1,7 +1,10 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 export default function GenerateMCQ() {
+  const [activeButton, setActiveButton] = useState("form");
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -34,11 +37,31 @@ export default function GenerateMCQ() {
           </div>
         </nav>
 
-        {/* Main */}
         <div
           className="flex-grow p-4 md:p-6 lg:p-8"
           style={{ backgroundColor: "oklch(18% 0 0)" }}
         >
+          <div className="flex justify-between items-center gap-4 mb-8">
+            <div className="flex bg-white rounded-3xl p-1">
+              <Button
+                variant={activeButton === "text" ? "default2" : "secondary"}
+                onClick={() => setActiveButton("text")}
+              >
+                text editor
+              </Button>
+              <Button
+                variant={activeButton === "form" ? "default2" : "secondary"}
+                onClick={() => setActiveButton("form")}
+              >
+                form editor
+              </Button>
+            </div>
+            <div className="pr-8 flex gap-2">
+              <Button variant="secondary">upload file</Button>
+              <Button variant="secondary">generate exam</Button>
+            </div>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-6 h-full mx-auto w-[95%] max-w-[1800px]">
             {/* Left box */}
             <div
@@ -67,34 +90,11 @@ export default function GenerateMCQ() {
               {/* Options Section */}
               <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-4">Options</h2>
-                <div className="space-y-3">
-                  {["a", "b", "c", "d", "e"].map((option) => (
-                    <div key={option} className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id={`option-${option}`}
-                        className="h-4 w-4 rounded border-gray-500 focus:ring-0"
-                        style={{
-                          backgroundColor: "oklch(28% 0 0)",
-                          borderColor: "oklch(40% 0 0)",
-                        }}
-                      />
-                      <input
-                        type="text"
-                        placeholder={`Option ${option}`}
-                        className="flex-1 p-2 rounded"
-                        style={{
-                          backgroundColor: "oklch(35% 0 0)",
-                          border: "1px solid oklch(40% 0 0)",
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <div className="space-y-3"></div>
 
                 {/* Add Question Button */}
                 <div className="flex justify-end mt-6">
-                  <Button size="sm" variant="destructive">
+                  <Button size="lg" variant="secondary">
                     Add Question
                   </Button>
                 </div>
@@ -106,26 +106,7 @@ export default function GenerateMCQ() {
               className="lg:w-[400px] rounded-lg p-6"
               style={{ backgroundColor: "oklch(23% 0 0)" }}
             >
-              <div className="space-y-4">
-                <button
-                  className="w-full py-3 rounded-md flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: "oklch(35% 0 0)",
-                    border: "1px solid oklch(40% 0 0)",
-                  }}
-                >
-                  <span className="text-gray-200">Edit</span>
-                </button>
-                <button
-                  className="w-full py-3 rounded-md"
-                  style={{
-                    backgroundColor: "oklch(35% 0 0)",
-                    border: "1px solid oklch(40% 0 0)",
-                  }}
-                >
-                  <span className="text-gray-200">Delete</span>
-                </button>
-              </div>
+              <div className="space-y-4"></div>
             </div>
           </div>
 
