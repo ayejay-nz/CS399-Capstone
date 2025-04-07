@@ -62,7 +62,7 @@ export default function GenerateMCQ() {
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-6 h-full max-w-[1800px]">
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Left box */}
             <div
               className="flex-1 rounded-lg p-6"
@@ -106,7 +106,7 @@ export default function GenerateMCQ() {
               className="lg:w-[400px] rounded-lg p-6"
               style={{ backgroundColor: "oklch(23% 0 0)" }}
             >
-              <div className="space-y-4"></div>
+              <div className="space-y-4">Questions</div>
             </div>
           </div>
 
