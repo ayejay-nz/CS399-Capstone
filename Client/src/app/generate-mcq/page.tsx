@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
+import Tiptap from "@/src/components/ui/tiptap";
 export default function GenerateMCQ() {
   const [activeButton, setActiveButton] = useState("form");
   return (
@@ -65,38 +66,63 @@ export default function GenerateMCQ() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left box */}
             <div
-              className="flex-1 rounded-lg p-6"
+              className="flex-1 rounded-lg p-6 pr-10"
               style={{ backgroundColor: "oklch(23% 0 0)" }}
             >
-              <h1 className="text-2xl font-bold mb-6">Questions</h1>
+              <h1 className="text-2xl font-bold mb-6">Question</h1>
 
               {/* Question */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-2">
                 <span className="font-medium w-8">1.</span>
-                <div
-                  className="flex-1 flex justify-between items-center p-3"
-                  style={{
-                    backgroundColor: "oklch(35% 0 0)",
-                    borderRadius: "0.375rem",
-                    border: "1px solid oklch(40% 0 0)",
-                  }}
-                >
-                  <button className="text-sm text-gray-300 hover:text-white">
-                    Add Options
-                  </button>
+                <div className="flex-1">
+                  <Tiptap />
                 </div>
               </div>
 
-              {/* Options Section */}
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold mb-4">Options</h2>
-                <div className="space-y-3"></div>
+              {/* options */}
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-4">Options</h2>
 
-                {/* Add Question Button */}
-                <div className="flex justify-end mt-6">
-                  <Button size="lg" variant="secondary">
-                    Add Question
-                  </Button>
+                <div className="flex flex-col gap-4">
+                  {/* a */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium w-8">A)</span>
+                    <div className="flex-1">
+                      <Tiptap />
+                    </div>
+                  </div>
+
+                  {/* b */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium w-8">B)</span>
+                    <div className="flex-1">
+                      <Tiptap />
+                    </div>
+                  </div>
+
+                  {/* c */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium w-8">C)</span>
+                    <div className="flex-1">
+                      <Tiptap />
+                    </div>
+                  </div>
+
+                  {/* d */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium w-8">D)</span>
+                    <div className="flex-1">
+                      <Tiptap />
+                    </div>
+                  </div>
+
+                  {/* e */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium w-8">E)</span>
+                    <div className="flex-1">
+                      <Tiptap />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
