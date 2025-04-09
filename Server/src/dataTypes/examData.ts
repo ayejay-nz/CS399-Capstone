@@ -1,5 +1,6 @@
 type BrandType<K, T> = K & { __type: T };
 type ImageURI = BrandType<{ imageUri: string }, "ImageURI">;
+type TableURI = BrandType<{ tableUri: string }, "TableURI">;
 type QuestionText = BrandType<{ questionText: string }, "QuestionText">;
 type SectionText = BrandType<{ sectionText: string }, "SectionText">;
 
@@ -18,7 +19,7 @@ export interface Question {
         marks: number;
         id: number;
         feedback: Feedback;
-        content: (QuestionText | ImageURI)[];
+        content: (QuestionText | ImageURI | TableURI)[];
         options: string[];
     };
 }
@@ -26,7 +27,7 @@ export interface Question {
 export interface Section {
     section: {
         questionCount: number;
-        content: (SectionText | ImageURI)[];
+        content: (SectionText | ImageURI | TableURI)[];
     };
 }
 
