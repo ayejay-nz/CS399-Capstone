@@ -8,22 +8,22 @@ export const FeedbackDefaults: Feedback = {
     incorrectFeedback: "Incorrect",
 };
 
-interface Feedback {
+export interface Feedback {
     correctFeedback?: string;
     incorrectFeedback?: string;
 }
 
-interface Question {
+export interface Question {
     question: {
         marks: number;
         id: number;
         feedback: Feedback;
         content: (QuestionText | ImageURI)[];
         options: string[];
-    }
+    };
 }
 
-interface Section {
+export interface Section {
     section: {
         questionCount: number;
         content: (SectionText | ImageURI)[];

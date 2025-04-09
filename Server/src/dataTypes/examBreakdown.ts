@@ -1,4 +1,4 @@
-interface Summary {
+export interface Summary {
     lowestScore: number;
     lowerQuartile: number;
     median: number;
@@ -7,14 +7,14 @@ interface Summary {
     lowestScoringQuestions: number[]; // array of question ids with the lowest mark
 }
 
-interface Answer {
+export interface Answer {
     questionId: number;
     optionSelected?: number;
     isCorrect: boolean;
     customFeedback?: string;
 }
 
-interface StudentBreakdown {
+export interface StudentBreakdown {
     auid?: string;
     lastName?: string;
     firstName?: string;
@@ -25,14 +25,14 @@ interface StudentBreakdown {
     answers: Answer[];
 }
 
-interface OptionBreakdown {
+export interface OptionBreakdown {
     optionNumber: number;
     timesPicked: number;
     pickPercentage: number;
     isCorrect: boolean;
 }
 
-interface QuestionBreakdown {
+export interface QuestionBreakdown {
     questionId: number;
     totalAnswers: number;
     totalCorrectAnswers: number;
