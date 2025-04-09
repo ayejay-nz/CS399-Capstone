@@ -2,7 +2,7 @@ import { Question } from "./examData";
 
 export interface QuestionSolution {
     questionId: number;
-    answer: number;
+    answers: number[];
     mark: number;
     optionSequence: number[];
 }
