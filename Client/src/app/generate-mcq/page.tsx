@@ -21,7 +21,6 @@ export default function GenerateMCQ() {
   const handleAddOrUpdateQuestion = () => {
     const content = questionEditor.getHTML();
     const options = optionEditors.map((editor) => editor.getHTML());
-
     if (currentQuestionId !== null) {
       setQuestions((prev) =>
         prev.map((q) =>
@@ -112,7 +111,7 @@ export default function GenerateMCQ() {
               <div className="flex items-center gap-2">
                 <span className="font-medium w-8">Q.</span>
                 <div className="flex-1">
-                  <Tiptap setEditor={setQuestionEditor} />
+                <Tiptap setEditor={setQuestionEditor} allowImageUpload />
                 </div>
               </div>
 
@@ -210,6 +209,8 @@ export default function GenerateMCQ() {
                   onClick={() => {
                     setQuestions([]);
                     setCurrentQuestionId(null);
+                    questionEditor.commands.setContent("");
+                    optionEditors.forEach((e) => e.commands.setContent(""));
                   }}
                 >
                   Clear Questions
