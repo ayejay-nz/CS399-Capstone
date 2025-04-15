@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { MetricCards } from "../../../components/metric-cards";
+import { StudentDistribution } from "../../../components/student-distribution";
+import { LowestScoringQuestions } from "../../../components/lowest-scoring-questions";
+import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs";
+import { Button } from "../../../components/ui/button";
+import { Download } from "lucide-react";
+
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
@@ -28,12 +35,46 @@ export default function Dashboard() {
           </div>
         </nav>
 
-        {/* main content */}
-        <main className="flex-1 max-w-[1200px] mx-auto px-4 flex flex-col justify-center w-full">
-          <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
-          <p className="text-gray-300">
-            Placeholder content for the Dashboard page.
-          </p>
+        <main className="flex-1 max-w-[1200px] mx-auto px-4 w-full">
+          <div className="flex flex-1 flex-col p-6 space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+            </div>
+
+            {/* Tabs */}
+            <Tabs defaultValue="summary">
+              <TabsList>
+                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="question-performance">
+                  Question Performance
+                </TabsTrigger>
+                <TabsTrigger value="individual-performance">
+                  Individual Performance
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Metric Cards */}
+            <MetricCards />
+
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Student Distribution Chart - Takes up 2/3 of the space */}
+              <div className="md:col-span-2 rounded-lg border bg-card p-4">
+                <StudentDistribution />
+              </div>
+
+              {/* Lowest Scoring Questions - Takes up 1/3 of the space */}
+              <div className="rounded-lg border bg-card p-4">
+                <LowestScoringQuestions />
+              </div>
+            </div>
+          </div>
         </main>
 
         {/* footer */}
