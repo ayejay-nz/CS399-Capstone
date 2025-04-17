@@ -6,6 +6,68 @@ import { Button } from "@/src/components/ui/button";
 import Tiptap from "@/src/components/ui/tiptap";
 
 export default function GenerateMCQ() {
+  const mockProcessedJSON = {
+    content: [
+      {
+        question: {
+          marks: 1,
+          id: 1,
+          feedback: {
+            correctFeedback: "Correct",
+            incorrectFeedback: "Incorrect",
+          },
+          content: [
+            { questionText: "question here", __type: "QuestionText" },
+            { imageUri: "/figure1.png", __type: "ImageURI" },
+          ],
+          options: ["abcd", "123", "blah", "another", "more"],
+        },
+      },
+      {
+        question: {
+          marks: 1,
+          id: 2,
+          feedback: {
+            correctFeedback: "Correct",
+            incorrectFeedback: "Incorrect",
+          },
+          content: [
+            { questionText: "question here 2", __type: "QuestionText" },
+            { imageUri: "/figure2.png", __type: "ImageURI" },
+          ],
+          options: ["abcd", "123", "blah", "another", "more"],
+        },
+      },
+    ],
+  };
+  const handleProcessedQuestions = (data) => {
+    const newQuestions = data.content.map(({ question }) => {
+      const questionTextObj = question.content.find(
+        (c) => c.__type === "QuestionText",
+      );
+      const imageUriObj = question.content.find((c) => c.__type === "ImageURI");
+
+      let htmlContent = "";
+      if (questionTextObj)
+        htmlContent += `<p>${questionTextObj.questionText}</p>`;
+      if (imageUriObj) htmlContent += `<img src="${imageUriObj.imageUri}" `;
+
+      return {
+        id: Date.now() + Math.random(),
+        content: htmlContent,
+        options: question.options.map((opt) => `<p>${opt}</p>`),
+      };
+    });
+
+    setQuestions(newQuestions);
+    questionEditor?.commands.setContent("");
+    optionEditors.forEach((e) => e?.commands.setContent(""));
+    setCurrentQuestionId(null);
+  };
+  const simulateProcessQuestions = () => {
+    handleProcessedQuestions(mockProcessedJSON);
+  };
+
   const [questionEditor, setQuestionEditor] = useState(null);
   const [optionEditors, setOptionEditors] = useState([
     null,
@@ -81,23 +143,24 @@ export default function GenerateMCQ() {
           style={{ backgroundColor: "oklch(18% 0 0)" }}
         >
           <div className="flex justify-between gap-4 mb-8 mt-5">
-            <div className="flex bg-white rounded-3xl p-1">
-              <Button
-                variant={activeButton === "text" ? "switch" : "secondary"}
-                onClick={() => setActiveButton("text")}
-              >
-                text editor
-              </Button>
+            <div className="flex bg-white rounded-md p-1">
               <Button
                 variant={activeButton === "form" ? "switch" : "secondary"}
                 onClick={() => setActiveButton("form")}
               >
                 form editor
               </Button>
+              <Button
+                variant={activeButton === "text" ? "switch" : "secondary"}
+                onClick={() => setActiveButton("text")}
+              >
+                text editor
+              </Button>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary">upload file</Button>
-              <Button variant="secondary">generate exam</Button>
+              <Button variant="secondary" onClick={simulateProcessQuestions}>
+                upload file
+              </Button>
             </div>
           </div>
 
@@ -107,11 +170,35 @@ export default function GenerateMCQ() {
               className="flex-1 rounded-lg p-6 pr-10"
               style={{ backgroundColor: "oklch(23% 0 0)" }}
             >
-              <h1 className="text-2xl font-bold mb-6">Question</h1>
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Questions</h1>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={handleAddOrUpdateQuestion}
+                  >
+                    {currentQuestionId ? "update question" : "add question"}
+                  </Button>
+                  {currentQuestionId && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        questionEditor.commands.setContent("");
+                        optionEditors.forEach((editor) =>
+                          editor.commands.setContent(""),
+                        );
+                        setCurrentQuestionId(null);
+                      }}
+                    >
+                      cancel edit
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center gap-2">
-                <span className="font-medium w-8">Q.</span>
                 <div className="flex-1">
-                <Tiptap setEditor={setQuestionEditor} allowImageUpload />
+                  <Tiptap setEditor={setQuestionEditor} allowImageUpload />
                 </div>
               </div>
 
@@ -135,62 +222,50 @@ export default function GenerateMCQ() {
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-6 flex justify-end gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={handleAddOrUpdateQuestion}
-                  >
-                    {currentQuestionId ? "update question" : "add question"}
-                  </Button>
-                  {currentQuestionId && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        questionEditor.commands.setContent("");
-                        optionEditors.forEach((editor) =>
-                          editor.commands.setContent(""),
-                        );
-                        setCurrentQuestionId(null);
-                      }}
-                    >
-                      cancel edit
-                    </Button>
-                  )}
-                </div>
               </div>
             </div>
 
             {/* Right box */}
             <div
-              className="lg:w-[400px] rounded-lg p-6 flex flex-col justify-between"
+              className="lg:w-[400px] rounded-lg p-6 flex flex-col"
               style={{
                 backgroundColor: "oklch(23% 0 0)",
                 height: "605px",
               }}
             >
-              <div className="overflow-y-auto pr-1 flex-1 space-y-4">
-                <h2 className="text-xl font-bold mb-4">Questions</h2>
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold">Edit Questions</h2>
+                  <button
+                    className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
+                    onClick={() => {
+                      setQuestions([]);
+                      setCurrentQuestionId(null);
+                      questionEditor.commands.setContent("");
+                      optionEditors.forEach((e) => e.commands.setContent(""));
+                    }}
+                  >
+                    clear all
+                  </button>
+                </div>
+
                 {questions.map((q, index) => (
                   <div
                     key={q.id}
-                    className="cursor-pointer p-2 rounded-lg border border-gray-600 hover:outline hover:outline-gray-500 flex justify-between items-start"
+                    className="cursor-pointer p-2 border rounded-lg flex justify-between items-center"
                     onClick={() => handleEdit(q)}
                   >
-                    <div>
-                      <div className="font-semibold">Question {index + 1}</div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-semibold">{index + 1}.</span>
                       <div
-                        className="text-sm text-gray-400 mt-1"
+                        className="line-clamp-1"
                         dangerouslySetInnerHTML={{
-                          __html:
-                            q.content.length > 40
-                              ? q.content.slice(0, 40) + "..."
-                              : q.content,
+                          __html: q.content,
                         }}
                       />
                     </div>
                     <button
-                      className="text-xl p-2"
+                      className="p-1 text-gray-400 hover:text-white transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         setQuestions((prev) =>
@@ -198,23 +273,18 @@ export default function GenerateMCQ() {
                         );
                       }}
                     >
-                      ❌
+                      🗑️
                     </button>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 flex justify-end">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setQuestions([]);
-                    setCurrentQuestionId(null);
-                    questionEditor.commands.setContent("");
-                    optionEditors.forEach((e) => e.commands.setContent(""));
-                  }}
-                >
-                  Clear Questions
-                </Button>
+
+       
+              <div className="mt-auto pt-4">
+                <div className="flex flex-col items-center space-y-4">
+                  <hr className="w-full border-gray-600" />
+                  <Button variant="secondary">preview</Button>
+                </div>
               </div>
             </div>
           </div>

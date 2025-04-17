@@ -60,9 +60,6 @@ const Tiptap = ({ setEditor, content = "", allowImageUpload = false }) => {
     <div className="flex flex-col gap-2">
       {allowImageUpload && (
         <div className="flex justify-end">
-          <Button variant="secondary" size="sm" onClick={triggerFileInput}>
-            Upload Image
-          </Button>
           <input
             type="file"
             accept="image/*"

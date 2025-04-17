@@ -21,7 +21,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         /* switch button for form/text editor option */
-        switch: "bg-black rounded-3xl ",
+        switch: "bg-black rounded-sm ",
         
       },
       size: {
