@@ -8,55 +8,69 @@ export function useMcq() {
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [questions, setQuestions] = useState<any[]>([]);
   const [activeButton, setActiveButton] = useState<"form" | "text">("form");
-
+  const [marks, setMarks] = useState(1);
+  const extractTextFromHTML = (html) => {
+    if (!html) return "";
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || "";
+  };
+  const adjustMarks = (amount) => {
+    const newMarks = Math.max(1, marks + amount);
+    setMarks(newMarks);
+  };
   const handleAddOrUpdateQuestion = () => {
     const content = questionEditor.getHTML();
     const options = optionEditors.map((editor) => editor.getHTML());
-
+    const displayText = extractTextFromHTML(content) || "Question";
     if (currentQuestionId !== null) {
       setQuestions((prev) =>
         prev.map((q) =>
-          q.id === currentQuestionId ? { ...q, content, options } : q
-        )
+          q.id === currentQuestionId
+            ? { ...q, content, options, marks, displayText }
+            : q,
+        ),
       );
     } else {
       setQuestions((prev) => [
         ...prev,
-        { id: Date.now(), content, options },
+        { id: Date.now(), content, options, marks, displayText },
       ]);
     }
 
     questionEditor.commands.setContent("");
     optionEditors.forEach((editor) => editor.commands.setContent(""));
     setCurrentQuestionId(null);
+    setMarks(1);
   };
 
-    const handleEdit = (q: any) => {
+  const handleEdit = (q) => {
     questionEditor.commands.setContent(q.content);
-    q.options.forEach((optContent: string, i: number) => {
+    q.options.forEach((optContent, i) => {
       optionEditors[i].commands.setContent(optContent);
     });
     setCurrentQuestionId(q.id);
+    setMarks(q.marks || 1);
   };
 
-  const handleProcessedQuestions = (data: any) => {
-    const newQuestions = data.content.map(({ question }: any) => {
+  const handleProcessedQuestions = (data) => {
+    const newQuestions = data.content.map(({ question }) => {
       const questionTextObj = question.content.find(
-        (c: any) => c.__type === "QuestionText"
+        (c) => c.__type === "QuestionText",
       );
-      const imageUriObj = question.content.find(
-        (c: any) => c.__type === "ImageURI"
-      );
+      const imageUriObj = question.content.find((c) => c.__type === "ImageURI");
 
       let htmlContent = "";
       if (questionTextObj)
         htmlContent += `<p>${questionTextObj.questionText}</p>`;
-      if (imageUriObj) htmlContent += `<img src="${imageUriObj.imageUri}" `;
+      if (imageUriObj) htmlContent += `<img src="${imageUriObj.imageUri}" />`;
 
       return {
         id: Date.now() + Math.random(),
         content: htmlContent,
-        options: question.options.map((opt: string) => `<p>${opt}</p>`),
+        displayText: questionTextObj?.questionText || "Question",
+        options: question.options.map((opt) => `<p>${opt}</p>`),
+        marks: question.marks || 1,
       };
     });
 
@@ -64,9 +78,12 @@ export function useMcq() {
     questionEditor?.commands.setContent("");
     optionEditors.forEach((e) => e?.commands.setContent(""));
     setCurrentQuestionId(null);
+    setMarks(1);
   };
 
   return {
+    marks,
+    setMarks,
     questionEditor,
     setQuestionEditor,
     optionEditors,
@@ -79,5 +96,6 @@ export function useMcq() {
     setActiveButton,
     handleAddOrUpdateQuestion,
     handleEdit,
+    adjustMarks,
   };
 }

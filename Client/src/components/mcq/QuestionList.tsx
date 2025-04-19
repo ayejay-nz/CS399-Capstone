@@ -45,9 +45,9 @@ export default function QuestionList({
             <div className="flex items-start gap-2">
               <span className="font-semibold">{index + 1}.</span>
               <div
-                className="line-clamp-1"
-                dangerouslySetInnerHTML={{ __html: q.content }}
-              />
+                className="line-clamp-1">
+                {q.displayText || "Question"}
+              </div>
             </div>
             <button
               className="p-1 text-gray-400 hover:text-white transition-colors"

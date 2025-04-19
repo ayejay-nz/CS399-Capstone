@@ -35,20 +35,28 @@ export default function GenerateMCQPage() {
               mcq.questionEditor?.commands.setContent("");
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
               mcq.setCurrentQuestionId(null);
+              mcq.setMarks(1);
             }}
+            marks={mcq.marks}
+            adjustMarks={mcq.adjustMarks}
           />
 
           <QuestionList
             questions={mcq.questions}
             onEdit={mcq.handleEdit}
-            onDelete={(id) =>
-              mcq.setQuestions((prev: any[]) => prev.filter((q) => q.id !== id))
-            }
+            onDelete={(id) => {
+              mcq.setQuestions((prev: any[]) => prev.filter((q) => q.id !== id));
+              mcq.setCurrentQuestionId(null);
+              mcq.questionEditor?.commands.setContent("");
+              mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+              mcq.setMarks(1);
+            }}
             onClearAll={() => {
               mcq.setQuestions([]);
               mcq.setCurrentQuestionId(null);
               mcq.questionEditor?.commands.setContent("");
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+              mcq.setMarks(1);
             }}
           />
         </div>

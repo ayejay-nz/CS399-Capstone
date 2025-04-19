@@ -10,6 +10,8 @@ interface Props {
   currentQuestionId: number | null;
   handleAddOrUpdate: () => void;
   cancelEdit: () => void;
+  marks: number;
+  adjustMarks: (amount: number) => void;
 }
 
 export default function QuestionForm({
@@ -20,6 +22,8 @@ export default function QuestionForm({
   currentQuestionId,
   handleAddOrUpdate,
   cancelEdit,
+  marks,
+  adjustMarks,
 }: Props) {
   return (
     <div
@@ -27,8 +31,33 @@ export default function QuestionForm({
       style={{ backgroundColor: "oklch(23% 0 0)" }}
     >
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Questions</h1>
-        <div className="flex gap-2">
+                <h1 className="ml-6 text-2xl font-bold">Questions</h1>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center text-sm text-white">
+                    <div className="flex items-stretch border border-gray-600 rounded overflow-hidden">
+                      <span className="px-3 py-0.5 flex items-center border-r border-gray-600 ">
+                        Mark(s)
+                      </span>
+                      <span className="px-3 py-0.5 flex items-center border-r border-gray-600 ">
+                        {marks}
+                      </span>
+                      <div className="flex flex-col divide-y divide-gray-600">
+                        <button
+                          className="px-2 h-full hover:bg-gray-700 leading-none"
+                          onClick={() => adjustMarks(1)}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          className="px-2 h-full hover:bg-gray-700 leading-none disabled:opacity-50"
+                          onClick={() => adjustMarks(-1)}
+                          disabled={marks <= 1}
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </div>
+                  </div>
           <Button variant="secondary" onClick={handleAddOrUpdate}>
             {currentQuestionId ? "update question" : "add question"}
           </Button>
@@ -40,19 +69,24 @@ export default function QuestionForm({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="flex-1">
-          <Tiptap setEditor={setQuestionEditor} allowImageUpload />
-        </div>
-      </div>
+      <div className="ml-6 mr-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex-1 w-full mr-30">
+                    <Tiptap
+                      setEditor={setQuestionEditor}
+                      allowImageUpload
+                      isQuestionEditor={true}
+                    />
+                  </div>
+                </div>
 
-      <div className="mt-8">
+      <div className="mt-8 w-full">
         <h2 className="text-lg font-semibold mb-4">Options</h2>
         <div className="flex flex-col gap-4">
           {["A", "B", "C", "D", "E"].map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
+            <div key={label} className="flex items-center gap-2 mr-30">
               <span className="font-medium w-8">{label})</span>
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <Tiptap
                   setEditor={(editor) =>
                     setOptionEditors((prev) => {
@@ -68,5 +102,6 @@ export default function QuestionForm({
         </div>
       </div>
     </div>
+  </div>
   );
 }
