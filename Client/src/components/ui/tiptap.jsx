@@ -89,7 +89,6 @@ const Tiptap = ({
       <div
         className="flex-1"
         style={{
-          backgroundColor: "oklch(35% 0 0)",
           borderRadius: "0.375rem",
           border: "1px solid oklch(40% 0 0)",
           minHeight: isQuestionEditor ? "75px" : "40px",

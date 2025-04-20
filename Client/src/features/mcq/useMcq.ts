@@ -2,10 +2,17 @@
 import { useState } from "react";
 
 export function useMcq() {
-
   const [questionEditor, setQuestionEditor] = useState(null);
-  const [optionEditors, setOptionEditors] = useState([null, null, null, null, null]);
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
+  const [optionEditors, setOptionEditors] = useState([
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
+  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(
+    null,
+  );
   const [questions, setQuestions] = useState<any[]>([]);
   const [activeButton, setActiveButton] = useState<"form" | "text">("form");
   const [marks, setMarks] = useState(1);

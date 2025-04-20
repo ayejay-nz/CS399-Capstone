@@ -5,6 +5,7 @@ interface Question {
   id: number;
   content: string;
   options: string[];
+  displayText?: string;
 }
 
 interface Props {
@@ -39,18 +40,15 @@ export default function QuestionList({
         {questions.map((q, index) => (
           <div
             key={q.id}
-            className="cursor-pointer p-2 border rounded-lg flex justify-between items-center"
+            className="cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 bg-[oklch(21%_0_0)] hover:bg-[oklch(19%_0_0)]"
             onClick={() => onEdit(q)}
           >
             <div className="flex items-start gap-2">
               <span className="font-semibold">{index + 1}.</span>
-              <div
-                className="line-clamp-1">
-                {q.displayText || "Question"}
-              </div>
+              <div className="line-clamp-1">{q.displayText || "Question"}</div>
             </div>
             <button
-              className="p-1 text-gray-400 hover:text-white transition-colors"
+              className="p-1"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(q.id);

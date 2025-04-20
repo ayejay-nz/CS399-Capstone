@@ -45,7 +45,9 @@ export default function GenerateMCQPage() {
             questions={mcq.questions}
             onEdit={mcq.handleEdit}
             onDelete={(id) => {
-              mcq.setQuestions((prev: any[]) => prev.filter((q) => q.id !== id));
+              mcq.setQuestions((prev: any[]) =>
+                prev.filter((q) => q.id !== id),
+              );
               mcq.setCurrentQuestionId(null);
               mcq.questionEditor?.commands.setContent("");
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
