@@ -13,6 +13,7 @@ interface Config {
     server: {
         port: number;
         nodeEnv: string;
+        apiPrefix: string;
     },
     upload: {
         maxSourceFileSize: number;
@@ -26,6 +27,7 @@ const config: Config = {
     server: {
         port: Number(process.env.PORT) || 8000,
         nodeEnv: process.env.NODE_ENV || 'development',
+        apiPrefix: process.env.API_PREFIX || '/api/v1',
     },
     upload: {
         maxSourceFileSize: MAX_SOURCE_FILE_MB * MB,

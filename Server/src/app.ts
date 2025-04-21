@@ -1,9 +1,21 @@
-import express from 'express';
+import express from 'express'; 
+import config from './config/config'; 
+import errorHandler from './middlewares/errorHandler'; 
 
-const app = express();
+import examSourceRoutes from './routes/examSourceRoutes';
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+const app = express();  
 
-export default app;
+// Middlewares 
+app.use(express.json());  
+
+// Routes
+app.get('/', (req, res) => {     
+    res.send('Hello World!'); 
+}); 
+
+app.use(`${config.server.apiPrefix}/exam-source`, examSourceRoutes);
+
+app.use(errorHandler);  
+
+export default app; 
