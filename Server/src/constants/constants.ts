@@ -1,6 +1,7 @@
 export const HTTP_STATUS_CODE = {
     OK: 200,
     CREATED: 201,
+    ACCEPTED: 202,
     BAD_REQUEST: 400,
     NOT_FOUND: 404,
     REQUEST_TIMEOUT: 408,
@@ -84,3 +85,9 @@ export const API_ERROR_CODE = {
     INVALID_FEEDBACK_UPDATE: "INVALID_FEEDBACK_UPDATE",
     UPDATE_FAILED: "UPDATE_FAILED",
 };
+
+export const API_SUCCESS_MESSAGE = {
+    ok: "Request processed successfully",
+    created: "Resource created successfully",
+    accepted: "Request accepted and is being processed",
+}
