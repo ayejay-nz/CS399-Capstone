@@ -12,6 +12,7 @@ interface Props {
   cancelEdit: () => void;
   marks: number;
   adjustMarks: (amount: number) => void;
+  optionsLength: number;
 }
 
 export default function QuestionForm({
@@ -24,6 +25,7 @@ export default function QuestionForm({
   cancelEdit,
   marks,
   adjustMarks,
+  optionsLength,
 }: Props) {
   return (
     <div
@@ -83,16 +85,17 @@ export default function QuestionForm({
         <div className="mt-8 w-full">
           <h2 className="text-lg font-semibold mb-4">Options</h2>
           <div className="flex flex-col gap-4">
-            {["A", "B", "C", "D", "E"].map((label, i) => (
-              <div key={label} className="flex items-center gap-2 mr-30">
-                <span className="font-medium w-8">{label})</span>
-                <div className="flex-1 w-full">
+            {optionEditors.map((_, i) => (
+              <div key={i} className="flex items-center gap-2 mr-30">
+                {/* simple placeholder until you swap in a real checkbox */}
+                <span className="font-medium w-8">[]</span>
+                <div className="flex-1">
                   <Tiptap
                     setEditor={(editor) =>
                       setOptionEditors((prev) => {
-                        const updated = [...prev];
-                        updated[i] = editor;
-                        return updated;
+                        const copy = [...prev];
+                        copy[i] = editor;
+                        return copy;
                       })
                     }
                   />

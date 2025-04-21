@@ -52,6 +52,15 @@ export function useMcq() {
   };
 
   const handleEdit = (q) => {
+    console.log(q);
+    setOptionEditors((prev) => {
+      const keep = prev.slice(0, q.options.length)
+      // if we need more slots, append null placeholders
+      if (keep.length < q.options.length) {
+        return keep.concat(Array(q.options.length - keep.length).fill(null))
+      }
+      return keep
+    })
     questionEditor.commands.setContent(q.content);
     q.options.forEach((optContent, i) => {
       optionEditors[i].commands.setContent(optContent);
@@ -60,27 +69,45 @@ export function useMcq() {
     setMarks(q.marks || 1);
   };
 
+  // /*const simulateProcessQuestions = async (file: File) => {
+  //   /*try {
+  //     const formData = new FormData();
+  //     formData.append("file", file);
+
+  //     const res = await fetch("{localhost}/api/{}", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+      
+  //     if (!res.ok) {
+  //       console.log("test");
+  //       //throw new Error("File upload failed");
+        
+  //     }
+
+  //     const data = await res.json();
+  //     handleProcessedQuestions(data);
+  //   } catch (err) {
+  //     console.error("Error uploading and processing file:", err);
+  //     alert("Failed to upload and process the file.");
+  //   } */
+  //   const data = ""
+  // }; 
   const simulateProcessQuestions = async (file: File) => {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("{localhost}/api/{}", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error("File upload failed");
-      }
-
-      const data = await res.json();
-      handleProcessedQuestions(data);
+      // read the raw text out of the File
+      const jsonText = await file.text()
+      // parse it to an object/array
+      const data = JSON.parse(jsonText)
+  
+      // hand it off to your existing handler
+      handleProcessedQuestions(data)
+      //console.log(data);
     } catch (err) {
-      console.error("Error uploading and processing file:", err);
-      alert("Failed to upload and process the file.");
+      console.error("Error processing test JSON file:", err)
+
     }
-  };
+  }
 
   const handleProcessedQuestions = (data) => {
     const newQuestions = data.content.map(({ question }) => {
@@ -99,10 +126,11 @@ export function useMcq() {
         content: htmlContent,
         displayText: questionTextObj?.questionText || "Question",
         options: question.options.map((opt) => `<p>${opt}</p>`),
+        optionsLength: question.options.length,
         marks: question.marks || 1,
       };
     });
-
+    //setOptionEditors(Array(newQuestions[0].options.length).fill(null)) 
     setQuestions(newQuestions);
     questionEditor?.commands.setContent("");
     optionEditors.forEach((e) => e?.commands.setContent(""));
