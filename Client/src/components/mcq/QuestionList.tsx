@@ -5,6 +5,7 @@ interface Question {
   id: number;
   content: string;
   options: string[];
+  marks: number;
   displayText?: string;
 }
 
@@ -13,6 +14,65 @@ interface Props {
   onEdit: (q: Question) => void;
   onDelete: (id: number) => void;
   onClearAll: () => void;
+}
+
+function convertHtmlToPlainText(html: string) {
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  return temp.textContent || temp.innerText || "";
+}
+
+async function handlePreview(questions: Question[]) {
+  const payload = {
+    content: questions.map((q, idx) => {
+      const questionText = convertHtmlToPlainText(q.content);
+      const imgSrcMatch = q.content.match(/<img[^>]+src="([^">]+)"/);
+      const imageUri = imgSrcMatch?.[1] || "";
+
+      return {
+        question: {
+          marks: q.marks || 1,
+          id: idx + 1,
+          feedback: {
+            correctFeedback: "Correct",
+            incorrectFeedback: "Incorrect",
+          },
+          content: [
+            { questionText, __type: "QuestionText" },
+            ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+          ],
+          options: q.options.map((optHtml) => convertHtmlToPlainText(optHtml)),
+        },
+      };
+    }),
+  };
+
+  try {
+    const res = await fetch("{localhost}/api/{}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error("Download failed");
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    /*a.download = "questions.zip";*/
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Error", err);
+    alert("Failed to generate and download questions.");
+  }
 }
 
 export default function QuestionList({
@@ -63,7 +123,9 @@ export default function QuestionList({
       <div className="mt-auto pt-4">
         <div className="flex flex-col items-center space-y-4">
           <hr className="w-full border-gray-600" />
-          <Button variant="secondary">preview</Button>
+          <Button variant="secondary" onClick={() => handlePreview(questions)}>
+            preview
+          </Button>
         </div>
       </div>
     </div>

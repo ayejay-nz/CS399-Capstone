@@ -60,6 +60,28 @@ export function useMcq() {
     setMarks(q.marks || 1);
   };
 
+  const simulateProcessQuestions = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("{localhost}/api/{}", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("File upload failed");
+      }
+
+      const data = await res.json();
+      handleProcessedQuestions(data);
+    } catch (err) {
+      console.error("Error uploading and processing file:", err);
+      alert("Failed to upload and process the file.");
+    }
+  };
+
   const handleProcessedQuestions = (data) => {
     const newQuestions = data.content.map(({ question }) => {
       const questionTextObj = question.content.find(
@@ -104,5 +126,6 @@ export function useMcq() {
     handleAddOrUpdateQuestion,
     handleEdit,
     adjustMarks,
+    simulateProcessQuestions,
   };
 }
