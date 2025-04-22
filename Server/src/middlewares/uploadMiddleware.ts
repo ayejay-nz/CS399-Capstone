@@ -43,7 +43,8 @@ const createMimeTypeFilter = (allowedMimeTypes: string[]) => {
 
 const sourceFileFilter = createExtensionFilter(['.docx', '.xml', '.txt', '.tex']);
 const coverPageFileFilter = createExtensionFilter(['.docx']);
-const markingFileFilter = createExtensionFilter(['.txt']);
+const teleformDataFileFilter = createExtensionFilter(['.txt']);
+const answerKeyFileFilter = createExtensionFilter(['.xlsx']);
 const assetFileFilter = createMimeTypeFilter(['image/png', 'image/jpeg']);
 
 export const uploadSourceFile = multer({
@@ -58,14 +59,20 @@ export const uploadCoverPageFile = multer({
     fileFilter: coverPageFileFilter,
 }).single('coverPageFile');
 
-export const uploadMarkingFile = multer({
+export const uploadTeleformDataFile = multer({
     storage: memoryStorage,
-    limits: { fileSize: config.upload.maxMarkingFileSize },
-    fileFilter: markingFileFilter,
-}).single('markingFile');
+    limits: { fileSize: config.upload.maxTeleformDataFileSize },
+    fileFilter: teleformDataFileFilter,
+}).single('teleformDataFile'); 
+
+export const uploadAnswerKeyFile = multer({
+    storage: memoryStorage,
+    limits: { fileSize: config.upload.maxAnswerKeyFileSize },
+    fileFilter: answerKeyFileFilter,
+}).single('answerKeyFile');
 
 export const uploadAssetFile = multer({
     storage: memoryStorage,
     limits: { fileSize: config.upload.maxAssetFileSize },
     fileFilter: assetFileFilter,
-}).single('assetFile') 
+}).single('assetFile');

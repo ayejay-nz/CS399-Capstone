@@ -6,7 +6,8 @@ const MB = 1024 * 1024;
 
 const MAX_SOURCE_FILE_MB = 10;
 const MAX_COVER_PAGE_FILE_MB = 2;
-const MAX_MARKING_FILE_MB = 2;
+const MAX_TELEFORM_DATA_FILE_MB = 2;
+const MAX_ANSWER_KEY_FILE_MB = 5;
 const MAX_ASSET_FILE_MB = 1;
 
 interface Config {
@@ -18,7 +19,8 @@ interface Config {
     upload: {
         maxSourceFileSize: number;
         maxCoverPageFileSize: number;
-        maxMarkingFileSize: number;
+        maxTeleformDataFileSize: number;
+        maxAnswerKeyFileSize: number;
         maxAssetFileSize: number;
     }
 }
@@ -32,7 +34,8 @@ const config: Config = {
     upload: {
         maxSourceFileSize: MAX_SOURCE_FILE_MB * MB,
         maxCoverPageFileSize: MAX_COVER_PAGE_FILE_MB * MB,
-        maxMarkingFileSize: MAX_MARKING_FILE_MB * MB,
+        maxTeleformDataFileSize: MAX_TELEFORM_DATA_FILE_MB * MB,
+        maxAnswerKeyFileSize: MAX_ANSWER_KEY_FILE_MB * MB,
         maxAssetFileSize: MAX_ASSET_FILE_MB * MB,
     },
 };
