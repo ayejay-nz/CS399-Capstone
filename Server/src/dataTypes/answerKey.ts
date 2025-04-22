@@ -12,7 +12,7 @@ export interface VersionSolution {
     questionSolutions: QuestionSolution[];
 }
 
-export interface SolutionKey {
+export interface AnswerKey {
     source: Question[];
     versionSolutions: VersionSolution[];
 }
