@@ -3,6 +3,7 @@ import config from './config/config';
 import errorHandler from './middlewares/errorHandler'; 
 
 import examSourceRoutes from './routes/examSourceRoutes';
+import coverPageRoutes from './routes/coverPageRoutes';
 
 const app = express();  
 
@@ -15,6 +16,7 @@ app.get('/', (req, res) => {
 }); 
 
 app.use(`${config.server.apiPrefix}/exam-source`, examSourceRoutes);
+app.use(`${config.server.apiPrefix}/cover-page`, coverPageRoutes);
 
 app.use(errorHandler);  
 
