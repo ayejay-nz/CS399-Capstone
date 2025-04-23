@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { uploadSourceFile } from '../middlewares/uploadMiddleware';
+import { uploadExamSourceFile } from '../middlewares/uploadMiddleware';
 import ApiError from '../utils/apiError';
 import { API_ERROR_CODE, API_ERROR_MESSAGE, API_SUCCESS_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
 import path from 'path';
@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post(
     '/upload', 
-    uploadSourceFile, 
+    uploadExamSourceFile, 
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.file) {

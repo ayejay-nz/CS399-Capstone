@@ -41,16 +41,16 @@ const createMimeTypeFilter = (allowedMimeTypes: string[]) => {
     };
 };
 
-const sourceFileFilter = createExtensionFilter(['.docx', '.xml', '.txt', '.tex']);
+const examSourceFileFilter = createExtensionFilter(['.docx', '.xml', '.txt', '.tex']);
 const coverPageFileFilter = createExtensionFilter(['.docx']);
 const teleformDataFileFilter = createExtensionFilter(['.txt']);
 const answerKeyFileFilter = createExtensionFilter(['.xlsx']);
 const assetFileFilter = createMimeTypeFilter(['image/png', 'image/jpeg']);
 
-export const uploadSourceFile = multer({
+export const uploadExamSourceFile = multer({
     storage: memoryStorage,
-    limits: { fileSize: config.upload.maxSourceFileSize },
-    fileFilter: sourceFileFilter
+    limits: { fileSize: config.upload.maxExamSourceFileSize },
+    fileFilter: examSourceFileFilter
 }).single('examSourceFile');
 
 export const uploadCoverPageFile = multer({

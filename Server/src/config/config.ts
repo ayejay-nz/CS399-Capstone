@@ -4,7 +4,7 @@ dotenv.config();
 
 const MB = 1024 * 1024;
 
-const MAX_SOURCE_FILE_MB = 10;
+const MAX_EXAM_SOURCE_FILE_MB = 10;
 const MAX_COVER_PAGE_FILE_MB = 2;
 const MAX_TELEFORM_DATA_FILE_MB = 2;
 const MAX_ANSWER_KEY_FILE_MB = 5;
@@ -17,7 +17,7 @@ interface Config {
         apiPrefix: string;
     },
     upload: {
-        maxSourceFileSize: number;
+        maxExamSourceFileSize: number;
         maxCoverPageFileSize: number;
         maxTeleformDataFileSize: number;
         maxAnswerKeyFileSize: number;
@@ -32,7 +32,7 @@ const config: Config = {
         apiPrefix: process.env.API_PREFIX || '/api/v1',
     },
     upload: {
-        maxSourceFileSize: MAX_SOURCE_FILE_MB * MB,
+        maxExamSourceFileSize: MAX_EXAM_SOURCE_FILE_MB * MB,
         maxCoverPageFileSize: MAX_COVER_PAGE_FILE_MB * MB,
         maxTeleformDataFileSize: MAX_TELEFORM_DATA_FILE_MB * MB,
         maxAnswerKeyFileSize: MAX_ANSWER_KEY_FILE_MB * MB,
