@@ -4,6 +4,7 @@ import errorHandler from './middlewares/errorHandler';
 
 import examSourceRoutes from './routes/examSourceRoutes';
 import coverPageRoutes from './routes/coverPageRoutes';
+import answerKeyRoutes from './routes/answerKeyRoutes';
 
 const app = express();  
 
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 
 app.use(`${config.server.apiPrefix}/exam-source`, examSourceRoutes);
 app.use(`${config.server.apiPrefix}/cover-page`, coverPageRoutes);
+app.use(`${config.server.apiPrefix}/answer-key`, answerKeyRoutes);
 
 app.use(errorHandler);  
 
