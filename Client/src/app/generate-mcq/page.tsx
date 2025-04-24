@@ -39,6 +39,7 @@ export default function GenerateMCQPage() {
             }}
             marks={mcq.marks}
             adjustMarks={mcq.adjustMarks}
+            optionCount={mcq.optionCount}
           />
 
           <QuestionList

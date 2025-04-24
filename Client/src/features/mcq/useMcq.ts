@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function useMcq() {
   const [questionEditor, setQuestionEditor] = useState(null);
+  const [optionCount, setOptionCount] = useState(5);
   const [optionEditors, setOptionEditors] = useState([
     null,
     null,
@@ -16,6 +17,7 @@ export function useMcq() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [activeButton, setActiveButton] = useState<"form" | "text">("form");
   const [marks, setMarks] = useState(1);
+  const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
   const extractTextFromHTML = (html) => {
     if (!html) return "";
     const temp = document.createElement("div");
@@ -50,27 +52,35 @@ export function useMcq() {
     setCurrentQuestionId(null);
     setMarks(1);
   };
-
-  const handleEdit = (q) => {
-    console.log(q);
-    setOptionEditors((prev) => {
-      const keep = prev.slice(0, q.options.length)
-      // if we need more slots, append null placeholders
-      if (keep.length < q.options.length) {
-        return keep.concat(Array(q.options.length - keep.length).fill(null))
-      }
-      return keep
-    })
-    questionEditor.commands.setContent(q.content);
-    q.options.forEach((optContent, i) => {
-      optionEditors[i].commands.setContent(optContent);
-    });
+  const handleEdit = (q: any) => {
+    setEditingQuestion(q);
     setCurrentQuestionId(q.id);
+    setOptionCount(q.options.length);
+    setOptionEditors(Array(q.options.length).fill(null)); 
     setMarks(q.marks || 1);
   };
+  useEffect(() => {
+    if (
+      editingQuestion &&
+      optionEditors.length === editingQuestion.options.length &&
+      optionEditors.every((editor) => editor !== null) &&
+      questionEditor !== null
+    ) {
+      // Set question content
+      questionEditor.commands.setContent(editingQuestion.content);
 
-  // /*const simulateProcessQuestions = async (file: File) => {
-  //   /*try {
+      // Set options content
+      editingQuestion.options.forEach((opt: string, index: number) => {
+        optionEditors[index].commands.setContent(opt);
+      });
+
+      // Clear editing state
+      setEditingQuestion(null);
+    }
+  }, [editingQuestion, optionEditors, questionEditor]);
+
+  // const simulateProcessQuestions = async (file: File) => {
+  //   try {
   //     const formData = new FormData();
   //     formData.append("file", file);
 
@@ -78,11 +88,9 @@ export function useMcq() {
   //       method: "POST",
   //       body: formData,
   //     });
-      
+
   //     if (!res.ok) {
-  //       console.log("test");
-  //       //throw new Error("File upload failed");
-        
+  //       throw new Error("File upload failed");
   //     }
 
   //     const data = await res.json();
@@ -90,24 +98,18 @@ export function useMcq() {
   //   } catch (err) {
   //     console.error("Error uploading and processing file:", err);
   //     alert("Failed to upload and process the file.");
-  //   } */
-  //   const data = ""
-  // }; 
+  //   }
+  // };
   const simulateProcessQuestions = async (file: File) => {
     try {
-      // read the raw text out of the File
-      const jsonText = await file.text()
-      // parse it to an object/array
-      const data = JSON.parse(jsonText)
-  
-      // hand it off to your existing handler
-      handleProcessedQuestions(data)
-      //console.log(data);
+      const fileText = await file.text();
+      const data = JSON.parse(fileText);
+      handleProcessedQuestions(data);
     } catch (err) {
-      console.error("Error processing test JSON file:", err)
-
+      console.error("Error processing file:", err);
+      alert("Failed to process the file. Make sure it's valid JSON.");
     }
-  }
+  };
 
   const handleProcessedQuestions = (data) => {
     const newQuestions = data.content.map(({ question }) => {
@@ -126,11 +128,11 @@ export function useMcq() {
         content: htmlContent,
         displayText: questionTextObj?.questionText || "Question",
         options: question.options.map((opt) => `<p>${opt}</p>`),
-        optionsLength: question.options.length,
         marks: question.marks || 1,
+        optionCount: question.options.length,
       };
     });
-    //setOptionEditors(Array(newQuestions[0].options.length).fill(null)) 
+
     setQuestions(newQuestions);
     questionEditor?.commands.setContent("");
     optionEditors.forEach((e) => e?.commands.setContent(""));
@@ -155,5 +157,7 @@ export function useMcq() {
     handleEdit,
     adjustMarks,
     simulateProcessQuestions,
+    optionCount,
+    setOptionCount,
   };
 }
