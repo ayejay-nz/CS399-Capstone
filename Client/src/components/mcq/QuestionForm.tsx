@@ -1,7 +1,6 @@
 "use client";
 import Tiptap from "@/src/components/ui/tiptap";
 import { Button } from "@/src/components/ui/button";
-
 interface Props {
   questionEditor: any;
   setQuestionEditor: (e: any) => void;
@@ -13,6 +12,7 @@ interface Props {
   marks: number;
   adjustMarks: (amount: number) => void;
   optionCount: number;
+  setOptionCount: number;
 }
 
 export default function QuestionForm({
@@ -20,6 +20,7 @@ export default function QuestionForm({
   setQuestionEditor,
   optionEditors,
   setOptionEditors,
+  setOptionCount,
   currentQuestionId,
   handleAddOrUpdate,
   cancelEdit,
@@ -32,7 +33,7 @@ export default function QuestionForm({
       className="flex-1 rounded-lg p-6 pr-10"
       style={{ backgroundColor: "oklch(23% 0 0)" }}
     >
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Questions</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center text-sm text-white">
@@ -107,6 +108,19 @@ export default function QuestionForm({
                 </div>
               </div>
             ))}
+            <div>
+              <Button
+                variant="secondary"
+                className="ml-10"
+                onClick={() => {
+                  setOptionCount(optionCount + 1);
+                  setOptionEditors([...optionEditors, null]);
+                }}
+                disabled={optionCount >= 5}
+              >
+                Add Option
+              </Button>
+            </div>
           </div>
         </div>
       </div>

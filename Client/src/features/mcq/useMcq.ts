@@ -30,7 +30,9 @@ export function useMcq() {
   };
   const handleAddOrUpdateQuestion = () => {
     const content = questionEditor.getHTML();
-    const options = optionEditors.map((editor) => editor.getHTML());
+    const options = optionEditors
+      .slice(0, optionCount)
+      .map((editor) => editor?.getHTML() || "");
     const displayText = extractTextFromHTML(content) || "Question";
     if (currentQuestionId !== null) {
       setQuestions((prev) =>
@@ -56,7 +58,7 @@ export function useMcq() {
     setEditingQuestion(q);
     setCurrentQuestionId(q.id);
     setOptionCount(q.options.length);
-    setOptionEditors(Array(q.options.length).fill(null)); 
+    setOptionEditors(Array(q.options.length).fill(null));
     setMarks(q.marks || 1);
   };
   useEffect(() => {
@@ -66,15 +68,12 @@ export function useMcq() {
       optionEditors.every((editor) => editor !== null) &&
       questionEditor !== null
     ) {
-      // Set question content
       questionEditor.commands.setContent(editingQuestion.content);
 
-      // Set options content
       editingQuestion.options.forEach((opt: string, index: number) => {
         optionEditors[index].commands.setContent(opt);
       });
 
-      // Clear editing state
       setEditingQuestion(null);
     }
   }, [editingQuestion, optionEditors, questionEditor]);
