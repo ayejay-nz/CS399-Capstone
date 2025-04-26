@@ -1,3 +1,4 @@
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -26,34 +27,73 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="space-x-4 md:space-x-8 pr-2">
-            <Link href="/docs" className="hover:text-gray-300 text-sm md:text-base">
+            <Link
+              href="/docs"
+              className="hover:text-gray-300 text-sm md:text-base"
+            >
               Documentation
             </Link>
-            <Link href="/about" className="hover:text-gray-300 text-sm md:text-base">
+            <Link
+              href="/about"
+              className="hover:text-gray-300 text-sm md:text-base"
+            >
               About
             </Link>
           </div>
         </nav>
 
-        <main className="flex-1 max-w-[1200px] mx-auto px-4 w-full">
-          <div className="flex flex-1 flex-col p-6 space-y-6">
+        <main className="flex-1 w-full px-8 md:px-12 lg:px-16">
+        <div className="flex flex-1 flex-col p-6 space-y-6 border border-[#27272A] rounded-xl">
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
-            </div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <Button
+              variant="outline"
+              size="sm"
+              className="
+                gap-2 
+                border-black text-black   
+              "
+            >
+              <Download className="h-4 w-4" style={{ color: "#000" }} />
+              Download
+            </Button>
+          </div>
 
             {/* Tabs */}
             <Tabs defaultValue="summary">
-              <TabsList>
-                <TabsTrigger value="summary">Summary</TabsTrigger>
-                <TabsTrigger value="question-performance">
+              <TabsList className="bg-[#27272A] rounded-lg p-1">
+                <TabsTrigger
+                  value="summary"
+                  className="
+                    text-[#4C4C52] 
+                    data-[state=active]:bg-[#000000] 
+                    data-[state=active]:text-[#FFFFFF] 
+                    rounded-md
+                  "
+                >
+                  Summary
+                </TabsTrigger>
+                <TabsTrigger
+                  value="question-performance"
+                  className="
+                    text-[#4C4C52] 
+                    data-[state=active]:bg-[#000000] 
+                    data-[state=active]:text-[#FFFFFF] 
+                    rounded-md
+                  "
+                >
                   Question Performance
                 </TabsTrigger>
-                <TabsTrigger value="individual-performance">
+                <TabsTrigger
+                  value="individual-performance"
+                  className="
+                    text-[#4C4C52] 
+                    data-[state=active]:bg-[#000000] 
+                    data-[state=active]:text-[#FFFFFF] 
+                    rounded-md
+                  "
+                >
                   Individual Performance
                 </TabsTrigger>
               </TabsList>
@@ -65,12 +105,26 @@ export default function Dashboard() {
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Student Distribution Chart - Takes up 2/3 of the space */}
-              <div className="md:col-span-2 rounded-lg border bg-card p-4">
+              <div
+                className="md:col-span-2 rounded-lg p-4"
+                style={{
+                  backgroundColor: "#000000", // dark gray
+                  border: "1px solid #27272A", // slightly lighter border
+                  color: "#fff", // white text
+                }}
+              >
                 <StudentDistribution />
               </div>
 
               {/* Lowest Scoring Questions - Takes up 1/3 of the space */}
-              <div className="rounded-lg border bg-card p-4">
+              <div
+                className="rounded-lg p-4"
+                style={{
+                  backgroundColor: "#000000",
+                  border: "1px solid #27272A",
+                  color: "#fff",
+                }}
+              >
                 <LowestScoringQuestions />
               </div>
             </div>
