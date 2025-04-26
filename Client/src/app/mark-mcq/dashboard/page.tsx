@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui
 import { Button } from "../../../components/ui/button";
 import { Download } from "lucide-react";
 import { IndividualPerformanceTab } from "@/src/components/individual-performance";
+import { QuestionPerformanceTab } from "@/src/components/question-performance";
 
 export default function Dashboard() {
   return (
@@ -112,9 +113,7 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="question-performance">
-                <div className="text-white py-4">
-                  Question Performance 
-                </div>
+                <QuestionPerformanceTab/>
               </TabsContent>
 
               <TabsContent value="individual-performance">
