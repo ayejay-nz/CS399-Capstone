@@ -88,7 +88,7 @@ export default function Dashboard() {
                 <MetricCards />
 
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div
                     className="md:col-span-2 rounded-lg p-4"
                     style={{
