@@ -8,6 +8,7 @@ import { LowestScoringQuestions } from "../../../components/lowest-scoring-quest
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/tabs";
 import { Button } from "../../../components/ui/button";
 import { Download } from "lucide-react";
+import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 
 export default function Dashboard() {
   return (
@@ -117,9 +118,7 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="individual-performance">
-                <div className="text-white py-4">
-                  Individual Performance
-                </div>
+                <IndividualPerformanceTab/>
               </TabsContent>
             </Tabs>
           </div>
