@@ -19,13 +19,23 @@ import {
   TableCell,
 } from "@/src/components/ui/table";
 
-import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
+import {
+  Label,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+  Pie,
+  PieChart,
+  Cell,
+} from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 
 type QuestionPerf = {
   id: number;
   text: string;
   marks: number;
   correctPct: number;
+  answerCounts: { A: number; B: number; C: number; D: number; E: number };
 };
 
 const questions: QuestionPerf[] = [
@@ -34,30 +44,35 @@ const questions: QuestionPerf[] = [
     text: "What decimal number is equivalent to the binary number 1110112?",
     marks: 2,
     correctPct: 45,
+    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
   },
   {
     id: 2,
     text: "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
     marks: 3,
     correctPct: 53,
+    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
   },
   {
     id: 3,
     text: "What is the ASCII code for the word 'READ'?",
     marks: 1,
     correctPct: 61,
+    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
   },
   {
     id: 4,
     text: "Which of the following prefixes is the largest?",
     marks: 2,
     correctPct: 71,
+    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
   },
   {
     id: 5,
     text: "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
     marks: 1,
     correctPct: 74,
+    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
   },
 ];
 
@@ -89,7 +104,6 @@ export function QuestionPerformanceTab() {
     ? table.getRowModel().rows.find((r) => r.id === selectedId)?.original
     : null;
 
-  // Build a single‐point dataset for the radial chart:
   const radialData = selectedQuestion
     ? [
         {
@@ -97,6 +111,18 @@ export function QuestionPerformanceTab() {
           incorrect: 100 - selectedQuestion.correctPct,
         },
       ]
+    : [];
+
+  const PIE_COLORS = ["#D9F99D", "#BEF264", "#A3E635", "#84CC16", "#65A30D"];
+
+  const pieData = selectedQuestion
+    ? Object.entries(selectedQuestion.answerCounts).map(
+        ([option, count], idx) => ({
+          name: option,
+          value: count,
+          fill: PIE_COLORS[idx],
+        }),
+      )
     : [];
 
   return (
@@ -223,6 +249,31 @@ export function QuestionPerformanceTab() {
                   clockWise={false}
                 />
               </RadialBarChart>
+            </div>
+            <div className="rounded-xl border border-[#27272A] bg-black p-6">
+              <h5 className="text-white font-medium mb-4">
+                Answer Distribution
+              </h5>
+              <ChartContainer
+                config={{ theme: "dark" }}
+                className="mx-auto w-full max-w-[350px] h-[350px] [&_.recharts-pie-label-text]:fill-white"
+              >
+                <PieChart width={350} height={350}>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={120}
+                    label={{ fill: "#fff", fontSize: 12 }}
+                  >
+                    {pieData.map((entry, idx) => (
+                      <Cell key={`slice-${idx}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
             </div>
           </div>
         ) : (
