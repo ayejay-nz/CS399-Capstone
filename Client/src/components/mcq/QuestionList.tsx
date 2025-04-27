@@ -137,7 +137,7 @@ export default function QuestionList({
         <div className="flex flex-col items-center space-y-4">
           <hr className="w-full border-gray-600" />
           <Button variant="secondary" onClick={() => handlePreview(questions)}>
-            preview
+            generate
           </Button>
         </div>
       </div>
