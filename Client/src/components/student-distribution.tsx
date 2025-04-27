@@ -11,16 +11,16 @@ import {
 } from "recharts"
 
 const data = [
-  { range: "0-9%",   count: 5 },
-  { range: "10-19%", count: 15 },
-  { range: "20-29%", count: 25 },
-  { range: "30-39%", count: 80 },
-  { range: "40-49%", count: 110 },
-  { range: "50-59%", count: 150 },
-  { range: "60-69%", count: 180 },
-  { range: "70-79%", count: 120 },
-  { range: "80-89%", count: 60 },
-  { range: "90-100%",count: 15 },
+  { range: "0-9%",   count: 1 },
+  { range: "10-19%", count: 3 },
+  { range: "20-29%", count: 6 },
+  { range: "30-39%", count: 20 },
+  { range: "40-49%", count: 30 },
+  { range: "50-59%", count: 32 },
+  { range: "60-69%", count: 45 },
+  { range: "70-79%", count: 30 },
+  { range: "80-89%", count: 15 },
+  { range: "90-100%",count: 3 },
 ]
 
 export function StudentDistribution() {

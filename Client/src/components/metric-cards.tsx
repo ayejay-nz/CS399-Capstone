@@ -10,11 +10,11 @@ import {
     return (
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
-          { label: "Lowest Score",    value: 2  },
-          { label: "Lower Quartile",  value: 42 },
-          { label: "Median",          value: 65 },
-          { label: "Upper Quartile",  value: 74 },
-          { label: "Highest score",   value: 93 },
+          { label: "Lowest Score (%)",    value: 2  },
+          { label: "Lower Quartile (%)",  value: 35 },
+          { label: "Median (%)",          value: 60 },
+          { label: "Upper Quartile (%)",  value: 75 },
+          { label: "Highest score (%)",   value: 95 },
         ].map((c) => (
           <Card
             key={c.label}

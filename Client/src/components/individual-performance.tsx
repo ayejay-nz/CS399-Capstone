@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import * as ReactTable from "@tanstack/react-table";
 import {
   useReactTable,
   ColumnDef,
@@ -18,177 +17,623 @@ import {
   TableBody,
   TableCell,
 } from "@/src/components/ui/table";
-import { Checkbox } from "@/src/components/ui/checkbox";
 import { Input } from "./ui/input";
 
+// dummy data, replace with real fetch later
 export type Student = {
   auid: string;
   name: string;
   version: number;
   total: number;
-  answers: Array<{
+  answers: {
     question: string;
-    marks: number;
-    option: string;
-    feedback: string;
-  }>;
+    marks: 0 | 1;
+    option: "A" | "B" | "C" | "D" | "E";
+    feedback: "Well Done!" | "Incorrect.";
+  }[];
 };
 
-// dummy data, replace with real fetch later
 const students: Student[] = [
   {
     auid: "10010234",
     name: "Alice Smith",
-    version: 1,
-    total: 3,
-    answers: [
-      { question: "1", marks: 1, option: "B", feedback: "Well done!" },
-      { question: "2", marks: 1, option: "A", feedback: "Correct" },
-      { question: "3", marks: 1, option: "C", feedback: "Perfect" },
-    ],
+    version: 2,
+    total: 10,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const isCorrect = q % 2 === 1; // 10 correct (odd IDs)
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010235",
     name: "Bob Johnson",
-    version: 2,
-    total: 2,
-    answers: [
-      { question: "1", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "2", marks: 0, option: "B", feedback: "Incorrect" },
-      { question: "3", marks: 1, option: "C", feedback: "Well done!" },
-    ],
+    version: 1,
+    total: 12,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const isCorrect = [1, 2, 5, 6, 7, 8, 12, 13, 16, 17, 20, 19].includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010236",
     name: "Carol Lee",
     version: 1,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "C", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "D", feedback: "Incorrect" },
-    ],
+    total: 8,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [2, 4, 6, 7, 8, 12, 14, 18];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010237",
     name: "David Kim",
     version: 3,
-    total: 0,
-    answers: [
-      { question: "1", marks: 0, option: "B", feedback: "Incorrect" },
-      { question: "2", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    total: 15,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const incorrectIds = [2, 5, 9, 13, 20]; // 5 wrong
+      const isCorrect = !incorrectIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010238",
     name: "Eva González",
-    version: 2,
-    total: 2,
-    answers: [
-      { question: "1", marks: 1, option: "C", feedback: "Good job!" },
-      { question: "2", marks: 1, option: "D", feedback: "Well done!" },
-      { question: "3", marks: 0, option: "B", feedback: "Incorrect" },
-    ],
+    version: 4,
+    total: 5,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [3, 7, 12, 16, 19];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010239",
     name: "Frank Zhang",
     version: 4,
-    total: 3,
-    answers: [
-      { question: "1", marks: 1, option: "A", feedback: "Perfect" },
-      { question: "2", marks: 1, option: "B", feedback: "Well done!" },
-      { question: "3", marks: 1, option: "D", feedback: "Correct" },
-    ],
+    total: 20,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctOpt = correctMap[q];
+      return {
+        question: String(q),
+        marks: 1,
+        option: correctOpt,
+        feedback: "Well Done!",
+      };
+    }),
   },
+
   {
     auid: "10010240",
     name: "Grace Patel",
-    version: 3,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "D", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "C", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "A", feedback: "Incorrect" },
-    ],
+    version: 1,
+    total: 0,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: 0,
+        option: wrongOpt,
+        feedback: "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010241",
     name: "Hiro Tanaka",
-    version: 1,
-    total: 2,
-    answers: [
-      { question: "1", marks: 1, option: "B", feedback: "Correct" },
-      { question: "2", marks: 1, option: "A", feedback: "Well done!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    version: 3,
+    total: 14,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const incorrectIds = [4, 9, 13, 18, 20, 11];
+      const isCorrect = !incorrectIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
+
   {
     auid: "10010242",
     name: "Isabel Rossi",
+    version: 1,
+    total: 7,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [3, 7, 12, 15, 16, 17, 19];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
+  },
+  {
+    auid: "10010243",
+    name: "John Doe",
     version: 2,
-    total: 0,
-    answers: [
-      { question: "1", marks: 0, option: "C", feedback: "Incorrect" },
-      { question: "2", marks: 0, option: "D", feedback: "Incorrect" },
-      { question: "3", marks: 0, option: "B", feedback: "Incorrect" },
-    ],
+    total: 10,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
   {
-    auid: "10010243",
-    name: "Jack Müller",
-    version: 4,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    auid: "10010244",
+    name: "Lina Martinez",
+    version: 3,
+    total: 8,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [2, 4, 6, 8, 10, 12, 14, 16];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
   {
-    auid: "10010243",
-    name: "Jack Müller",
+    auid: "10010245",
+    name: "Michael Brown",
     version: 4,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    total: 15,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const incorrectIds = [1, 2, 3, 4, 5];
+      const isCorrect = !incorrectIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
   {
-    auid: "10010243",
-    name: "Jack Müller",
-    version: 4,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    auid: "10010246",
+    name: "Zoe Singh",
+    version: 1,
+    total: 2,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [1, 20];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
   {
-    auid: "10010243",
-    name: "Jack Müller",
+    auid: "10010247",
+    name: "Lucas Williams",
     version: 4,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
-  },
-  {
-    auid: "10010243",
-    name: "Jack Müller",
-    version: 4,
-    total: 1,
-    answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
-      { question: "2", marks: 1, option: "D", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
-    ],
+    total: 4,
+    answers: Array.from({ length: 20 }, (_, i) => {
+      const q = i + 1;
+      const correctMap: Record<number, keyof Student["answers"][0]> = {
+        1: "B",
+        2: "B",
+        3: "A",
+        4: "E",
+        5: "A",
+        6: "A",
+        7: "C",
+        8: "B",
+        9: "D",
+        10: "B",
+        11: "A",
+        12: "C",
+        13: "A",
+        14: "A",
+        15: "B",
+        16: "B",
+        17: "A",
+        18: "A",
+        19: "B",
+        20: "A",
+      };
+      const correctIds = [5, 10, 15, 20];
+      const isCorrect = correctIds.includes(q);
+      const correctOpt = correctMap[q];
+      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
+        (o) => o !== correctOpt,
+      )!;
+      return {
+        question: String(q),
+        marks: isCorrect ? 1 : 0,
+        option: isCorrect ? correctOpt : wrongOpt,
+        feedback: isCorrect ? "Well Done!" : "Incorrect.",
+      };
+    }),
   },
 ];
 
