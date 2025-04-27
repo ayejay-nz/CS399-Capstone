@@ -186,13 +186,7 @@ export function QuestionPerformanceTab() {
       ]
     : [];
 
-  const RED_SHADES = [
-    "#EF4444", 
-    "#DC2626", 
-    "#B91C1C", 
-    "#991B1B", 
-    "#7F1D1D", 
-  ];
+  const RED_SHADES = ["#EF4444", "#DC2626", "#B91C1C", "#991B1B", "#7F1D1D"];
 
   const pieData = selectedQuestion
     ? Object.entries(selectedQuestion.answerCounts).map(
@@ -201,8 +195,8 @@ export function QuestionPerformanceTab() {
           value: count,
           fill:
             option === selectedQuestion.correctOption
-              ? "#10B981" 
-              : RED_SHADES[idx], 
+              ? "#10B981"
+              : RED_SHADES[idx],
         }),
       )
     : [];
@@ -273,7 +267,7 @@ export function QuestionPerformanceTab() {
           <div className="space-y-6">
             <div className="text-white">
               <h4 className="font-semibold mb-2">
-                Q{selectedQuestion.id} Details
+                Question {selectedQuestion.id} Details:
               </h4>
               <p>
                 <span className="font-medium">Question:</span>{" "}
@@ -305,9 +299,35 @@ export function QuestionPerformanceTab() {
               ))}
             </div>
 
-            <div className="rounded-xl border border-[#27272A] bg-black p-4">
+            <div className="rounded-xl border border-[#27272A] bg-black p-6">
               <h5 className="text-white font-medium mb-4 flex justify-center">
-                Correct vs Incorrect
+                Answer Distribution
+              </h5>
+              <ChartContainer
+                config={{ theme: "dark" }}
+                className="mx-auto w-full max-w-[350px] h-[350px] [&_.recharts-pie-label-text]:fill-white"
+              >
+                <PieChart width={350} height={350}>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={120}
+                    label={{ fill: "#fff", fontSize: 12 }}
+                  >
+                    {pieData.map((entry, idx) => (
+                      <Cell key={`slice-${idx}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            </div>
+
+            <div className="rounded-xl border border-[#27272A] bg-black p-4">
+              <h5 className="text-white font-medium mb-12 flex justify-center">
+                % of Students Who Answered Correctly
               </h5>
 
               <div className="flex justify-center">
@@ -365,31 +385,6 @@ export function QuestionPerformanceTab() {
                   />
                 </RadialBarChart>
               </div>
-            </div>
-            <div className="rounded-xl border border-[#27272A] bg-black p-6">
-              <h5 className="text-white font-medium mb-4 flex justify-center">
-                Answer Distribution
-              </h5>
-              <ChartContainer
-                config={{ theme: "dark" }}
-                className="mx-auto w-full max-w-[350px] h-[350px] [&_.recharts-pie-label-text]:fill-white"
-              >
-                <PieChart width={350} height={350}>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={120}
-                    label={{ fill: "#fff", fontSize: 12 }}
-                  >
-                    {pieData.map((entry, idx) => (
-                      <Cell key={`slice-${idx}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
             </div>
           </div>
         ) : (
