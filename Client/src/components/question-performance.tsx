@@ -5,8 +5,11 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+import { Input } from "./ui/input";
 import {
   Table,
   TableHeader,
@@ -17,13 +20,13 @@ import {
 } from "@/src/components/ui/table";
 
 type QuestionPerf = {
-  id: number;
-  text: string;
-  marks: number;
-  correctPct: number;
+  id: number
+  text: string
+  marks: number
+  correctPct: number
 };
 
-const data: QuestionPerf[] = [
+const questions: QuestionPerf[] = [
   {
     id: 1,
     text: "What decimal number is equivalent to binary 1110112?",
@@ -57,9 +60,9 @@ const data: QuestionPerf[] = [
 ];
 
 const columns: ColumnDef<QuestionPerf>[] = [
-  { accessorKey: "id", header: "#" },
-  { accessorKey: "text", header: "Question" },
-  { accessorKey: "marks", header: "Marks" },
+  { accessorKey: "id",         header: "#"               },
+  { accessorKey: "text",       header: "Question"        },
+  { accessorKey: "marks",      header: "Marks"           },
   {
     accessorKey: "correctPct",
     header: "% Correct",
@@ -68,43 +71,101 @@ const columns: ColumnDef<QuestionPerf>[] = [
 ];
 
 export function QuestionPerformanceTab() {
+  // track which question row is clicked
+  const [selectedId, setSelectedId] = React.useState<string | null>(null)
+  // filter by text
+  const [columnFilters, setColumnFilters] = React.useState([])
+
   const table = useReactTable({
-    data,
+    data: questions,
     columns,
+    state: { columnFilters },
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-  });
+    getFilteredRowModel: getFilteredRowModel(),
+  })
+
+  // find the selected question
+  const selectedQuestion = selectedId
+    ? table
+        .getRowModel()
+        .rows.find((r) => r.id === selectedId)?.original
+    : null
 
   return (
-    <div className="rounded-xl border border-[#27272A] overflow-auto">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((hg) => (
-            <TableRow key={hg.id} className="border-b border-[#27272A]">
-              {hg.headers.map((h) => (
-                <TableHead key={h.id} className="text-white">
-                  {h.isPlaceholder
-                    ? null
-                    : flexRender(h.column.columnDef.header, h.getContext())}
-                </TableHead>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Left: search + question list */}
+      <div className="space-y-4">
+        <Input
+          placeholder="Search by question…"
+          value={(table.getColumn("text")?.getFilterValue() as string) ?? ""}
+          onChange={(e) =>
+            table.getColumn("text")?.setFilterValue(e.target.value)
+          }
+          className="w-full border border-[#27272A] focus:border-[#27272A]"
+        />
+
+        <div className="rounded-xl border border-[#27272A] overflow-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id} className="border-b border-[#27272A]">
+                  {hg.headers.map((h) => (
+                    <TableHead key={h.id} className="text-white">
+                      {h.isPlaceholder
+                        ? null
+                        : flexRender(h.column.columnDef.header, h.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              className="border-b border-[#27272A] hover:bg-gray-800 cursor-pointer"
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => {
+                const isSel = row.id === selectedId
+                return (
+                  <TableRow
+                    key={row.id}
+                    onClick={() => setSelectedId(row.id)}
+                    className={`
+                      border-b border-[#27272A] cursor-pointer
+                      ${isSel ? "bg-[#27272A] text-white" : "hover:bg-gray-800"}
+                    `}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Right: detail pane */}
+      <div className="rounded-xl border border-[#27272A] p-4 min-h-[200px] overflow-auto">
+        {selectedQuestion ? (
+          <div className="text-white">
+            {/* Replace with whatever detailed UI you need */}
+            <h4 className="font-semibold mb-2">
+              Q{selectedQuestion.id} details
+            </h4>
+            <p>Question: {selectedQuestion.text}</p>
+            <p>Marks: {selectedQuestion.marks}</p>
+            <p>Correct %: {selectedQuestion.correctPct}%</p>
+          </div>
+        ) : (
+          <div className="text-gray-400">
+            Select a question to view details
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }
