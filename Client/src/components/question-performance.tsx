@@ -36,43 +36,91 @@ type QuestionPerf = {
   marks: number;
   correctPct: number;
   answerCounts: { A: number; B: number; C: number; D: number; E: number };
+  answerOptions: {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+    E: string;
+  };
+  correctOption: keyof QuestionPerf["answerOptions"];
 };
 
 const questions: QuestionPerf[] = [
   {
     id: 1,
-    text: "What decimal number is equivalent to the binary number 1110112?",
+    text: "What decimal number is equivalent to the binary number 111011₂?",
     marks: 2,
     correctPct: 45,
     answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
+    answerOptions: {
+      A: "58",
+      B: "59",
+      C: "61",
+      D: "57",
+      E: "60",
+    },
+    correctOption: "B",
   },
   {
     id: 2,
     text: "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
     marks: 3,
     correctPct: 53,
-    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
+    answerCounts: { A: 8, B: 24, C: 32, D: 12, E: 16 },
+    answerOptions: {
+      A: "8 bytes",
+      B: "24 bytes",
+      C: "32 bytes",
+      D: "12 bytes",
+      E: "16 bytes",
+    },
+    correctOption: "B",
   },
   {
     id: 3,
     text: "What is the ASCII code for the word 'READ'?",
     marks: 1,
     correctPct: 61,
-    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
+    answerCounts: { A: 52616, B: 52546, C: 52645, D: 52555, E: 52655 },
+    answerOptions: {
+      A: "82 69 65 68",
+      B: "82 65 69 68",
+      C: "68 65 69 82",
+      D: "69 82 65 68",
+      E: "65 82 69 68",
+    },
+    correctOption: "A",
   },
   {
     id: 4,
     text: "Which of the following prefixes is the largest?",
     marks: 2,
     correctPct: 71,
-    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
+    answerCounts: { A: 15, B: 10, C: 30, D: 25, E: 20 },
+    answerOptions: {
+      A: "kilo- (10³)",
+      B: "mega- (10⁶)",
+      C: "giga- (10⁹)",
+      D: "tera- (10¹²)",
+      E: "peta- (10¹⁵)",
+    },
+    correctOption: "E",
   },
   {
     id: 5,
     text: "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
     marks: 1,
     correctPct: 74,
-    answerCounts: { A: 12, B: 37, C: 18, D: 23, E: 10 },
+    answerCounts: { A: 40, B: 10, C: 5, D: 3, E: 2 },
+    answerOptions: {
+      A: "Shareware",
+      B: "Freeware",
+      C: "Open source",
+      D: "adware",
+      E: "public domain",
+    },
+    correctOption: "A",
   },
 ];
 
@@ -138,14 +186,23 @@ export function QuestionPerformanceTab() {
       ]
     : [];
 
-  const PIE_COLORS = ["#D9F99D", "#BEF264", "#A3E635", "#84CC16", "#65A30D"];
+  const RED_SHADES = [
+    "#EF4444", 
+    "#DC2626", 
+    "#B91C1C", 
+    "#991B1B", 
+    "#7F1D1D", 
+  ];
 
   const pieData = selectedQuestion
     ? Object.entries(selectedQuestion.answerCounts).map(
         ([option, count], idx) => ({
           name: option,
           value: count,
-          fill: PIE_COLORS[idx],
+          fill:
+            option === selectedQuestion.correctOption
+              ? "#10B981" 
+              : RED_SHADES[idx], 
         }),
       )
     : [];
@@ -230,6 +287,22 @@ export function QuestionPerformanceTab() {
                 <span className="font-medium">Percentage Correct:</span>{" "}
                 {selectedQuestion.correctPct}%
               </p>
+            </div>
+
+            <div className="space-y-1">
+              {(["A", "B", "C", "D", "E"] as const).map((opt) => (
+                <p
+                  key={opt}
+                  className={
+                    opt === selectedQuestion.correctOption
+                      ? "font-semibold text-green-400"
+                      : ""
+                  }
+                >
+                  <span className="font-medium">{opt}.</span>{" "}
+                  {selectedQuestion.answerOptions[opt]}
+                </p>
+              ))}
             </div>
 
             <div className="rounded-xl border border-[#27272A] bg-black p-4">
