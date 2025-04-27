@@ -233,57 +233,68 @@ export function QuestionPerformanceTab() {
             </div>
 
             <div className="rounded-xl border border-[#27272A] bg-black p-4">
-              <h5 className="text-white font-medium mb-4">
+              <h5 className="text-white font-medium mb-4 flex justify-center">
                 Correct vs Incorrect
               </h5>
 
-              <RadialBarChart
-                width={250}
-                height={150}
-                data={radialData}
-                startAngle={180}
-                endAngle={0}
-                innerRadius={60}
-                outerRadius={100}
-              >
-                <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-                  <Label
-                    content={({ viewBox }) =>
-                      viewBox && "cx" in viewBox && "cy" in viewBox ? (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
-                          <tspan
+              <div className="flex justify-center">
+                <RadialBarChart
+                  width={250}
+                  height={150}
+                  data={radialData}
+                  startAngle={180}
+                  endAngle={0}
+                  innerRadius={60}
+                  outerRadius={100}
+                  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                >
+                  <PolarRadiusAxis
+                    tick={false}
+                    tickLine={false}
+                    axisLine={false}
+                  >
+                    <Label
+                      content={({ viewBox }) =>
+                        viewBox?.cx != null && viewBox?.cy != null ? (
+                          <text
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) - 8}
-                            className="fill-white text-2xl font-bold"
+                            y={viewBox.cy}
+                            textAnchor="middle"
                           >
-                            {selectedQuestion.correctPct}%
-                          </tspan>
-                        </text>
-                      ) : null
-                    }
-                  />
-                </PolarRadiusAxis>
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy - 8}
+                              className="fill-white text-2xl font-bold"
+                            >
+                              {selectedQuestion.correctPct}%
+                            </tspan>
+                          </text>
+                        ) : null
+                      }
+                    />
+                  </PolarRadiusAxis>
 
-                <RadialBar
-                  dataKey="correct"
-                  stackId="a"
-                  cornerRadius={5}
-                  fill="#10B981"
-                  className="stroke-transparent stroke-2"
-                  clockWise={false}
-                />
-                <RadialBar
-                  dataKey="incorrect"
-                  stackId="a"
-                  cornerRadius={5}
-                  fill="#EF4444"
-                  className="stroke-transparent stroke-2"
-                  clockWise={false}
-                />
-              </RadialBarChart>
+                  <RadialBar
+                    dataKey="correct"
+                    stackId="a"
+                    cornerRadius={5}
+                    fill="#10B981"
+                    clockWise={false}
+                    className="stroke-transparent stroke-2"
+                  />
+                  <RadialBar
+                    dataKey="incorrect"
+                    stackId="a"
+                    cornerRadius={5}
+                    fill="#EF4444"
+                    clockWise={false}
+                    className="stroke-transparent stroke-2"
+                  />
+                </RadialBarChart>
+              </div>
             </div>
             <div className="rounded-xl border border-[#27272A] bg-black p-6">
-              <h5 className="text-white font-medium mb-4">
+              <h5 className="text-white font-medium mb-4 flex justify-center">
                 Answer Distribution
               </h5>
               <ChartContainer
