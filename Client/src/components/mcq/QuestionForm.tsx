@@ -1,7 +1,7 @@
 "use client";
 import Tiptap from "@/src/components/ui/tiptap";
 import { Button } from "@/src/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
   questionEditor: any;
@@ -15,6 +15,8 @@ interface Props {
   adjustMarks: (amount: number) => void;
   optionCount: number;
   setOptionCount: (count: number) => void;
+  optionIds: string[];
+  setOptionIds: (fn: (prev: string[]) => string[]) => void;
 }
 
 export default function QuestionForm({
@@ -29,15 +31,37 @@ export default function QuestionForm({
   marks,
   adjustMarks,
   optionCount,
+  optionIds,
+  setOptionIds,
 }: Props) {
   const [validationErrors, setValidationErrors] = useState({
     question: false,
     options: Array(optionCount).fill(false),
   });
 
+  const generateOptionId = () =>
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  useEffect(() => {
+    if (optionEditors.length !== optionIds.length) {
+      const newIds = optionEditors.map((_, i) =>
+        i < optionIds.length ? optionIds[i] : generateOptionId(),
+      );
+      setOptionIds(newIds);
+    }
+  }, [optionEditors.length]);
+
+  useEffect(() => {
+    setValidationErrors({
+      question: false,
+      options: Array(optionEditors.length).fill(false),
+    });
+  }, [currentQuestionId]);
+
   const handleDeleteOption = (index: number) => {
     setOptionEditors((prev) => prev.filter((_, i) => i !== index));
-    setOptionCount(optionCount - 1);
+    setOptionIds((prev) => prev.filter((_, i) => i !== index));
+    setOptionCount((prev) => prev - 1);
     setValidationErrors((prev) => ({
       ...prev,
       options: prev.options.filter((_, i) => i !== index),
@@ -48,21 +72,20 @@ export default function QuestionForm({
     let isValid = true;
     const newErrors = {
       question: false,
-      options: Array(optionCount).fill(false),
+      options: Array(optionEditors.length).fill(false),
     };
 
-    if (!questionEditor || !questionEditor.getText().trim()) {
+    if (!questionEditor?.getText()?.trim()) {
       newErrors.question = true;
       isValid = false;
     }
 
-    for (let i = 0; i < optionEditors.length; i++) {
-      const editor = optionEditors[i];
-      if (!editor || !editor.getText().trim()) {
+    optionEditors.forEach((editor, i) => {
+      if (!editor?.getText()?.trim()) {
         newErrors.options[i] = true;
         isValid = false;
       }
-    }
+    });
 
     setValidationErrors(newErrors);
     return isValid;
@@ -72,6 +95,11 @@ export default function QuestionForm({
     if (validateContent()) {
       handleAddOrUpdate();
     }
+  };
+
+  const handleCancel = () => {
+    setValidationErrors({ question: false, options: [] });
+    cancelEdit();
   };
 
   return (
@@ -111,7 +139,7 @@ export default function QuestionForm({
             {currentQuestionId ? "update" : "add question"}
           </Button>
           {currentQuestionId && (
-            <Button variant="secondary" onClick={cancelEdit}>
+            <Button variant="secondary" onClick={handleCancel}>
               cancel
             </Button>
           )}
@@ -121,13 +149,13 @@ export default function QuestionForm({
       <div className="ml-6 mr-4">
         <div className="flex items-center gap-2 mb-4">
           <div
-            className={`flex-1 w-full mr-30 ${validationErrors.question ? " rounded-md [&_.tiptap]:focus:outline-none" : ""}`}
+            className={`flex-1 w-full mr-30 ${validationErrors.question ? "border-red-500 border-2 rounded" : ""}`}
           >
             <Tiptap
+              key={`question-${currentQuestionId || "new"}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
-              error={validationErrors.question}
             />
           </div>
         </div>
@@ -135,67 +163,62 @@ export default function QuestionForm({
         <div className="mt-8 w-full">
           <h2 className="text-lg font-semibold mb-4">Options</h2>
           <div className="flex flex-col gap-4">
-            {Array.from({ length: optionCount }).map((_, i) => (
-              <div
-                key={`${currentQuestionId || "new"}-${i}`}
-                className="flex items-center gap-2 mr-30"
-              >
-                <span className="font-medium w-8">
-                  {String.fromCharCode(65 + i)})
-                </span>
-                <div
-                  className={`flex-1 w-full relative ${validationErrors.options[i] ? "ring-2 ring-red-500 rounded-md [&_.tiptap]:focus:outline-none" : ""}`}
-                >
-                  <Tiptap
-                    key={`${currentQuestionId || "new"}-${i}`}
-                    setEditor={(editor) => {
-                      setOptionEditors((prev) => {
-                        const updated = [...prev];
-                        updated[i] = editor;
-                        return updated;
-                      });
-                      if (editor?.getText().trim()) {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          options: prev.options.map((err, idx) =>
-                            idx === i ? false : err,
-                          ),
-                        }));
-                      }
-                    }}
-                    error={validationErrors.options[i]}
-                  />
-                  <button
-                    onClick={() => handleDeleteOption(i)}
-                    className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
-                    disabled={optionCount <= 2}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 14 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="text-gray-400 hover:text-white transition-colors"
+            {optionEditors.map((editor, i) => {
+              const optionId = optionIds[i] || generateOptionId();
+              return (
+                <div key={optionId} className="flex items-center gap-2 mr-30">
+                  <span className="font-medium w-8">
+                    {String.fromCharCode(65 + i)})
+                  </span>
+                  <div className="flex-1 w-full relative">
+                    <div
+                      className={`${validationErrors.options[i] ? "border-red-500 border-2 rounded" : ""}`}
                     >
-                      <path
-                        d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                      <Tiptap
+                        key={optionId}
+                        setEditor={(editor) => {
+                          setOptionEditors((prev) => {
+                            const updated = [...prev];
+                            updated[i] = editor;
+                            return updated;
+                          });
+                        }}
                       />
-                    </svg>
-                  </button>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteOption(i)}
+                      className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
+                      disabled={optionCount <= 2}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 14 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-gray-400 hover:text-white transition-colors"
+                      >
+                        <path
+                          d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <div>
               <Button
                 variant="secondary"
                 className="ml-10"
                 onClick={() => {
-                  setOptionCount(optionCount + 1);
-                  setOptionEditors([...optionEditors, null]);
+                  const newId = generateOptionId();
+                  setOptionCount((prev) => prev + 1);
+                  setOptionEditors((prev) => [...prev, null]);
+                  setOptionIds((prev) => [...prev, newId]);
                   setValidationErrors((prev) => ({
                     ...prev,
                     options: [...prev.options, false],

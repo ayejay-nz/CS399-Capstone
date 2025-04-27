@@ -24,7 +24,6 @@ const Tiptap = ({
   content = "",
   allowImageUpload = false,
   isQuestionEditor = false,
-  error = false,
 }) => {
   const editor = useEditor({
     extensions: [
@@ -227,11 +226,7 @@ const Tiptap = ({
       )}
 
       <div
-        className={`flex-1 rounded-md ${
-          error
-            ? "ring-2 ring-red-500 [&_.tiptap]:border-none"
-            : "border border-gray-700"
-        }`}
+        className="flex-1 rounded-md border border-gray-700"
         style={{
           minHeight: isQuestionEditor ? "75px" : "40px",
         }}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 export function useMcq() {
+  const [optionIds, setOptionIds] = useState<string[]>([]);
   const [questionEditor, setQuestionEditor] = useState(null);
   const [optionCount, setOptionCount] = useState(5);
   const [optionEditors, setOptionEditors] = useState([
@@ -30,9 +31,8 @@ export function useMcq() {
   };
   const handleAddOrUpdateQuestion = () => {
     const content = questionEditor.getHTML();
-    const options = optionEditors
-      .slice(0, optionCount)
-      .map((editor) => editor?.getHTML() || "");
+    const options = optionEditors.map((editor) => editor?.getHTML() || "");
+    const optionIds = optionEditors.map((_, i) => generateOptionId());
     const displayText = extractTextFromHTML(content) || "Question";
     if (currentQuestionId !== null) {
       setQuestions((prev) =>
@@ -48,7 +48,9 @@ export function useMcq() {
         { id: Date.now(), content, options, marks, displayText },
       ]);
     }
-
+    {
+      id: Date.now(), content, options, marks, displayText, optionIds;
+    }
     questionEditor.commands.setContent("");
     optionEditors.forEach((editor) => editor.commands.setContent(""));
     setCurrentQuestionId(null);
@@ -60,7 +62,10 @@ export function useMcq() {
     setOptionCount(q.options.length);
     setOptionEditors(Array(q.options.length).fill(null));
     setMarks(q.marks || 1);
+    setOptionIds(q.options.map((_: any, i: number) => `${q.id}-${i}`));
   };
+  const generateOptionId = () =>
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   useEffect(() => {
     if (
       editingQuestion &&
@@ -158,5 +163,7 @@ export function useMcq() {
     simulateProcessQuestions,
     optionCount,
     setOptionCount,
+    optionIds,
+    setOptionIds,
   };
 }
