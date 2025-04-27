@@ -76,7 +76,7 @@ export default function QuestionForm({
 
   return (
     <div
-      className="flex-1 rounded-lg p-6 pr-10"
+      className="flex-1 p-6 pr-10"
       style={{ backgroundColor: "oklch(23% 0 0)" }}
     >
       <div className="flex justify-between items-center mb-4">
@@ -121,15 +121,13 @@ export default function QuestionForm({
       <div className="ml-6 mr-4">
         <div className="flex items-center gap-2 mb-4">
           <div
-            className={`flex-1 w-full mr-30 ${validationErrors.question ? "outline outline-2 outline-red-500 rounded-md [&_.tiptap]:focus:outline-none" : ""}`}
+            className={`flex-1 w-full mr-30 ${validationErrors.question ? " rounded-md [&_.tiptap]:focus:outline-none" : ""}`}
           >
             <Tiptap
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
-              className={
-                validationErrors.question ? "[&_.tiptap]:border-none" : ""
-              }
+              error={validationErrors.question}
             />
           </div>
         </div>
@@ -146,7 +144,7 @@ export default function QuestionForm({
                   {String.fromCharCode(65 + i)})
                 </span>
                 <div
-                  className={`flex-1 w-full ${i === 0 && !validationErrors.options[i] ? "border-2 border-white" : ""} ${validationErrors.options[i] ? "outline outline-2 outline-red-500 rounded-md [&_.tiptap]:border-none [&_.tiptap]:focus:outline-none" : ""}`}
+                  className={`flex-1 w-full ${validationErrors.options[i] ? "ring-2 ring-red-500 rounded-md [&_.tiptap]:focus:outline-none" : ""}`}
                 >
                   <Tiptap
                     key={`${currentQuestionId || "new"}-${i}`}
@@ -165,17 +163,29 @@ export default function QuestionForm({
                         }));
                       }
                     }}
+                    error={validationErrors.options[i]}
                   />
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
+                <button
                   onClick={() => handleDeleteOption(i)}
                   className="ml-2"
-                  disabled={optionCount <= 1}
+                  disabled={optionCount <= 2}
                 >
-                  Delete
-                </Button>
+                  <svg
+                    width="14"
+                    height="16"
+                    viewBox="0 0 14 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                      stroke="white"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
               </div>
             ))}
             <div>
@@ -192,7 +202,7 @@ export default function QuestionForm({
                 }}
                 disabled={optionCount >= 5}
               >
-                Add Option
+                + Add Option
               </Button>
             </div>
           </div>
