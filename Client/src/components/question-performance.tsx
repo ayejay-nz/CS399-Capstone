@@ -77,13 +77,38 @@ const questions: QuestionPerf[] = [
 ];
 
 const columns: ColumnDef<QuestionPerf>[] = [
-  { accessorKey: "id", header: "#" },
-  { accessorKey: "text", header: "Question" },
-  { accessorKey: "marks", header: "Marks" },
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ getValue }) => (
+      <div className="w-8 text-center">{getValue<number>()}</div>
+    ),
+  },
+  {
+    accessorKey: "text",
+    header: "Question",
+    cell: ({ getValue }) => {
+      const txt = getValue<string>();
+      return (
+        <div className="truncate max-w-[400px]" title={txt}>
+          {txt}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "marks",
+    header: "Marks",
+    cell: ({ getValue }) => (
+      <div className="w-12 text-center">{getValue<number>()}</div>
+    ),
+  },
   {
     accessorKey: "correctPct",
     header: "% Correct",
-    cell: ({ getValue }) => `${getValue<number>()}%`,
+    cell: ({ getValue }) => (
+      <div className="w-16 text-center">{getValue<number>()}%</div>
+    ),
   },
 ];
 
@@ -138,16 +163,23 @@ export function QuestionPerformanceTab() {
         />
 
         <div className="rounded-xl border border-[#27272A] overflow-auto">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader>
               {table.getHeaderGroups().map((hg) => (
                 <TableRow key={hg.id} className="border-b border-[#27272A]">
-                  {hg.headers.map((h) => (
-                    <TableHead key={h.id} className="text-white">
-                      {!h.isPlaceholder &&
-                        flexRender(h.column.columnDef.header, h.getContext())}
-                    </TableHead>
-                  ))}
+                  {hg.headers.map((h) => {
+                    const id = h.column.id;
+                    let extra = "";
+                    if (id === "id") extra = "w-12";
+                    if (id === "marks") extra = "w-20";
+                    if (id === "correctPct") extra = "w-25";
+                    return (
+                      <TableHead key={h.id} className={`text-white ${extra}`}>
+                        {!h.isPlaceholder &&
+                          flexRender(h.column.columnDef.header, h.getContext())}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>

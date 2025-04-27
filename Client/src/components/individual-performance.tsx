@@ -64,7 +64,7 @@ const students: Student[] = [
     version: 1,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "C", feedback: "Good job!" },
       { question: "3", marks: 0, option: "D", feedback: "Incorrect" },
     ],
@@ -110,7 +110,7 @@ const students: Student[] = [
     answers: [
       { question: "1", marks: 0, option: "D", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "C", feedback: "Good job!" },
-      { question: "3", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "3", marks: 0, option: "A", feedback: "Incorrect" },
     ],
   },
   {
@@ -141,7 +141,7 @@ const students: Student[] = [
     version: 4,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "D", feedback: "Good job!" },
       { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
     ],
@@ -152,7 +152,7 @@ const students: Student[] = [
     version: 4,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "D", feedback: "Good job!" },
       { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
     ],
@@ -163,7 +163,7 @@ const students: Student[] = [
     version: 4,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "D", feedback: "Good job!" },
       { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
     ],
@@ -174,7 +174,7 @@ const students: Student[] = [
     version: 4,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "D", feedback: "Good job!" },
       { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
     ],
@@ -185,7 +185,7 @@ const students: Student[] = [
     version: 4,
     total: 1,
     answers: [
-      { question: "1", marks: 0, option: "A", feedback: "Needs improvement" },
+      { question: "1", marks: 0, option: "A", feedback: "Incorrect" },
       { question: "2", marks: 1, option: "D", feedback: "Good job!" },
       { question: "3", marks: 0, option: "C", feedback: "Incorrect" },
     ],
@@ -217,7 +217,7 @@ export function IndividualPerformanceTab() {
     data: students,
     columns: studentColumns,
     state: {
-      rowSelection: React.useState<RowSelectionState>({})[0], // we don't need checkboxes now
+      rowSelection: React.useState<RowSelectionState>({})[0],
       columnFilters,
     },
     onColumnFiltersChange: setColumnFilters,
