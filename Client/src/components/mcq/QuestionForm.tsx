@@ -102,7 +102,7 @@ export default function QuestionForm({
   };
 
   return (
-    <div className="flex-1 p-6 pr-10" style={{ backgroundColor: "oklch(23% 0 0)" }}>
+    <div className="flex-1 p-6 pr-10 rounded-md" style={{ backgroundColor: "oklch(23% 0 0)" }}>
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Questions</h1>
         <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function QuestionForm({
       </div>
 
       <div className="ml-6 mr-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
               key={`question-${currentQuestionId || 'new'}`}
@@ -155,16 +155,18 @@ export default function QuestionForm({
           </div>
         </div>
 
-        <div className="mt-8 w-full">
+        <div className="mt-6 w-full">
           <h2 className="text-lg font-semibold mb-4">Options</h2>
           <div className="flex flex-col gap-4">
             {optionEditors.map((editor, i) => {
               const optionId = optionIds[i] || generateOptionId();
               return (
                 <div key={optionId} className="flex items-center gap-2 mr-30">
-                  <span className="font-medium w-8">
-                    {String.fromCharCode(65 + i)})
-                  </span>
+                  <input 
+                    type="checkbox" 
+                    className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
+                    readOnly
+                  />
                   <div className="flex-1 w-full relative">
                     <Tiptap
                       key={optionId}

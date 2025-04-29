@@ -46,7 +46,7 @@ async function handlePreview(questions: Question[]) {
       };
     }),
   };
-
+  console.log(payload)
   try {
     const res = await fetch("{localhost}/api/{}", {
       method: "POST",
