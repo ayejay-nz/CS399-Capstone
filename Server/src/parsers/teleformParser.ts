@@ -1,10 +1,26 @@
-import { StudentTeleformData } from "../dataTypes/teleformData";
+import { StudentTeleformData, TeleformData } from "../dataTypes/teleformData";
 
-// Parses raw teleform text data into an array of StudentTeleformData.
-
-export function parseTeleformData(rawText: string): StudentTeleformData[] {
-  const lines = rawText.split(/\r?\n/);
-  const students: StudentTeleformData[] = [];
+/**
+ * Parses raw teleform text data into a TeleformData object.
+ *
+ * Teleform Field layout:
+ *  - AUID           : chars (11 chars)
+ *  - Last Name      : chars
+ *  - First Name     : chars
+ *  - Course+Version : chars (11 chars: first 3 = course number, last 1 = version number)
+ *  - Answers        : chars 2 digits per answer
+ *    - 01 = A
+ *    - 02 = B
+ *    - 04 = C
+ *    - 08 = D
+ *    - 16 = E
+ *
+ * @param fileContent Raw text content of the Teleform txt file
+ * @returns TeleformData containing studentAnswers
+ */
+export function parseTeleformData(fileContent: string): TeleformData {
+  const lines = fileContent.split(/\r?\n/);
+  const studentAnswers: StudentTeleformData[] = [];
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -42,7 +58,7 @@ export function parseTeleformData(rawText: string): StudentTeleformData[] {
       answers.push(isNaN(n) ? 0 : n);
     }
 
-    students.push({
+    studentAnswers.push({
       auid,
       lastName,
       firstName,
@@ -52,5 +68,5 @@ export function parseTeleformData(rawText: string): StudentTeleformData[] {
     });
   }
 
-  return students;
+  return { studentAnswers };
 }
