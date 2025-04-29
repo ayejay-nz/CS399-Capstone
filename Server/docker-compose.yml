@@ -11,4 +11,5 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=8000
+      - API_PREFIX=/api/v1
     command: npm run dev
