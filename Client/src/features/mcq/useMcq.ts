@@ -19,6 +19,7 @@ export function useMcq() {
   const [activeButton, setActiveButton] = useState<"form" | "text">("form");
   const [marks, setMarks] = useState(1);
   const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
+  const [version, setVersion] = useState(0);
   const extractTextFromHTML = (html) => {
     if (!html) return "";
     const temp = document.createElement("div");
@@ -63,6 +64,7 @@ export function useMcq() {
     setOptionEditors(Array(q.options.length).fill(null));
     setMarks(q.marks || 1);
     setOptionIds(q.options.map((_: any, i: number) => `${q.id}-${i}`));
+    setVersion(prev => prev + 1);
   };
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -165,5 +167,6 @@ export function useMcq() {
     setOptionCount,
     optionIds,
     setOptionIds,
+    version,
   };
 }

@@ -17,6 +17,7 @@ interface Props {
   setOptionCount: (count: number) => void;
   optionIds: string[];
   setOptionIds: (fn: (prev: string[]) => string[]) => void;
+  version: number;
 }
 
 export default function QuestionForm({
@@ -33,18 +34,20 @@ export default function QuestionForm({
   optionCount,
   optionIds,
   setOptionIds,
+  version,
 }: Props) {
   const [validationErrors, setValidationErrors] = useState({
     question: false,
     options: Array(optionCount).fill(false),
   });
 
-  const generateOptionId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const generateOptionId = () =>
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   useEffect(() => {
     if (optionIds.length !== optionEditors.length) {
-      const newIds = optionEditors.map((_, i) => 
-        i < optionIds.length ? optionIds[i] : generateOptionId()
+      const newIds = optionEditors.map((_, i) =>
+        i < optionIds.length ? optionIds[i] : generateOptionId(),
       );
       setOptionIds(newIds);
     }
@@ -58,10 +61,10 @@ export default function QuestionForm({
   }, [currentQuestionId]);
 
   const handleDeleteOption = (index: number) => {
-    setOptionEditors(prev => prev.filter((_, i) => i !== index));
-    setOptionIds(prev => prev.filter((_, i) => i !== index));
-    setOptionCount(prev => prev - 1);
-    setValidationErrors(prev => ({
+    setOptionEditors((prev) => prev.filter((_, i) => i !== index));
+    setOptionIds((prev) => prev.filter((_, i) => i !== index));
+    setOptionCount((prev) => prev - 1);
+    setValidationErrors((prev) => ({
       ...prev,
       options: prev.options.filter((_, i) => i !== index),
     }));
@@ -102,7 +105,10 @@ export default function QuestionForm({
   };
 
   return (
-    <div className="flex-1 p-6 pr-10 rounded-md" style={{ backgroundColor: "oklch(23% 0 0)" }}>
+    <div
+      className="flex-1 p-6 pr-10 rounded-md"
+      style={{ backgroundColor: "oklch(23% 0 0)" }}
+    >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Questions</h1>
         <div className="flex items-center gap-2">
@@ -146,7 +152,7 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId || 'new'}`}
+              key={`question-${currentQuestionId}-${version}`} // CHANGED
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
@@ -161,17 +167,22 @@ export default function QuestionForm({
             {optionEditors.map((editor, i) => {
               const optionId = optionIds[i] || generateOptionId();
               return (
-                <div key={optionId} className="flex items-center gap-2 mr-30">
-                  <input 
-                    type="checkbox" 
+                <div
+                  key={`${optionId}-${version}`}
+                  className="flex items-center gap-2 mr-30"
+                >
+                  {" "}
+                  {/* CHANGED */}
+                  <input
+                    type="checkbox"
                     className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
                     readOnly
                   />
                   <div className="flex-1 w-full relative">
                     <Tiptap
-                      key={optionId}
+                      key={`${optionId}-${version}`} // CHANGED
                       setEditor={(editor) => {
-                        setOptionEditors(prev => {
+                        setOptionEditors((prev) => {
                           const updated = [...prev];
                           updated[i] = editor;
                           return updated;
@@ -210,10 +221,10 @@ export default function QuestionForm({
                 className="ml-10"
                 onClick={() => {
                   const newId = generateOptionId();
-                  setOptionCount(prev => prev + 1);
-                  setOptionEditors(prev => [...prev, null]);
-                  setOptionIds(prev => [...prev, newId]);
-                  setValidationErrors(prev => ({
+                  setOptionCount((prev) => prev + 1);
+                  setOptionEditors((prev) => [...prev, null]);
+                  setOptionIds((prev) => [...prev, newId]);
+                  setValidationErrors((prev) => ({
                     ...prev,
                     options: [...prev.options, false],
                   }));
