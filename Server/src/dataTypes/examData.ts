@@ -1,12 +1,12 @@
 type BrandType<K, T> = K & { __type: T };
-type ImageURI = BrandType<{ imageUri: string }, "ImageURI">;
-type TableURI = BrandType<{ tableUri: string }, "TableURI">;
-type QuestionText = BrandType<{ questionText: string }, "QuestionText">;
-type SectionText = BrandType<{ sectionText: string }, "SectionText">;
+type ImageURI = BrandType<{ imageUri: string }, 'ImageURI'>;
+type TableURI = BrandType<{ tableUri: string }, 'TableURI'>;
+type QuestionText = BrandType<{ questionText: string }, 'QuestionText'>;
+type SectionText = BrandType<{ sectionText: string }, 'SectionText'>;
 
 export const FeedbackDefaults: Feedback = {
-    correctFeedback: "Correct",
-    incorrectFeedback: "Incorrect",
+    correctFeedback: 'Correct',
+    incorrectFeedback: 'Incorrect',
 };
 
 export interface Feedback {

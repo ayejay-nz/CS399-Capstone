@@ -33,7 +33,7 @@ describe('errorHandler middleware', () => {
             return res;
         });
         return res;
-    }
+    };
 
     afterEach(() => {
         jest.clearAllMocks();
@@ -142,7 +142,7 @@ describe('errorHandler middleware', () => {
             errorHandler(error, mockRequest as Request, mockResponse as Response, mockNext);
 
             expect(responseStatus).toBe(HTTP_STATUS_CODE.SERVER_ERROR);
-            expect(responseJson).toEqual({                
+            expect(responseJson).toEqual({
                 status: HTTP_STATUS_CODE.SERVER_ERROR,
                 message: API_ERROR_MESSAGE.serverError,
                 errorCode: API_ERROR_CODE.SERVER_ERROR,
@@ -200,7 +200,7 @@ describe('errorHandler middleware', () => {
                 status: HTTP_STATUS_CODE.BAD_REQUEST,
                 message: API_ERROR_MESSAGE.badRequest,
                 errorCode: API_ERROR_CODE.BAD_REQUEST,
-                details: details,  // details included in prod as exposeDetails is true
+                details: details, // details included in prod as exposeDetails is true
                 exposeDetails: undefined, // exposeDetails hidden in prod
                 stack: undefined, // stack hidden in prod
             });

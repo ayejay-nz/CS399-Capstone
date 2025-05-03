@@ -15,14 +15,14 @@ interface Config {
         port: number;
         nodeEnv: string;
         apiPrefix: string;
-    },
+    };
     upload: {
         maxExamSourceFileSize: number;
         maxCoverPageFileSize: number;
         maxTeleformDataFileSize: number;
         maxAnswerKeyFileSize: number;
         maxAssetFileSize: number;
-    }
+    };
 }
 
 const config: Config = {

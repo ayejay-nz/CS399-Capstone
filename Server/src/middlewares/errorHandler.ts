@@ -9,7 +9,7 @@ const errorHandler = (
     error: Error | ApiError | MulterError,
     req: Request,
     res: Response,
-    _next: NextFunction
+    _next: NextFunction,
 ) => {
     const isDev = config.server.nodeEnv === 'development';
 
@@ -24,28 +24,26 @@ const errorHandler = (
         responseMessage = error.message;
         responseErrorCode = error.errorCode;
         // Show details if in development or exposeDetails is true
-        responseDetails = (
-            isDev || error.exposeDetails
-        ) ? error.details : undefined;
+        responseDetails = isDev || error.exposeDetails ? error.details : undefined;
         responseExposeDetails = error.exposeDetails;
     } else if (error instanceof MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
             responseStatus = HTTP_STATUS_CODE.CONTENT_TOO_LARGE;
             responseMessage = API_ERROR_MESSAGE.fileTooLarge;
             responseErrorCode = API_ERROR_CODE.FILE_TOO_LARGE;
-            responseDetails = { 
+            responseDetails = {
                 multerErrorCode: error.code,
                 multerErrorMessage: error.message,
-                multerErrorField: error.field
+                multerErrorField: error.field,
             };
         } else {
             responseStatus = HTTP_STATUS_CODE.BAD_REQUEST;
             responseMessage = API_ERROR_MESSAGE.badRequest;
             responseErrorCode = API_ERROR_CODE.BAD_REQUEST;
-            responseDetails = { 
+            responseDetails = {
                 multerErrorCode: error.code,
                 multerErrorMessage: error.message,
-                multerErrorField: error.field
+                multerErrorField: error.field,
             };
         }
         responseExposeDetails = false;
@@ -55,10 +53,10 @@ const errorHandler = (
         responseErrorCode = API_ERROR_CODE.SERVER_ERROR;
         // Only include Error details in development
         responseDetails = isDev
-            ? { 
-                name: error.name,
-                message: error.message 
-            } 
+            ? {
+                  name: error.name,
+                  message: error.message,
+              }
             : undefined;
         responseExposeDetails = false;
     }
