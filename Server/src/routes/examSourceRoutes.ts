@@ -1,7 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { uploadExamSourceFile } from '../middlewares/uploadMiddleware';
 import ApiError from '../utils/apiError';
-import { API_ERROR_CODE, API_ERROR_MESSAGE, API_SUCCESS_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
+import {
+    API_ERROR_CODE,
+    API_ERROR_MESSAGE,
+    API_SUCCESS_MESSAGE,
+    HTTP_STATUS_CODE,
+} from '../constants/constants';
 import path from 'path';
 import { ExamData } from '../dataTypes/examData';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
@@ -11,15 +16,15 @@ import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 const router = express.Router();
 
 router.post(
-    '/upload', 
-    uploadExamSourceFile, 
+    '/upload',
+    uploadExamSourceFile,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.file) {
                 throw new ApiError(
                     HTTP_STATUS_CODE.BAD_REQUEST,
                     API_ERROR_MESSAGE.noFileUpload,
-                    API_ERROR_CODE.NO_FILE_UPLOAD
+                    API_ERROR_CODE.NO_FILE_UPLOAD,
                 );
             }
 
@@ -48,7 +53,7 @@ router.post(
                         HTTP_STATUS_CODE.UNSUPPORTED_MEDIA_TYPE,
                         API_ERROR_MESSAGE.unsupportedFileType,
                         API_ERROR_CODE.UNSUPPORTED_FILE_TYPE,
-                        { receivedType: fileExt }
+                        { receivedType: fileExt },
                     );
             }
 
@@ -61,6 +66,7 @@ router.post(
         } catch (error) {
             next(error);
         }
-});
+    },
+);
 
 export default router;

@@ -1,4 +1,4 @@
-import { StudentTeleformData, TeleformData } from "../dataTypes/teleformData";
+import { StudentTeleformData, TeleformData } from '../dataTypes/teleformData';
 
 /**
  * Parses raw teleform text data into a TeleformData object.
@@ -7,46 +7,36 @@ import { StudentTeleformData, TeleformData } from "../dataTypes/teleformData";
  * @returns TeleformData containing studentAnswers
  */
 export function parseTeleformData(rawText: string): TeleformData {
-  const studentAnswers: StudentTeleformData[] = [];
+    const studentAnswers: StudentTeleformData[] = [];
 
-  for (const line of rawText.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
+    for (const line of rawText.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
 
-    const [
-      auid = "",
-      lastName = "",
-      firstName = "",
-      courseAndVersion = "",
-      answerString = "",
-    ] = trimmed.split(/\s+/);
+        const [auid = '', lastName = '', firstName = '', courseAndVersion = '', answerString = ''] =
+            trimmed.split(/\s+/);
 
-    if (
-      !lastName ||
-      !firstName ||
-      !courseAndVersion ||
-      answerString.length === 0
-    ) {
-      throw "Invalid lines: missing fields";
+        if (!lastName || !firstName || !courseAndVersion || answerString.length === 0) {
+            throw 'Invalid lines: missing fields';
+        }
+
+        const courseNumber = courseAndVersion.slice(0, 3);
+        const versionNumber = courseAndVersion.slice(-1);
+
+        const answers: number[] = [];
+        for (let i = 0; i + 1 < answerString.length; i += 2) {
+            answers.push(parseInt(answerString.slice(i, i + 2), 10));
+        }
+
+        studentAnswers.push({
+            auid,
+            lastName,
+            firstName,
+            courseNumber,
+            versionNumber,
+            answers,
+        });
     }
 
-    const courseNumber = courseAndVersion.slice(0, 3);
-    const versionNumber = courseAndVersion.slice(-1);
-
-    const answers: number[] = [];
-    for (let i = 0; i + 1 < answerString.length; i += 2) {
-      answers.push(parseInt(answerString.slice(i, i + 2), 10));
-    }
-
-    studentAnswers.push({
-      auid,
-      lastName,
-      firstName,
-      courseNumber,
-      versionNumber,
-      answers,
-    });
-  }
-
-  return { studentAnswers };
+    return { studentAnswers };
 }

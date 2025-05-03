@@ -1,5 +1,5 @@
-import { XMLParser } from "fast-xml-parser";
-import { ExamData } from "../dataTypes/examData";
+import { XMLParser } from 'fast-xml-parser';
+import { ExamData } from '../dataTypes/examData';
 
 /**
  * Parses a Moodle-style quiz XML
@@ -25,6 +25,6 @@ import { ExamData } from "../dataTypes/examData";
  * @returns ExamData
  */
 export function xmlParser(xml: string): ExamData {
-  const result: ExamData = { content: [] };
-  return result;
+    const result: ExamData = { content: [] };
+    return result;
 }
