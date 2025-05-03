@@ -26,11 +26,11 @@ router.post(
                 );
             }
 
-      const fileBuffer = req.file.buffer;
-      const originalFilename = req.file.originalname;
-      const fileExt = path.extname(originalFilename).toLowerCase();
+            const fileBuffer = req.file.buffer;
+            const originalFilename = req.file.originalname;
+            const fileExt = path.extname(originalFilename).toLowerCase();
 
-      let parseResult: TeleformData;
+            let parseResult: TeleformData;
 
             switch (fileExt) {
                 case '.txt':
