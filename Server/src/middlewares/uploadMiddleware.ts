@@ -13,14 +13,14 @@ function unsupportedFileTypeApiError(supportedTypes: string[]) {
         API_ERROR_MESSAGE.unsupportedFileType,
         API_ERROR_CODE.UNSUPPORTED_FILE_TYPE,
         { allowedTypes: supportedTypes },
-        true
+        true,
     );
 }
 
 const createExtensionFilter = (allowedExt: string[]) => {
     return (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
         const ext = path.extname(file.originalname).toLowerCase();
-        
+
         if (allowedExt.includes(ext)) {
             cb(null, true);
         } else {
@@ -50,7 +50,7 @@ const assetFileFilter = createMimeTypeFilter(['image/png', 'image/jpeg']);
 export const uploadExamSourceFile = multer({
     storage: memoryStorage,
     limits: { fileSize: config.upload.maxExamSourceFileSize },
-    fileFilter: examSourceFileFilter
+    fileFilter: examSourceFileFilter,
 }).single('examSourceFile');
 
 export const uploadCoverPageFile = multer({
@@ -63,7 +63,7 @@ export const uploadTeleformDataFile = multer({
     storage: memoryStorage,
     limits: { fileSize: config.upload.maxTeleformDataFileSize },
     fileFilter: teleformDataFileFilter,
-}).single('teleformDataFile'); 
+}).single('teleformDataFile');
 
 export const uploadAnswerKeyFile = multer({
     storage: memoryStorage,

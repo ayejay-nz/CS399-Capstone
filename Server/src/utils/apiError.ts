@@ -11,7 +11,7 @@ class ApiError extends Error {
         message: string = API_ERROR_MESSAGE.serverError,
         errorCode: string = API_ERROR_CODE.SERVER_ERROR,
         details?: any,
-        exposeDetails: boolean = false
+        exposeDetails: boolean = false,
     ) {
         super(message);
         this.status = status;
