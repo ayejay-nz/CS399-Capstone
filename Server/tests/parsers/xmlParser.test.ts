@@ -2,15 +2,15 @@ import { xmlParser } from '../../src/parsers/xmlParser';
 import { ExamData } from '../../src/dataTypes/examData';
 
 describe('xmlParser', () => {
-    const sampleXml = `<?xml version="1.0" encoding="UTF-8"?>
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <quiz>
-  <!-- question: 3699  -->
+  <!-- question: 3699 -->
   <question type="multichoice">
     <name><text>Second Question</text></name>
     <questiontext format="html">
       <text><![CDATA[<p>What is 3 + 3?</p>
-<p><img class="img-fluid" src="@@PLUGINFILE@@/Group%2029.png" alt="two arrows"></p>]]></text>
-      <file name="Group 29.png" path="/" encoding="base64">iVBORw0KG…</file>
+<p><img src="@@PLUGINFILE@@/img.png"></p>]]></text>
+      <file name="img.png" path="/" encoding="base64">iVBORw0KGgoAAAANSUhEUg…</file>
     </questiontext>
     <defaultgrade>1</defaultgrade>
     <correctfeedback format="html">
@@ -25,22 +25,22 @@ describe('xmlParser', () => {
   </question>
 </quiz>`;
 
-    it('parses a valid multichoice question into an ExamData object', () => {
-        const exam = xmlParser(sampleXml) as ExamData;
+    it('parses a valid multichoice into an `examData` object and places the correct answer first', () => {
+        const exam = xmlParser(xml) as ExamData;
         expect(exam.content).toHaveLength(1);
 
-        const { question: q } = (exam.content[0] as any).question;
-
+        const q = (exam.content[0] as any).question;
         expect(q.id).toBe(3699);
         expect(q.marks).toBe(1);
-        expect(q.feedback.correctFeedback).toBe('<p>Your answer is correct.</p>');
-        expect(q.feedback.incorrectFeedback).toBe('<p>Your answer is incorrect.</p>');
 
-        // correct answer always comes first
+        // correct answer should come first
         expect(q.options[0]).toBe('6');
         expect(q.options.slice(1)).toEqual(['5', '4']);
 
-        // content contains one HTML block and one image URI
+        expect(q.feedback.correctFeedback).toBe('<p>Your answer is correct.</p>');
+        expect(q.feedback.incorrectFeedback).toBe('<p>Your answer is incorrect.</p>');
+
+        // content: one HTML block, one image URI
         const htmls = q.content.filter((c: any) => 'questionText' in c);
         const imgs = q.content.filter((c: any) => 'imageUri' in c);
         expect(htmls).toHaveLength(1);
@@ -49,14 +49,14 @@ describe('xmlParser', () => {
         expect(imgs[0].imageUri).toMatch(/^data:image\/png;base64,/);
     });
 
-    it('throws if more than one answer has fraction="100"', () => {
+    it('throws if multiple answers have fraction="100"', () => {
         const xml = `
       <quiz>
         <question type="multichoice">
           <questiontext><text><![CDATA[q]]></text></questiontext>
           <defaultgrade>1</defaultgrade>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
+          <correctfeedback><text><![CDATA[x]]></text></correctfeedback>
+          <incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>
           <answer fraction="100"><text><![CDATA[A]]></text></answer>
           <answer fraction="100"><text><![CDATA[B]]></text></answer>
         </question>
@@ -70,8 +70,8 @@ describe('xmlParser', () => {
         <question type="multichoice">
           <questiontext><text><![CDATA[q]]></text></questiontext>
           <defaultgrade>1</defaultgrade>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
+          <correctfeedback><text><![CDATA[x]]></text></correctfeedback>
+          <incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>
           <answer fraction="0"><text><![CDATA[A]]></text></answer>
           <answer fraction="0"><text><![CDATA[B]]></text></answer>
         </question>
@@ -79,84 +79,102 @@ describe('xmlParser', () => {
         expect(() => xmlParser(xml)).toThrow(/no correct answer/i);
     });
 
-    it('skips questions that are not type="multichoice"', () => {
+    it('throws if there is only one <answer> element', () => {
         const xml = `
       <quiz>
-        <question type="description">
-          <questiontext><text><![CDATA[info]]></text></questiontext>
+        <question type="multichoice">
+          <questiontext><text><![CDATA[q]]></text></questiontext>
+          <defaultgrade>1</defaultgrade>
+          <correctfeedback><text><![CDATA[x]]></text></correctfeedback>
+          <incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>
+          <answer fraction="100"><text><![CDATA[Only]]></text></answer>
         </question>
-        <question type="truefalse">
-          <questiontext><text><![CDATA[yes/no]]></text></questiontext>
+      </quiz>`;
+        expect(() => xmlParser(xml)).toThrow(/at least two answers/i);
+    });
+
+    it('throws if any mandatory field is missing in a multichoice', () => {
+        const base = `
+    <quiz>
+      <question type="multichoice">
+        {{QTEXT}}
+        {{GRADE}}
+        {{CORRECTFB}}
+        {{INCORRECTFB}}
+        <answer fraction="100"><text><![CDATA[A]]></text></answer>
+        <answer fraction="0"><text><![CDATA[B]]></text></answer>
+      </question>
+    </quiz>`;
+        const fields = [
+            { key: 'QTEXT', tag: '<questiontext>', msg: /<questiontext>.*mandatory/i },
+            { key: 'GRADE', tag: '<defaultgrade>', msg: /<defaultgrade>.*mandatory/i },
+            { key: 'CORRECTFB', tag: '<correctfeedback>', msg: /<correctfeedback>.*mandatory/i },
+            {
+                key: 'INCORRECTFB',
+                tag: '<incorrectfeedback>',
+                msg: /<incorrectfeedback>.*mandatory/i,
+            },
+        ];
+
+        for (const { key, msg } of fields) {
+            const xml = base
+                .replace(
+                    '{{QTEXT}}',
+                    key === 'QTEXT'
+                        ? ''
+                        : `<questiontext><text><![CDATA[q]]></text></questiontext>`,
+                )
+                .replace('{{GRADE}}', key === 'GRADE' ? '' : `<defaultgrade>1</defaultgrade>`)
+                .replace(
+                    '{{CORRECTFB}}',
+                    key === 'CORRECTFB'
+                        ? ''
+                        : `<correctfeedback><text><![CDATA[x]]></text></correctfeedback>`,
+                )
+                .replace(
+                    '{{INCORRECTFB}}',
+                    key === 'INCORRECTFB'
+                        ? ''
+                        : `<incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>`,
+                );
+
+            expect(() => xmlParser(xml)).toThrow(msg);
+        }
+    });
+
+    it('parses a description-type question into a Section with null questionCount', () => {
+        const xml = `
+      <quiz>
+        <!-- section: 42 -->
+        <question type="description">
+          <name><text>Intro Section</text></name>
+          <questiontext format="html">
+            <text><![CDATA[<p>Welcome to the exam.</p>]]></text>
+          </questiontext>
         </question>
       </quiz>`;
         const exam = xmlParser(xml) as ExamData;
-        expect(exam.content).toHaveLength(0);
+        expect(exam.content).toHaveLength(1);
+
+        const section = (exam.content[0] as any).section;
+        expect(section.questionCount).toBeNull();
+        expect(section.content).toHaveLength(1);
+
+        const secText = section.content[0] as any;
+        expect(secText.sectionText).toContain('Welcome to the exam.');
     });
 
-    // new mandatory-fields tests
-
-    it('throws if <questiontext> is missing', () => {
+    it('skips any question types except multichoice or description', () => {
         const xml = `
       <quiz>
-        <question type="multichoice">
-          <defaultgrade>1</defaultgrade>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
-          <answer fraction="100"><text><![CDATA[A]]></text></answer>
+        <question type="truefalse">
+          <questiontext><text><![CDATA[Yes or no?]]></text></questiontext>
+        </question>
+        <question type="essay">
+          <questiontext><text><![CDATA[Write ten lines.]]></text></questiontext>
         </question>
       </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/<questiontext>.*mandatory/i);
-    });
-
-    it('throws if <defaultgrade> is missing', () => {
-        const xml = `
-      <quiz>
-        <question type="multichoice">
-          <questiontext><text><![CDATA[q]]></text></questiontext>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
-          <answer fraction="100"><text><![CDATA[A]]></text></answer>
-        </question>
-      </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/<defaultgrade>.*mandatory/i);
-    });
-
-    it('throws if <correctfeedback> is missing', () => {
-        const xml = `
-      <quiz>
-        <question type="multichoice">
-          <questiontext><text><![CDATA[q]]></text></questiontext>
-          <defaultgrade>1</defaultgrade>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
-          <answer fraction="100"><text><![CDATA[A]]></text></answer>
-        </question>
-      </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/<correctfeedback>.*mandatory/i);
-    });
-
-    it('throws if <incorrectfeedback> is missing', () => {
-        const xml = `
-      <quiz>
-        <question type="multichoice">
-          <questiontext><text><![CDATA[q]]></text></questiontext>
-          <defaultgrade>1</defaultgrade>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <answer fraction="100"><text><![CDATA[A]]></text></answer>
-        </question>
-      </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/<incorrectfeedback>.*mandatory/i);
-    });
-
-    it('throws if there are no <answer> elements at all', () => {
-        const xml = `
-      <quiz>
-        <question type="multichoice">
-          <questiontext><text><![CDATA[q]]></text></questiontext>
-          <defaultgrade>1</defaultgrade>
-          <correctfeedback><text><![CDATA[ok]]></text></correctfeedback>
-          <incorrectfeedback><text><![CDATA[no]]></text></incorrectfeedback>
-        </question>
-      </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/at least one <answer>.*mandatory/i);
+        const exam = xmlParser(xml) as ExamData;
+        expect(exam.content).toEqual([]);
     });
 });

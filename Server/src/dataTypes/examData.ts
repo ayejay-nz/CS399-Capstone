@@ -26,7 +26,7 @@ export interface Question {
 
 export interface Section {
     section: {
-        questionCount: number;
+        questionCount: number | null;
         content: (SectionText | ImageURI | TableURI)[];
     };
 }
