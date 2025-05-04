@@ -18,6 +18,8 @@ import {
   TableCell,
 } from "@/src/components/ui/table";
 import { Input } from "./ui/input";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
 
 // dummy data, replace with real fetch later
 export type Student = {
@@ -653,38 +655,76 @@ const answerColumns: ColumnDef<Answer>[] = [
 ];
 
 export function IndividualPerformanceTab() {
-  // single-row selection
-  const [selectedRowId, setSelectedRowId] = React.useState<string | null>(null);
-  // column filter state for name
-  const [columnFilters, setColumnFilters] = React.useState([]);
+  const [columnFilters, setColumnFilters] = React.useState<any[]>([]);
+  const [percentageView, setPercentageView] = React.useState(true);
+
+  const QUESTION_COUNT = students[0]?.answers.length ?? 20;
+
+  const columns = React.useMemo<ColumnDef<Student>[]>(
+    () => [
+      {
+        accessorKey: "auid",
+        header: "AUID",
+        cell: ({ getValue }) => <div className="w-24">{getValue<string>()}</div>,
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+      },
+      {
+        accessorKey: "version",
+        header: "Version",
+        cell: ({ getValue }) => <div className="w-20 text-center">{getValue<number>()}</div>,
+      },
+      {
+        id: "total",
+        header: percentageView ? "% Score" : "Total",
+        cell: ({ row }) => {
+          const t = row.original.total;
+          return percentageView
+            ? <div className="w-20 text-center">{Math.round((t / QUESTION_COUNT) * 100)}%</div>
+            : <div className="w-20 text-center">{t}</div>;
+        },
+      },
+    ],
+    [percentageView],
+  );
 
   const table = useReactTable({
     data: students,
-    columns: studentColumns,
-    state: {
-      rowSelection: React.useState<RowSelectionState>({})[0],
-      columnFilters,
-    },
+    columns,
+    state: { columnFilters },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
 
+  const [selectedRowId, setSelectedRowId] = React.useState<string | null>(null);
   const selectedStudent = selectedRowId
-    ? table.getRowModel().rows.find((r) => r.id === selectedRowId)?.original
+    ? table.getRowModel().rows.find(r => r.id === selectedRowId)?.original
     : null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <Input
-          placeholder="Search by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(e) =>
-            table.getColumn("name")?.setFilterValue(e.target.value)
-          }
-          className="w-full border border-[#27272A] focus:border-[#27272A]"
-        />
+        <div className="flex items-center space-x-9">
+          <Input
+            placeholder="Search by name..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={e => table.getColumn("name")?.setFilterValue(e.target.value)}
+            className="w-full md:w-2/3 border border-[#27272A] focus:ring-0 text-white"
+          />
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="score-view"
+              checked={percentageView}
+              onCheckedChange={setPercentageView}
+            />
+            <Label htmlFor="score-view" className="text-white">
+              Percentage View
+            </Label>
+          </div>
+        </div>
 
         <div className="rounded-xl border border-[#27272A] overflow-auto">
           <Table>
@@ -739,21 +779,18 @@ export function IndividualPerformanceTab() {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#27272A]">
-                {answerColumns.map((col) => (
-                  <TableHead key={col.accessorKey} className="text-white">
-                    {col.header}
-                  </TableHead>
+                {["Question","Marks","Option","Feedback"].map(header => (
+                  <TableHead key={header} className="text-white">{header}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {selectedStudent.answers.map((ans, i) => (
                 <TableRow key={i} className="border-b border-[#27272A]">
-                  {answerColumns.map((col) => (
-                    <TableCell key={col.accessorKey as string}>
-                      {(ans as any)[col.accessorKey!]}
-                    </TableCell>
-                  ))}
+                  <TableCell>{ans.question}</TableCell>
+                  <TableCell className="text-center">{ans.marks}</TableCell>
+                  <TableCell>{ans.option}</TableCell>
+                  <TableCell>{ans.feedback}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
