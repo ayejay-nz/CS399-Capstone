@@ -20,7 +20,7 @@ import {
 } from "@/src/components/ui/table";
 
 import {
-  Label,
+  Label as ChartLabel,
   PolarRadiusAxis,
   RadialBar,
   RadialBarChart,
@@ -29,6 +29,8 @@ import {
   Cell,
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
 
 type QuestionPerf = {
   id: number;
@@ -386,8 +388,54 @@ const columns: ColumnDef<QuestionPerf>[] = [
 ];
 
 export function QuestionPerformanceTab() {
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
-  const [columnFilters, setColumnFilters] = React.useState([]);
+  const [columnFilters, setColumnFilters] = React.useState<any[]>([]);
+  const [percentageView, setPercentageView] = React.useState(true);
+
+  const columns = React.useMemo<ColumnDef<QuestionPerf>[]>(
+    () => [
+      {
+        accessorKey: "id",
+        header: "ID",
+        cell: ({ getValue }) => (
+          <div className="w-8 text-center">{getValue<number>()}</div>
+        ),
+      },
+      {
+        accessorKey: "text",
+        header: "Question",
+        cell: ({ getValue }) => {
+          const txt = getValue<string>();
+          return (
+            <div className="truncate max-w-[400px]" title={txt}>
+              {txt}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "marks",
+        header: "Marks",
+        cell: ({ getValue }) => (
+          <div className="w-12 text-center">{getValue<number>()}</div>
+        ),
+      },
+      {
+        id: "correct",
+        header: percentageView ? "% Correct" : "# Correct",
+        cell: ({ row }) => {
+          const q = row.original;
+          return percentageView ? (
+            <div className="w-16 text-center">{q.correctPct}%</div>
+          ) : (
+            <div className="w-16 text-center">
+              {q.answerCounts[q.correctOption]}
+            </div>
+          );
+        },
+      },
+    ],
+    [percentageView],
+  );
 
   const table = useReactTable({
     data: questions,
@@ -398,6 +446,7 @@ export function QuestionPerformanceTab() {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const selectedQuestion = selectedId
     ? table.getRowModel().rows.find((r) => r.id === selectedId)?.original
     : null;
@@ -412,7 +461,6 @@ export function QuestionPerformanceTab() {
     : [];
 
   const RED_SHADES = ["#EF4444", "#DC2626", "#B91C1C", "#991B1B", "#7F1D1D"];
-
   const pieData = selectedQuestion
     ? Object.entries(selectedQuestion.answerCounts).map(
         ([option, count], idx) => ({
@@ -429,17 +477,29 @@ export function QuestionPerformanceTab() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <Input
-          placeholder="Search by question…"
-          value={(table.getColumn("text")?.getFilterValue() as string) ?? ""}
-          onChange={(e) =>
-            table.getColumn("text")?.setFilterValue(e.target.value)
-          }
-          className="w-full border border-[#27272A] focus:border-[#27272A] focus:ring-0 text-white"
-        />
+        <div className="flex items-center space-x-4">
+          <Input
+            placeholder="Search by question…"
+            value={(table.getColumn("text")?.getFilterValue() as string) ?? ""}
+            onChange={(e) =>
+              table.getColumn("text")?.setFilterValue(e.target.value)
+            }
+            className="w-full md:w-2/3 border border-[#27272A] focus:ring-0 text-white"
+          />
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="percentage-view"
+              checked={percentageView}
+              onCheckedChange={setPercentageView}
+            />
+            <Label htmlFor="percentage-view" className="text-white">
+              Percentage View
+            </Label>
+          </div>
+        </div>
 
         <div className="rounded-xl border border-[#27272A] overflow-auto">
-          <Table className="table-fixed w-full">
+          <Table className="table-auto w-full">
             <TableHeader>
               {table.getHeaderGroups().map((hg) => (
                 <TableRow key={hg.id} className="border-b border-[#27272A]">
@@ -571,7 +631,7 @@ export function QuestionPerformanceTab() {
                     tickLine={false}
                     axisLine={false}
                   >
-                    <Label
+                    <ChartLabel
                       content={({ viewBox }) =>
                         viewBox?.cx != null && viewBox?.cy != null ? (
                           <text
