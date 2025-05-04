@@ -477,7 +477,7 @@ export function QuestionPerformanceTab() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-9">
           <Input
             placeholder="Search by question…"
             value={(table.getColumn("text")?.getFilterValue() as string) ?? ""}
