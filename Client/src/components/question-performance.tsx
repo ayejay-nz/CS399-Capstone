@@ -37,6 +37,7 @@ type QuestionPerf = {
   text: string;
   marks: number;
   correctPct: number;
+  correctNumber: number;
   answerCounts: { A: number; B: number; C: number; D: number; E: number };
   answerOptions: {
     A: string;
@@ -54,14 +55,9 @@ const questions: QuestionPerf[] = [
     text: "What decimal number is equivalent to the binary number 111011₂?",
     marks: 2,
     correctPct: 45,
+    correctNumber: 18,
     answerCounts: { A: 12, B: 45, C: 18, D: 15, E: 10 },
-    answerOptions: {
-      A: "58",
-      B: "59",
-      C: "61",
-      D: "57",
-      E: "60",
-    },
+    answerOptions: { A: "58", B: "59", C: "61", D: "57", E: "60" },
     correctOption: "B",
   },
   {
@@ -69,14 +65,9 @@ const questions: QuestionPerf[] = [
     text: "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
     marks: 3,
     correctPct: 53,
+    correctNumber: 32,
     answerCounts: { A: 8, B: 53, C: 20, D: 7, E: 12 },
-    answerOptions: {
-      A: "8 bytes",
-      B: "24 bytes",
-      C: "32 bytes",
-      D: "12 bytes",
-      E: "16 bytes",
-    },
+    answerOptions: { A: "8 bytes", B: "24 bytes", C: "32 bytes", D: "12 bytes", E: "16 bytes" },
     correctOption: "B",
   },
   {
@@ -84,14 +75,9 @@ const questions: QuestionPerf[] = [
     text: "What is the ASCII code for the word 'READ'?",
     marks: 1,
     correctPct: 61,
+    correctNumber: 25,
     answerCounts: { A: 61, B: 15, C: 10, D: 8, E: 6 },
-    answerOptions: {
-      A: "82 69 65 68",
-      B: "82 65 69 68",
-      C: "68 65 69 82",
-      D: "69 82 65 68",
-      E: "65 82 69 68",
-    },
+    answerOptions: { A: "82 69 65 68", B: "82 65 69 68", C: "68 65 69 82", D: "69 82 65 68", E: "65 82 69 68" },
     correctOption: "A",
   },
   {
@@ -99,14 +85,9 @@ const questions: QuestionPerf[] = [
     text: "Which of the following prefixes is the largest?",
     marks: 2,
     correctPct: 71,
+    correctNumber: 30,
     answerCounts: { A: 10, B: 5, C: 8, D: 6, E: 71 },
-    answerOptions: {
-      A: "kilo- (10³)",
-      B: "mega- (10⁶)",
-      C: "giga- (10⁹)",
-      D: "tera- (10¹²)",
-      E: "peta- (10¹⁵)",
-    },
+    answerOptions: { A: "kilo- (10³)", B: "mega- (10⁶)", C: "giga- (10⁹)", D: "tera- (10¹²)", E: "peta- (10¹⁵)" },
     correctOption: "E",
   },
   {
@@ -114,14 +95,9 @@ const questions: QuestionPerf[] = [
     text: "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
     marks: 1,
     correctPct: 74,
+    correctNumber: 28,
     answerCounts: { A: 74, B: 10, C: 6, D: 5, E: 5 },
-    answerOptions: {
-      A: "Shareware",
-      B: "Freeware",
-      C: "Open source",
-      D: "Adware",
-      E: "Public domain",
-    },
+    answerOptions: { A: "Shareware", B: "Freeware", C: "Open source", D: "Adware", E: "Public domain" },
     correctOption: "A",
   },
   {
@@ -129,14 +105,9 @@ const questions: QuestionPerf[] = [
     text: "Convert the hexadecimal number 3F to decimal.",
     marks: 1,
     correctPct: 68,
+    correctNumber: 40,
     answerCounts: { A: 68, B: 10, C: 9, D: 6, E: 7 },
-    answerOptions: {
-      A: "63",
-      B: "58",
-      C: "65",
-      D: "61",
-      E: "60",
-    },
+    answerOptions: { A: "63", B: "58", C: "65", D: "61", E: "60" },
     correctOption: "A",
   },
   {
@@ -144,14 +115,9 @@ const questions: QuestionPerf[] = [
     text: "Which layer of the OSI model is responsible for routing?",
     marks: 2,
     correctPct: 58,
+    correctNumber: 22,
     answerCounts: { A: 12, B: 15, C: 58, D: 10, E: 5 },
-    answerOptions: {
-      A: "Physical",
-      B: "Data Link",
-      C: "Network",
-      D: "Transport",
-      E: "Application",
-    },
+    answerOptions: { A: "Physical", B: "Data Link", C: "Network", D: "Transport", E: "Application" },
     correctOption: "C",
   },
   {
@@ -159,14 +125,9 @@ const questions: QuestionPerf[] = [
     text: "What is the time complexity of binary search?",
     marks: 1,
     correctPct: 80,
+    correctNumber: 50,
     answerCounts: { A: 5, B: 80, C: 7, D: 3, E: 5 },
-    answerOptions: {
-      A: "O(n)",
-      B: "O(log n)",
-      C: "O(n log n)",
-      D: "O(1)",
-      E: "O(n²)",
-    },
+    answerOptions: { A: "O(n)", B: "O(log n)", C: "O(n log n)", D: "O(1)", E: "O(n²)" },
     correctOption: "B",
   },
   {
@@ -174,14 +135,9 @@ const questions: QuestionPerf[] = [
     text: "In CSS, specificity is highest for which selector?",
     marks: 2,
     correctPct: 50,
+    correctNumber: 45,
     answerCounts: { A: 5, B: 20, C: 15, D: 50, E: 10 },
-    answerOptions: {
-      A: "Type",
-      B: "Class",
-      C: "ID",
-      D: "Inline",
-      E: "Pseudo-class",
-    },
+    answerOptions: { A: "Type", B: "Class", C: "ID", D: "Inline", E: "Pseudo-class" },
     correctOption: "D",
   },
   {
@@ -189,14 +145,9 @@ const questions: QuestionPerf[] = [
     text: "Which SQL clause is used to filter grouped records?",
     marks: 2,
     correctPct: 55,
+    correctNumber: 35,
     answerCounts: { A: 15, B: 55, C: 10, D: 10, E: 10 },
-    answerOptions: {
-      A: "WHERE",
-      B: "HAVING",
-      C: "GROUP BY",
-      D: "ORDER BY",
-      E: "SELECT",
-    },
+    answerOptions: { A: "WHERE", B: "HAVING", C: "GROUP BY", D: "ORDER BY", E: "SELECT" },
     correctOption: "B",
   },
   {
@@ -204,6 +155,7 @@ const questions: QuestionPerf[] = [
     text: "What does ACID stand for in databases?",
     marks: 3,
     correctPct: 40,
+    correctNumber: 20,
     answerCounts: { A: 40, B: 20, C: 15, D: 10, E: 15 },
     answerOptions: {
       A: "Atomicity, Consistency, Isolation, Durability",
@@ -219,14 +171,9 @@ const questions: QuestionPerf[] = [
     text: "Which HTTP status code indicates a 'Not Found' error?",
     marks: 1,
     correctPct: 75,
+    correctNumber: 60,
     answerCounts: { A: 5, B: 5, C: 75, D: 5, E: 10 },
-    answerOptions: {
-      A: "200",
-      B: "301",
-      C: "404",
-      D: "500",
-      E: "302",
-    },
+    answerOptions: { A: "200", B: "301", C: "404", D: "500", E: "302" },
     correctOption: "C",
   },
   {
@@ -234,14 +181,9 @@ const questions: QuestionPerf[] = [
     text: "Which JavaScript method converts JSON text to a JavaScript object?",
     marks: 1,
     correctPct: 62,
+    correctNumber: 38,
     answerCounts: { A: 62, B: 10, C: 8, D: 12, E: 8 },
-    answerOptions: {
-      A: "JSON.parse()",
-      B: "JSON.stringify()",
-      C: "toJSON()",
-      D: "eval()",
-      E: "parseJSON()",
-    },
+    answerOptions: { A: "JSON.parse()", B: "JSON.stringify()", C: "toJSON()", D: "eval()", E: "parseJSON()" },
     correctOption: "A",
   },
   {
@@ -249,14 +191,9 @@ const questions: QuestionPerf[] = [
     text: "In Git, which command creates a new branch?",
     marks: 1,
     correctPct: 85,
+    correctNumber: 34,
     answerCounts: { A: 85, B: 5, C: 3, D: 4, E: 3 },
-    answerOptions: {
-      A: "git checkout -b",
-      B: "git branch -d",
-      C: "git merge",
-      D: "git init",
-      E: "git clone",
-    },
+    answerOptions: { A: "git checkout -b", B: "git branch -d", C: "git merge", D: "git init", E: "git clone" },
     correctOption: "A",
   },
   {
@@ -264,14 +201,9 @@ const questions: QuestionPerf[] = [
     text: "What is the output of 7 % 3 in JavaScript?",
     marks: 1,
     correctPct: 70,
+    correctNumber: 42,
     answerCounts: { A: 10, B: 70, C: 5, D: 10, E: 5 },
-    answerOptions: {
-      A: "1",
-      B: "2",
-      C: "0",
-      D: "3",
-      E: "4",
-    },
+    answerOptions: { A: "1", B: "2", C: "0", D: "3", E: "4" },
     correctOption: "B",
   },
   {
@@ -279,14 +211,9 @@ const questions: QuestionPerf[] = [
     text: "Which data structure uses FIFO ordering?",
     marks: 2,
     correctPct: 60,
+    correctNumber: 48,
     answerCounts: { A: 20, B: 60, C: 5, D: 8, E: 7 },
-    answerOptions: {
-      A: "Stack",
-      B: "Queue",
-      C: "Tree",
-      D: "Graph",
-      E: "Hash Table",
-    },
+    answerOptions: { A: "Stack", B: "Queue", C: "Tree", D: "Graph", E: "Hash Table" },
     correctOption: "B",
   },
   {
@@ -294,6 +221,7 @@ const questions: QuestionPerf[] = [
     text: "What does DNS stand for?",
     marks: 2,
     correctPct: 65,
+    correctNumber: 26,
     answerCounts: { A: 65, B: 10, C: 10, D: 5, E: 10 },
     answerOptions: {
       A: "Domain Name System",
@@ -309,14 +237,9 @@ const questions: QuestionPerf[] = [
     text: "Which HTML tag is used for the largest heading?",
     marks: 1,
     correctPct: 90,
+    correctNumber: 18,
     answerCounts: { A: 90, B: 2, C: 2, D: 3, E: 3 },
-    answerOptions: {
-      A: "<h1>",
-      B: "<h2>",
-      C: "<h3>",
-      D: "<header>",
-      E: "<title>",
-    },
+    answerOptions: { A: "<h1>", B: "<h2>", C: "<h3>", D: "<header>", E: "<title>" },
     correctOption: "A",
   },
   {
@@ -324,14 +247,9 @@ const questions: QuestionPerf[] = [
     text: "Which AWS service is used for object storage?",
     marks: 2,
     correctPct: 50,
+    correctNumber: 36,
     answerCounts: { A: 20, B: 50, C: 10, D: 10, E: 10 },
-    answerOptions: {
-      A: "EC2",
-      B: "S3",
-      C: "RDS",
-      D: "Lambda",
-      E: "VPC",
-    },
+    answerOptions: { A: "EC2", B: "S3", C: "RDS", D: "Lambda", E: "VPC" },
     correctOption: "B",
   },
   {
@@ -339,51 +257,10 @@ const questions: QuestionPerf[] = [
     text: "What protocol does HTTPS use to encrypt data?",
     marks: 2,
     correctPct: 77,
+    correctNumber: 28,
     answerCounts: { A: 77, B: 5, C: 2, D: 8, E: 8 },
-    answerOptions: {
-      A: "SSL/TLS",
-      B: "FTP",
-      C: "HTTP",
-      D: "SSH",
-      E: "TCP",
-    },
+    answerOptions: { A: "SSL/TLS", B: "FTP", C: "HTTP", D: "SSH", E: "TCP" },
     correctOption: "A",
-  },
-];
-
-const columns: ColumnDef<QuestionPerf>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ getValue }) => (
-      <div className="w-8 text-center">{getValue<number>()}</div>
-    ),
-  },
-  {
-    accessorKey: "text",
-    header: "Question",
-    cell: ({ getValue }) => {
-      const txt = getValue<string>();
-      return (
-        <div className="truncate max-w-[400px]" title={txt}>
-          {txt}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "marks",
-    header: "Marks",
-    cell: ({ getValue }) => (
-      <div className="w-12 text-center">{getValue<number>()}</div>
-    ),
-  },
-  {
-    accessorKey: "correctPct",
-    header: "% Correct",
-    cell: ({ getValue }) => (
-      <div className="w-16 text-center">{getValue<number>()}%</div>
-    ),
   },
 ];
 
@@ -424,13 +301,9 @@ export function QuestionPerformanceTab() {
         header: percentageView ? "% Correct" : "# Correct",
         cell: ({ row }) => {
           const q = row.original;
-          return percentageView ? (
-            <div className="w-16 text-center">{q.correctPct}%</div>
-          ) : (
-            <div className="w-16 text-center">
-              {q.answerCounts[q.correctOption]}
-            </div>
-          );
+          return percentageView
+            ? <div className="w-16 text-center">{q.correctPct}%</div>
+            : <div className="w-16 text-center">{q.correctNumber}</div>;
         },
       },
     ],
@@ -508,7 +381,7 @@ export function QuestionPerformanceTab() {
                     let extra = "";
                     if (id === "id") extra = "w-12";
                     if (id === "marks") extra = "w-20";
-                    if (id === "correctPct") extra = "w-25";
+                    if (id === "correct") extra = "w-25";
                     return (
                       <TableHead key={h.id} className={`text-white ${extra}`}>
                         {!h.isPlaceholder &&
@@ -551,39 +424,18 @@ export function QuestionPerformanceTab() {
         {selectedQuestion ? (
           <div className="space-y-6">
             <div className="text-white">
-              <h4 className="font-semibold mb-2">
-                Question {selectedQuestion.id} Details:
-              </h4>
-              <p>
-                <span className="font-medium">Question:</span>{" "}
-                {selectedQuestion.text}
-              </p>
-              <p>
-                <span className="font-medium">Marks:</span>{" "}
-                {selectedQuestion.marks}
-              </p>
-              <p>
-                <span className="font-medium">Percentage Correct:</span>{" "}
-                {selectedQuestion.correctPct}%
-              </p>
+              <h4 className="font-semibold mb-2">Question {selectedQuestion.id} Details:</h4>
+              <p><span className="font-medium">Question:</span> {selectedQuestion.text}</p>
+              <p><span className="font-medium">Marks:</span> {selectedQuestion.marks}</p>
+              <p><span className="font-medium">Percentage Correct:</span> {selectedQuestion.correctPct}%</p>
             </div>
-
             <div className="space-y-1">
-              {(["A", "B", "C", "D", "E"] as const).map((opt) => (
-                <p
-                  key={opt}
-                  className={
-                    opt === selectedQuestion.correctOption
-                      ? "font-semibold text-green-400"
-                      : ""
-                  }
-                >
-                  <span className="font-medium">{opt}.</span>{" "}
-                  {selectedQuestion.answerOptions[opt]}
+              {(["A","B","C","D","E"] as const).map(opt => (
+                <p key={opt} className={opt === selectedQuestion.correctOption ? "font-semibold text-green-400" : ""}>
+                  <span className="font-medium">{opt}.</span> {selectedQuestion.answerOptions[opt]}
                 </p>
               ))}
             </div>
-
             <div className="rounded-xl border border-[#27272A] bg-black p-6">
               <h5 className="text-white font-medium mb-4 flex justify-center">
                 Answer Distribution
@@ -609,7 +461,6 @@ export function QuestionPerformanceTab() {
                 </PieChart>
               </ChartContainer>
             </div>
-
             <div className="rounded-xl border border-[#27272A] bg-black p-4">
               <h5 className="text-white font-medium mb-12 flex justify-center">
                 % of Students Who Answered Correctly
@@ -647,9 +498,7 @@ export function QuestionPerformanceTab() {
                               {selectedQuestion.correctPct}%
                             </tspan>
                           </text>
-                        ) : null
-                      }
-                    />
+                    ) : null} />
                   </PolarRadiusAxis>
 
                   <RadialBar
