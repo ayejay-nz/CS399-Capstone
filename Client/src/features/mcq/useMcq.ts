@@ -64,7 +64,7 @@ export function useMcq() {
     setOptionEditors(Array(q.options.length).fill(null));
     setMarks(q.marks || 1);
     setOptionIds(q.options.map((_: any, i: number) => `${q.id}-${i}`));
-    setVersion(prev => prev + 1);
+    setVersion((prev) => prev + 1);
   };
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

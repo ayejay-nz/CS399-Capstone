@@ -152,7 +152,7 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}-${version}`} // CHANGED
+              key={`question-${currentQuestionId}-${version}`} 
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
@@ -171,8 +171,6 @@ export default function QuestionForm({
                   key={`${optionId}-${version}`}
                   className="flex items-center gap-2 mr-30"
                 >
-                  {" "}
-                  {/* CHANGED */}
                   <input
                     type="checkbox"
                     className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
@@ -180,7 +178,7 @@ export default function QuestionForm({
                   />
                   <div className="flex-1 w-full relative">
                     <Tiptap
-                      key={`${optionId}-${version}`} // CHANGED
+                      key={`${optionId}-${version}`} 
                       setEditor={(editor) => {
                         setOptionEditors((prev) => {
                           const updated = [...prev];

@@ -87,7 +87,7 @@ const Tiptap = ({
         onChange={handleImageUpload}
       />
 
-      {editor && isQuestionEditor && (
+{editor && isQuestionEditor && (
         <div className="flex flex-wrap gap-1">
           <div className="flex gap-1">
             <Button
@@ -227,8 +227,8 @@ const Tiptap = ({
       )}
 
       <div
-        className={`flex-1 rounded-md border-2 ${
-          error ? "border-red-500" : "border-gray-700"
+        className={`flex-1 rounded-md border ${
+          error ? "border-red-500" : "border-[#27272a]"
         }`}
         style={{
           minHeight: isQuestionEditor ? "75px" : "40px",
