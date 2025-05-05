@@ -19,7 +19,7 @@ export function DownloadAnswers() {
     for (const q of questions) {
       const total = Object.values(q.answerCounts).reduce((a, b) => a + b, 0);
       txt += `Question Number : ${q.id}\n`;
-      txt += `Stem : [${q.marks} mark${q.marks > 1 ? "s" : ""}] ${q.text}\n\n`;
+      txt += `Question : [${q.marks} mark${q.marks > 1 ? "s" : ""}] ${q.text}\n\n`;
 
       txt +=
         "Answer".padStart(col1) +
@@ -62,10 +62,20 @@ export function DownloadAnswers() {
     <Button
       variant="outline"
       size="sm"
-      className="gap-2 border-black text-black"
       onClick={handleClick}
+      className="
+        gap-2 
+        border-black 
+        text-black 
+        hover:bg-black 
+        hover:text-white 
+        hover:border-white 
+        transition-colors 
+        duration-200 
+        ease-in-out
+      "
     >
-      <Download className="h-4 w-4" style={{ color: "#000" }} />
+      <Download className="h-4 w-4" />
       Download
     </Button>
   );
