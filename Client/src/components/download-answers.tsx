@@ -3,31 +3,46 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
-import questions from "../app/mark-mcq/dashboard/data.json";
+import questions from "../app/mark-mcq/dashboard/data";
 
 export function DownloadAnswers() {
   function formatDownloadText() {
     const courseCode = "COMPSCI105";
-    const studentCount = 2;
+    const studentCount = 81;
     let txt = `Course: ${courseCode}\n`;
     txt += `Students Count: ${studentCount}\n\n`;
 
-    (questions.forEach((q) => {
-      const total = Object.values(q.answerCounts).reduce((a: number, b: number) => a + b, 0);
+    const col1 = 12;
+    const col2 = 20;
+    const col3 = 12;
+
+    for (const q of questions) {
+      const total = Object.values(q.answerCounts).reduce((a, b) => a + b, 0);
       txt += `Question Number : ${q.id}\n`;
       txt += `Stem : [${q.marks} mark${q.marks > 1 ? "s" : ""}] ${q.text}\n\n`;
-      txt += `Options : \n`;
-      Object.entries(q.answerOptions).forEach(([opt, label], idx) => {
-        txt += `${idx}) ${label}\n`;
-      });
-      txt += `\nAnswer        Number Of Answers    Percentage\n`;
-      Object.entries(q.answerCounts).forEach(([opt, count], idx) => {
+
+      txt +=
+        "Answer".padStart(col1) +
+        " " +
+        "Number Of Answers".padStart(col2) +
+        " " +
+        "Percentage".padStart(col3) +
+        "\n";
+
+      for (const [opt, count] of Object.entries(q.answerCounts)) {
         const pct = total ? ((count / total) * 100).toFixed(2) : "0.00";
-        txt += `${idx})         ${count}            ${pct}\n`;
-      });
+        txt +=
+          `${opt})`.padStart(col1) +
+          " " +
+          `${count}`.padStart(col2) +
+          " " +
+          `${pct}`.padStart(col3) +
+          "\n";
+      }
+
       txt += `Total (without invalid answer):  ${total}\n`;
       txt += `${"=".repeat(100)}\n\n`;
-    }));
+    }
 
     return txt;
   }
