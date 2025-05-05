@@ -1,173 +1,214 @@
-{
-    "Summary": [
-      45,
-      60,
-      75,
-      85,
-      100,
-      ["2", "5", "7", "8", "10"]
-    ],
-    "Students": [
-      {
-        "auid": "A001",
-        "last_name": "Smith",
-        "first_name": "John",
-        "version_number": 1,
-        "total_correct": 8,
-        "total_answered": 10,
-        "mark": "80%",
-        "answers": [
-          ["1", "A", true, "Well done"],
-          ["2", "C", false, "Review the material on this topic"]
-        ]
-      },
-      {
-        "auid": "A002",
-        "last_name": "Johnson",
-        "first_name": "Alice",
-        "version_number": 2,
-        "total_correct": 9,
-        "total_answered": 10,
-        "mark": "90%",
-        "answers": [
-          ["1", "A", true, "Good job"],
-          ["3", "B", true, "Keep it up"]
-        ]
-      },
-      {
-        "auid": "A003",
-        "last_name": "Williams",
-        "first_name": "Bob",
-        "version_number": 1,
-        "total_correct": 7,
-        "total_answered": 10,
-        "mark": "70%",
-        "answers": [
-          ["2", "B", false, "Incorrect, try revising"],
-          ["3", "D", true, "Nice improvement"]
-        ]
-      }
-    ],
-    "Questions": [
-      {
-        "question_id": "1",
-        "total_answers": 40,
-        "total_correct_answers": 32,
-        "percentage_correct": 80.0,
-        "option_breakdown": [
-          ["1", 32, 80.0, true],
-          ["2", 4, 10.0, false],
-          ["3", 3, 7.5, false],
-          ["4", 1, 2.5, false]
-        ]
-      },
-      {
-        "question_id": "2",
-        "total_answers": 50,
-        "total_correct_answers": 15,
-        "percentage_correct": 30.0,
-        "option_breakdown": [
-          ["1", 5, 10.0, false],
-          ["2", 15, 30.0, true],
-          ["3", 20, 40.0, false],
-          ["4", 10, 20.0, false]
-        ]
-      },
-      {
-        "question_id": "3",
-        "total_answers": 60,
-        "total_correct_answers": 54,
-        "percentage_correct": 90.0,
-        "option_breakdown": [
-          ["1", 54, 90.0, true],
-          ["2", 3, 5.0, false],
-          ["3", 2, 3.33, false],
-          ["4", 1, 1.67, false]
-        ]
-      },
-      {
-        "question_id": "4",
-        "total_answers": 55,
-        "total_correct_answers": 27,
-        "percentage_correct": 49.1,
-        "option_breakdown": [
-          ["1", 27, 49.1, true],
-          ["2", 10, 18.2, false],
-          ["3", 10, 18.2, false],
-          ["4", 8, 14.5, false]
-        ]
-      },
-      {
-        "question_id": "5",
-        "total_answers": 45,
-        "total_correct_answers": 20,
-        "percentage_correct": 44.4,
-        "option_breakdown": [
-          ["1", 20, 44.4, true],
-          ["2", 10, 22.2, false],
-          ["3", 10, 22.2, false],
-          ["4", 5, 11.1, false]
-        ]
-      },
-      {
-        "question_id": "6",
-        "total_answers": 70,
-        "total_correct_answers": 63,
-        "percentage_correct": 90.0,
-        "option_breakdown": [
-          ["1", 63, 90.0, true],
-          ["2", 4, 5.7, false],
-          ["3", 2, 2.9, false],
-          ["4", 1, 1.4, false]
-        ]
-      },
-      {
-        "question_id": "7",
-        "total_answers": 80,
-        "total_correct_answers": 30,
-        "percentage_correct": 37.5,
-        "option_breakdown": [
-          ["1", 10, 12.5, false],
-          ["2", 30, 37.5, true],
-          ["3", 25, 31.3, false],
-          ["4", 15, 18.8, false]
-        ]
-      },
-      {
-        "question_id": "8",
-        "total_answers": 90,
-        "total_correct_answers": 40,
-        "percentage_correct": 44.4,
-        "option_breakdown": [
-          ["1", 40, 44.4, true],
-          ["2", 20, 22.2, false],
-          ["3", 20, 22.2, false],
-          ["4", 10, 11.1, false]
-        ]
-      },
-      {
-        "question_id": "9",
-        "total_answers": 65,
-        "total_correct_answers": 50,
-        "percentage_correct": 76.9,
-        "option_breakdown": [
-          ["1", 50, 76.9, true],
-          ["2", 5, 7.7, false],
-          ["3", 5, 7.7, false],
-          ["4", 5, 7.7, false]
-        ]
-      },
-      {
-        "question_id": "10",
-        "total_answers": 75,
-        "total_correct_answers": 25,
-        "percentage_correct": 33.3,
-        "option_breakdown": [
-          ["1", 25, 33.3, true],
-          ["2", 15, 20.0, false],
-          ["3", 20, 26.7, false],
-          ["4", 15, 20.0, false]
-        ]
-      }
-    ]
+[
+  {
+    "id": 1,
+    "text": "What decimal number is equivalent to the binary number 111011₂?",
+    "marks": 2,
+    "correctPct": 45,
+    "correctNumber": 18,
+    "answerCounts": { "A": 12, "B": 45, "C": 18, "D": 15, "E": 10 },
+    "answerOptions": { "A": "58", "B": "59", "C": "61", "D": "57", "E": "60" },
+    "correctOption": "B"
+  },
+  {
+    "id": 2,
+    "text": "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
+    "marks": 3,
+    "correctPct": 53,
+    "correctNumber": 32,
+    "answerCounts": { "A": 8,  "B": 53, "C": 20, "D": 7,  "E": 12 },
+    "answerOptions": { "A": "8 bytes", "B": "24 bytes", "C": "32 bytes", "D": "12 bytes", "E": "16 bytes" },
+    "correctOption": "B"
+  },
+  {
+    "id": 3,
+    "text": "What is the ASCII code for the word 'READ'?",
+    "marks": 1,
+    "correctPct": 61,
+    "correctNumber": 25,
+    "answerCounts": { "A": 61, "B": 15, "C": 10, "D": 8,  "E": 6 },
+    "answerOptions": { "A": "82 69 65 68", "B": "82 65 69 68", "C": "68 65 69 82", "D": "69 82 65 68", "E": "65 82 69 68" },
+    "correctOption": "A"
+  },
+  {
+    "id": 4,
+    "text": "Which of the following prefixes is the largest?",
+    "marks": 2,
+    "correctPct": 71,
+    "correctNumber": 30,
+    "answerCounts": { "A": 10, "B": 5,  "C": 8,  "D": 6,  "E": 71 },
+    "answerOptions": { "A": "kilo- (10³)", "B": "mega- (10⁶)", "C": "giga- (10⁹)", "D": "tera- (10¹²)", "E": "peta- (10¹⁵)" },
+    "correctOption": "E"
+  },
+  {
+    "id": 5,
+    "text": "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
+    "marks": 1,
+    "correctPct": 74,
+    "correctNumber": 28,
+    "answerCounts": { "A": 74, "B": 10, "C": 6,  "D": 5,  "E": 5 },
+    "answerOptions": { "A": "Shareware", "B": "Freeware", "C": "Open source", "D": "Adware", "E": "Public domain" },
+    "correctOption": "A"
+  },
+  {
+    "id": 6,
+    "text": "Convert the hexadecimal number 3F to decimal.",
+    "marks": 1,
+    "correctPct": 68,
+    "correctNumber": 40,
+    "answerCounts": { "A": 68, "B": 10, "C": 9,  "D": 6,  "E": 7 },
+    "answerOptions": { "A": "63", "B": "58", "C": "65", "D": "61", "E": "60" },
+    "correctOption": "A"
+  },
+  {
+    "id": 7,
+    "text": "Which layer of the OSI model is responsible for routing?",
+    "marks": 2,
+    "correctPct": 58,
+    "correctNumber": 22,
+    "answerCounts": { "A": 12, "B": 15, "C": 58, "D": 10, "E": 5 },
+    "answerOptions": { "A": "Physical", "B": "Data Link", "C": "Network", "D": "Transport", "E": "Application" },
+    "correctOption": "C"
+  },
+  {
+    "id": 8,
+    "text": "What is the time complexity of binary search?",
+    "marks": 1,
+    "correctPct": 80,
+    "correctNumber": 50,
+    "answerCounts": { "A": 5,  "B": 80, "C": 7,  "D": 3,  "E": 5 },
+    "answerOptions": { "A": "O(n)", "B": "O(log n)", "C": "O(n log n)", "D": "O(1)", "E": "O(n²)" },
+    "correctOption": "B"
+  },
+  {
+    "id": 9,
+    "text": "In CSS, specificity is highest for which selector?",
+    "marks": 2,
+    "correctPct": 50,
+    "correctNumber": 45,
+    "answerCounts": { "A": 5,  "B": 20, "C": 15, "D": 50, "E": 10 },
+    "answerOptions": { "A": "Type", "B": "Class", "C": "ID", "D": "Inline", "E": "Pseudo-class" },
+    "correctOption": "D"
+  },
+  {
+    "id": 10,
+    "text": "Which SQL clause is used to filter grouped records?",
+    "marks": 2,
+    "correctPct": 55,
+    "correctNumber": 35,
+    "answerCounts": { "A": 15, "B": 55, "C": 10, "D": 10, "E": 10 },
+    "answerOptions": { "A": "WHERE", "B": "HAVING", "C": "GROUP BY", "D": "ORDER BY", "E": "SELECT" },
+    "correctOption": "B"
+  },
+  {
+    "id": 11,
+    "text": "What does ACID stand for in databases?",
+    "marks": 3,
+    "correctPct": 40,
+    "correctNumber": 20,
+    "answerCounts": { "A": 40, "B": 20, "C": 15, "D": 10, "E": 15 },
+    "answerOptions": {
+      "A": "Atomicity, Consistency, Isolation, Durability",
+      "B": "Accessibility, Concurrency, Integrity, Durability",
+      "C": "Atomicity, Consistency, Integration, Durability",
+      "D": "Atomicity, Consistency, Isolation, Dependability",
+      "E": "Atomicity, Consistency, Isolation, Distribution"
+    },
+    "correctOption": "A"
+  },
+  {
+    "id": 12,
+    "text": "Which HTTP status code indicates a 'Not Found' error?",
+    "marks": 1,
+    "correctPct": 75,
+    "correctNumber": 60,
+    "answerCounts": { "A": 5,  "B": 5,  "C": 75, "D": 5,  "E": 10 },
+    "answerOptions": { "A": "200", "B": "301", "C": "404", "D": "500", "E": "302" },
+    "correctOption": "C"
+  },
+  {
+    "id": 13,
+    "text": "Which JavaScript method converts JSON text to a JavaScript object?",
+    "marks": 1,
+    "correctPct": 62,
+    "correctNumber": 38,
+    "answerCounts": { "A": 62, "B": 10, "C": 8,  "D": 12, "E": 8 },
+    "answerOptions": { "A": "JSON.parse()", "B": "JSON.stringify()", "C": "toJSON()", "D": "eval()", "E": "parseJSON()" },
+    "correctOption": "A"
+  },
+  {
+    "id": 14,
+    "text": "In Git, which command creates a new branch?",
+    "marks": 1,
+    "correctPct": 85,
+    "correctNumber": 34,
+    "answerCounts": { "A": 85, "B": 5,  "C": 3,  "D": 4,  "E": 3 },
+    "answerOptions": { "A": "git checkout -b", "B": "git branch -d", "C": "git merge", "D": "git init", "E": "git clone" },
+    "correctOption": "A"
+  },
+  {
+    "id": 15,
+    "text": "What is the output of 7 % 3 in JavaScript?",
+    "marks": 1,
+    "correctPct": 70,
+    "correctNumber": 42,
+    "answerCounts": { "A": 10, "B": 70, "C": 5,  "D": 10, "E": 5 },
+    "answerOptions": { "A": "1", "B": "2", "C": "0", "D": "3", "E": "4" },
+    "correctOption": "B"
+  },
+  {
+    "id": 16,
+    "text": "Which data structure uses FIFO ordering?",
+    "marks": 2,
+    "correctPct": 60,
+    "correctNumber": 48,
+    "answerCounts": { "A": 20, "B": 60, "C": 5,  "D": 8,  "E": 7 },
+    "answerOptions": { "A": "Stack", "B": "Queue", "C": "Tree", "D": "Graph", "E": "Hash Table" },
+    "correctOption": "B"
+  },
+  {
+    "id": 17,
+    "text": "What does DNS stand for?",
+    "marks": 2,
+    "correctPct": 65,
+    "correctNumber": 26,
+    "answerCounts": { "A": 65, "B": 10, "C": 10, "D": 5,  "E": 10 },
+    "answerOptions": {
+      "A": "Domain Name System",
+      "B": "Data Network Service",
+      "C": "Digital Network System",
+      "D": "Domain Number System",
+      "E": "Data Name Service"
+    },
+    "correctOption": "A"
+  },
+  {
+    "id": 18,
+    "text": "Which HTML tag is used for the largest heading?",
+    "marks": 1,
+    "correctPct": 90,
+    "correctNumber": 18,
+    "answerCounts": { "A": 90, "B": 2,  "C": 2,  "D": 3,  "E": 3 },
+    "answerOptions": { "A": "<h1>", "B": "<h2>", "C": "<h3>", "D": "<header>", "E": "<title>" },
+    "correctOption": "A"
+  },
+  {
+    "id": 19,
+    "text": "Which AWS service is used for object storage?",
+    "marks": 2,
+    "correctPct": 50,
+    "correctNumber": 36,
+    "answerCounts": { "A": 20, "B": 50, "C": 10, "D": 10, "E": 10 },
+    "answerOptions": { "A": "EC2", "B": "S3", "C": "RDS", "D": "Lambda", "E": "VPC" },
+    "correctOption": "B"
+  },
+  {
+    "id": 20,
+    "text": "What protocol does HTTPS use to encrypt data?",
+    "marks": 2,
+    "correctPct": 77,
+    "correctNumber": 28,
+    "answerCounts": { "A": 77, "B": 5,  "C": 2,  "D": 8,  "E": 8 },
+    "answerOptions": { "A": "SSL/TLS", "B": "FTP", "C": "HTTP", "D": "SSH", "E": "TCP" },
+    "correctOption": "A"
   }
+]
