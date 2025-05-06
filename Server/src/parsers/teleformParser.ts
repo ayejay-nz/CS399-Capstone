@@ -8,7 +8,7 @@ import ParserError from '../utils/parserError';
  * @param fileContent Raw text content of the Teleform txt file
  * @returns TeleformData containing studentAnswers
  */
-export function parseTeleformData(rawText: string): TeleformData {
+export function teleformParser(rawText: string): TeleformData {
     const studentAnswers: StudentTeleformData[] = [];
 
     for (const line of rawText.split(/\r?\n/)) {

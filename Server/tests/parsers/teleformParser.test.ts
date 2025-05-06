@@ -1,10 +1,10 @@
-import { parseTeleformData } from '../../src/parsers/teleformParser';
+import { teleformParser } from '../../src/parsers/teleformParser';
 import { StudentTeleformData, TeleformData } from '../../src/dataTypes/teleformData';
 
 describe('parseTeleformData()', () => {
     it('returns a TeleformData with one student for a single valid line', () => {
         const raw = `01123456712 NGWERUME     MUGOVEV 11100000002 04080202040101161604`;
-        const result: TeleformData = parseTeleformData(raw);
+        const result: TeleformData = teleformParser(raw);
 
         expect(result).toHaveProperty('studentAnswers');
         expect(result.studentAnswers).toHaveLength(1);
@@ -27,7 +27,7 @@ describe('parseTeleformData()', () => {
 01123456712 NGWERUME     MUGOVEV 11100000002 04080202040101161604
 
 `;
-        const { studentAnswers } = parseTeleformData(raw);
+        const { studentAnswers } = teleformParser(raw);
         expect(studentAnswers).toHaveLength(1);
     });
 
@@ -37,7 +37,7 @@ describe('parseTeleformData()', () => {
             `01122344411 DDMELLO      MERVIN  11100000002 04081616160101011608`,
         ].join('\n');
 
-        const result = parseTeleformData(raw);
+        const result = teleformParser(raw);
         expect(result.studentAnswers).toHaveLength(2);
         expect(result.studentAnswers[1]).toMatchObject({
             auid: '01122344411',
@@ -57,7 +57,7 @@ describe('parseTeleformData()', () => {
     it('throws if a line is missing mandatory fields', () => {
         // missing answers part
         const raw = `01123456712 NGWERUME MUGOVEV 11100000002`;
-        expect(() => parseTeleformData(raw)).toThrow('Invalid lines: missing fields');
+        expect(() => teleformParser(raw)).toThrow('Invalid lines: missing fields');
     });
 
     // it("throws if a line has odd-length answer field", () => {
