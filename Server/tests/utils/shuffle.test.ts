@@ -67,17 +67,17 @@ describe('generateOptionOrder()', () => {
         expect(optionOrder).toHaveLength(optionCount);
     });
 
-    it('should generate a list containing numbers from 1 to optionCount', () => {
+    it('should generate a list containing numbers from 0 to optionCount-1', () => {
         const optionCount = 5;
         const optionOrder = generateOptionOrder(optionCount);
 
-        expect(optionOrder.sort()).toEqual([1, 2, 3, 4, 5]);
+        expect(optionOrder.sort()).toEqual([0, 1, 2, 3, 4]);
     });
 
     // Probabilistic check -- ensure that it generates a randomised list
-    it('should generate a randomised list of numbers 1 to optionCount', () => {
+    it('should generate a randomised list of numbers 0 to optionCount-1', () => {
         const optionCount = 10;
-        const orderedList = Array.from({ length: optionCount }, (_, i) => i + 1);
+        const orderedList = Array.from({ length: optionCount }, (_, i) => i);
         const optionOrder = generateOptionOrder(optionCount);
 
         expect(optionOrder).toHaveLength(10);

@@ -79,8 +79,8 @@ describe('createExamVersions()', () => {
     it('should correctly assign generated option orders to each version', () => {
         const q1Options = ['a', 'b', 'c'];
         const q2Options = ['a', 'b', 'c', 'd', 'e'];
-        const expectedQ1Order = Array.from({ length: q1Options.length }, (_, i) => i + 1); // Array of 1 to q1Options.length
-        const expectedQ2Order = Array.from({ length: q2Options.length }, (_, i) => i + 1); // Array of 1 to q2Options.length
+        const expectedQ1Order = Array.from({ length: q1Options.length }, (_, i) => i); // Array of 0 to q1Options.length - 1
+        const expectedQ2Order = Array.from({ length: q2Options.length }, (_, i) => i); // Array of 0 to q2Options.length - 1
         const examData: ExamData = {
             content: [
                 {
@@ -123,13 +123,13 @@ describe('createExamVersions()', () => {
             const q1Order = version.optionOrders[0];
             expect(q1Order).toBeInstanceOf(Array);
             expect(q1Order).toHaveLength(q1Options.length);
-            expect([...q1Order!].sort((a, b) => a - b)).toEqual(expectedQ1Order); // q1Order contains all 1 to the number of Q1 options
+            expect([...q1Order!].sort((a, b) => a - b)).toEqual(expectedQ1Order); // q1Order contains all 0 to the number of Q1 options - 1
 
             // Check properties for Q2
             const q2Order = version.optionOrders[1];
             expect(q2Order).toBeInstanceOf(Array);
             expect(q2Order).toHaveLength(q2Options.length);
-            expect([...q2Order!].sort((a, b) => a - b)).toEqual(expectedQ2Order); // q2Order contains all 1 to the number of Q2 options
+            expect([...q2Order!].sort((a, b) => a - b)).toEqual(expectedQ2Order); // q2Order contains all 0 to the number of Q2 options - 1
         });
     });
 });

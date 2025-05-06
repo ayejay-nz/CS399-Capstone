@@ -17,18 +17,18 @@ export function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Generate a random ordering of option indicies from 1 up to `optionCount`.
+ * Generate a random ordering of option indicies from 0 up to `optionCount`-1.
  *
- * This creates an array [1, 2, ..., `optionCount`] and then shuffles it.
+ * This creates an array [0, 1, ..., `optionCount`-1] and then shuffles it.
  *
  * @param optionCount
  *  The total number of options to include.
  * @returns
- *  A new array of length `optionCount` containing integers 1 through `optionCount`
+ *  A new array of length `optionCount` containing integers 0 through `optionCount`-1
  *  in a randomised order.
  */
 export function generateOptionOrder(optionCount: number) {
-    // Create an array of integers 1 to optionCount
-    const optionOrder = Array.from({ length: optionCount }, (_, i) => i + 1);
+    // Create an array of integers 0 to optionCount-1
+    const optionOrder = Array.from({ length: optionCount }, (_, i) => i);
     return shuffle(optionOrder);
 }
