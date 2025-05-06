@@ -1,35 +1,35 @@
 {
-  "name": "shuffle-backend",
-  "version": "1.0.0",
-  "description": "Backend for Shuffle",
-  "main": "dist/server.js",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "jest",
-    "build": "npx tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon"
-  },
-  "author": "Happy Coders",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.1.0",
-    "fast-xml-parser": "^5.2.1",
-    "multer": "^1.4.5-lts.2"
-  },
-  "devDependencies": {
-    "@types/babel__template": "^7.4.4",
-    "@types/express": "^5.0.1",
-    "@types/jest": "^29.5.14",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^22.13.17",
-    "dotenv": "^16.4.7",
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.9",
-    "ts-jest": "^29.3.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
-  }
+    "name": "shuffle-backend",
+    "version": "1.0.0",
+    "description": "Backend for Shuffle",
+    "main": "dist/server.js",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "jest",
+        "build": "npx tsc",
+        "start": "node dist/server.js",
+        "dev": "nodemon"
+    },
+    "author": "Happy Coders",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^5.1.0",
+        "fast-xml-parser": "^5.2.1",
+        "multer": "^1.4.5-lts.2"
+    },
+    "devDependencies": {
+        "@types/babel__template": "^7.4.4",
+        "@types/express": "^5.0.1",
+        "@types/jest": "^29.5.14",
+        "@types/multer": "^1.4.12",
+        "@types/node": "^22.13.17",
+        "dotenv": "^16.4.7",
+        "jest": "^29.7.0",
+        "nodemon": "^3.1.9",
+        "ts-jest": "^29.3.2",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.2"
+    }
 }
