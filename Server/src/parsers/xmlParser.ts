@@ -1,41 +1,57 @@
 import { XMLParser } from 'fast-xml-parser';
-import { ExamData, FeedbackDefaults } from '../dataTypes/examData';
+import { API_ERROR_CODE } from '../constants/constants';
+import {
+    ExamData,
+    ImageURI,
+    Question,
+    QuestionText,
+    Section,
+    SectionText,
+    TableURI,
+} from '../dataTypes/examData';
 import ParserError from '../utils/parserError';
-import { PARSING_ERROR_CODES } from '../constants/parsingErrors';
-import { ParsingErrorCode } from '../constants/parsingErrors';
+
+// extract CDATA or text
+function extract(node: any): string {
+    if (typeof node === 'object' && '#cdata' in node) {
+        return node['#cdata'];
+    }
+    return String(node);
+}
+
+// mandatory fields for multichoice
+const MANDATORY_FIELDS: Array<[keyof any, string]> = [
+    ['questiontext', '<questiontext> is mandatory'],
+    ['defaultgrade', '<defaultgrade> is mandatory'],
+    ['correctfeedback', '<correctfeedback> is mandatory'],
+    ['incorrectfeedback', '<incorrectfeedback> is mandatory'],
+];
 
 /**
- * Parses a Moodle-style quiz XML
+ * Parse a Moodle-style quiz XML into structured exam data.
  *
- * Relevant fields from xml:
- *  - comments like <!-- question: 3699 --> are used as IDs
- *  - <question>: question content & info is nested within
- *    - tyeps:
- *      - description
- *        - only need <questiontext> for section content and make questionCount null for now
- *      - multichoice <- skip all others that aren't listed
- *  - <questiontext>: question description. Maybe inlude images encoded in base64
- *  - <defaultgrade>: marks available for a question
- *  - <correctfeedback>
- *  - <incorrectFeedback>
- *  - <answer>: each answer represents one option in order of alphabets (e.g. a, b, c, d, e)
- *    - <answer fraction="100"> indicates the correct answer.
- *      - errors:
- *        - if first element in the options (Question interface) array isn't the correct answer
- *        - if multiple answers have fraction="100" or no answers have it
- *        - if only one answer
- *    - <text>: answer description
- *    - <feedback>: ignored
+ * Supported question types:
+ *   • description — treated as a section; only <questiontext> is used,
+ *     and `questionCount` is set to null.
+ *   • multichoice — converted to a Question with:
+ *       – `questiontext` (HTML or CDATA) and any embedded base64 images
+ *       – `defaultgrade` as the marks
+ *       – `correctfeedback` and `incorrectfeedback` text
+ *       – `answer` options (exactly one with fraction="100" and at least two total)
  *
- * @param xml - The XML string from a file
- * @returns ExamData
+ * Validation errors thrown:
+ *   • Missing mandatory elements (<questiontext>, <defaultgrade>,
+ *     <correctfeedback>, <incorrectfeedback>)
+ *   • Less than two <answer> elements
+ *   • Zero or multiple correct answers (fraction="100")
+ *   • XML syntax errors
+ *
+ * IDs are extracted from comments of the form <!-- question: 1234 -->.
+ *
+ * @param xml  Raw quiz XML string
+ * @returns     Parsed `ExamData` object with `Question` and `Section` entries
  */
 export function xmlParser(xml: string): ExamData {
-    // Extract question IDs from comments like <!-- question: 3699 -->
-    const idMatches = [...xml.matchAll(/<!--\s*question\s*:\s*(\d+)\s*-->/g)].map((m) =>
-        parseInt(m[1]!, 10),
-    );
-
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '@_',
@@ -44,106 +60,82 @@ export function xmlParser(xml: string): ExamData {
         parseTagValue: false,
     });
 
-    const parsed = parser.parse(xml);
-    const quiz = parsed.quiz;
-    if (!quiz || !quiz.question) {
-        return { content: [] };
+    let parsed: any;
+    try {
+        parsed = parser.parse(xml);
+    } catch (e: any) {
+        throw new ParserError(API_ERROR_CODE.XML_PARSE_FAILED, `Invalid XML syntax: ${e.message}`);
     }
 
-    let questions = quiz.question;
-    if (!Array.isArray(questions)) {
-        questions = [questions];
-    }
+    const questionsRaw = ([] as any[]).concat(parsed.quiz?.question || []);
 
-    const output: any[] = [];
+    const output: Array<Question | Section> = [];
 
-    questions.forEach((q: any, idx: number) => {
+    questionsRaw.forEach((q: any, idx: number) => {
         const type = q['@_type'];
 
         if (type === 'multichoice') {
-            // Check mandatory fields
-            const err_code: ParsingErrorCode = PARSING_ERROR_CODES.XML_PARSE_FAILED;
-            if (!q.questiontext) throw new ParserError(err_code, '<questiontext> is mandatory');
-            if (!q.defaultgrade) throw new ParserError(err_code, '<defaultgrade> is mandatory');
-            if (!q.correctfeedback)
-                throw new ParserError(err_code, '<correctfeedback> is mandatory');
-            if (!q.incorrectfeedback)
-                throw new ParserError(err_code, '<incorrectfeedback> is mandatory');
-
-            // Get answers
-            let answers = q.answer || [];
-            if (!Array.isArray(answers)) answers = [answers];
-            if (answers.length < 2) throw new Error('At least two answers are required');
-
-            const correctAnswers = answers.filter((a: any) => String(a['@_fraction']) === '100');
-            if (correctAnswers.length > 1)
-                throw new Error('Multiple correct answers are not allowed');
-            if (correctAnswers.length === 0) throw new Error('No correct answer found');
-
-            // Extract text content
-            const extractText = (node: any) => {
-                if (typeof node === 'object' && '#cdata' in node) return node['#cdata'];
-                return String(node);
-            };
-
-            // Create options with correct answer first
-            const correctOpts = correctAnswers.map((a: any) => extractText(a.text));
-            const incorrectOpts = answers
-                .filter((a: any) => String(a['@_fraction']) !== '100')
-                .map((a: any) => extractText(a.text));
-            const options = [...correctOpts, ...incorrectOpts];
-
-            // Parse question content (text + any base64 image files)
-            const contentArr: any[] = [];
-            const qt = q.questiontext.text;
-            contentArr.push({ questionText: extractText(qt) });
-
-            const files = q.questiontext.file
-                ? Array.isArray(q.questiontext.file)
-                    ? q.questiontext.file
-                    : [q.questiontext.file]
-                : [];
-            for (const f of files) {
-                const base64 = f['#cdata'];
-                const name = f['@_name'];
-                const ext = name.split('.').pop();
-                contentArr.push({ imageUri: `data:image/${ext};base64,${base64}` });
+            // check mandatory fields
+            for (const [key, msg] of MANDATORY_FIELDS) {
+                if (!(key in q)) {
+                    throw new ParserError(API_ERROR_CODE.XML_PARSE_FAILED, msg);
+                }
             }
 
-            // Extract feedback
-            const correctFB = extractText(q.correctfeedback.text);
-            const incorrectFB = extractText(q.incorrectfeedback.text);
-            const feedback = { correctFeedback: correctFB, incorrectFeedback: incorrectFB };
+            // answers
+            const answers = ([] as any[]).concat(q.answer || []);
+            if (answers.length < 2) {
+                throw new ParserError(
+                    API_ERROR_CODE.PARSING_FAILED,
+                    'At least two answers are required',
+                );
+            }
+            const correct = answers.filter((a) => String(a['@_fraction']) === '100');
+            if (correct.length !== 1) {
+                const reason =
+                    correct.length === 0
+                        ? 'No correct answer found'
+                        : 'Multiple correct answers are not allowed';
+                throw new ParserError(API_ERROR_CODE.PARSING_FAILED, reason);
+            }
+            const options: string[] = [
+                ...correct.map((a) => extract(a.text)),
+                ...answers
+                    .filter((a) => String(a['@_fraction']) !== '100')
+                    .map((a) => extract(a.text)),
+            ];
 
-            // Get marks
+            // content
+            const content: (QuestionText | ImageURI | TableURI)[] = [];
+            // question text block
+            content.push({ questionText: extract(q.questiontext.text) } as QuestionText);
+            // images
+            const files = ([] as any[]).concat(q.questiontext.file || []);
+            for (const f of files) {
+                const ext = String(f['@_name']).split('.').pop();
+                content.push({ imageUri: `data:image/${ext};base64,${f['#cdata']}` } as ImageURI);
+            }
+
+            const feedback = {
+                correctFeedback: extract(q.correctfeedback.text),
+                incorrectFeedback: extract(q.incorrectfeedback.text),
+            };
             const marks = Number(q.defaultgrade);
-
-            // Get ID
-            const id = idMatches[idx] ?? null;
+            const idMatches = [...xml.matchAll(/<!--\s*question\s*:\s*(\d+)\s*-->/g)].map((m) =>
+                parseInt(m[1]!, 10),
+            );
+            const id = idMatches[idx] ?? 0;
 
             output.push({
-                question: {
-                    id,
-                    marks,
-                    feedback,
-                    content: contentArr,
-                    options,
-                },
+                question: { id, marks, feedback, content, options },
             });
-        } else if (type === 'description') {
-            // Section headings
-            if (!q.questiontext) return;
-            const qt = q.questiontext.text;
-            const sectionText =
-                typeof qt === 'object' && '#cdata' in qt ? qt['#cdata'] : String(qt);
+        } else if (type === 'description' && q.questiontext) {
+            const text = extract(q.questiontext.text);
+            const sectionContent: SectionText[] = [{ sectionText: text } as SectionText];
             output.push({
-                section: {
-                    questionCount: null,
-                    content: [{ sectionText }],
-                },
+                section: { questionCount: null, content: sectionContent },
             });
         }
-        // skip all other types except question type "multichoice" and "description" (section)
     });
 
     return { content: output };
