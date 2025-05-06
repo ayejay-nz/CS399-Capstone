@@ -1,5 +1,8 @@
 import { XMLParser } from 'fast-xml-parser';
 import { ExamData, FeedbackDefaults } from '../dataTypes/examData';
+import ParserError from '../utils/parserError';
+import { PARSING_ERROR_CODES } from '../constants/parsingErrors';
+import { ParsingErrorCode } from '../constants/parsingErrors';
 
 /**
  * Parses a Moodle-style quiz XML
@@ -59,10 +62,13 @@ export function xmlParser(xml: string): ExamData {
 
         if (type === 'multichoice') {
             // Check mandatory fields
-            if (!q.questiontext) throw new Error('<questiontext> is mandatory');
-            if (!q.defaultgrade) throw new Error('<defaultgrade> is mandatory');
-            if (!q.correctfeedback) throw new Error('<correctfeedback> is mandatory');
-            if (!q.incorrectfeedback) throw new Error('<incorrectfeedback> is mandatory');
+            const err_code: ParsingErrorCode = PARSING_ERROR_CODES.XML_PARSE_FAILED;
+            if (!q.questiontext) throw new ParserError(err_code, '<questiontext> is mandatory');
+            if (!q.defaultgrade) throw new ParserError(err_code, '<defaultgrade> is mandatory');
+            if (!q.correctfeedback)
+                throw new ParserError(err_code, '<correctfeedback> is mandatory');
+            if (!q.incorrectfeedback)
+                throw new ParserError(err_code, '<incorrectfeedback> is mandatory');
 
             // Get answers
             let answers = q.answer || [];
