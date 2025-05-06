@@ -1,11 +1,11 @@
-import { randomiseOptionOrder } from '../../src/services/examVersioning';
+import { createExamVersions } from '../../src/services/examVersioning';
 import { ExamData, FeedbackDefaults, Question, Section } from '../../src/dataTypes/examData';
 import { VersionedExam } from '../../src/dataTypes/versionedExam';
 import { padTo8 } from '../../src/utils/format';
 import * as shuffleUtils from '../../src/utils/shuffle';
 import { DEFAULT_EXAM_VERSIONS } from '../../src/constants/constants';
 
-describe('randomiseOptionOrder()', () => {
+describe('createExamVersions()', () => {
     let generateOptionOrderSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -18,7 +18,7 @@ describe('randomiseOptionOrder()', () => {
 
     it('creates the correct number of versions with the padded version numbers', () => {
         const emptyData: ExamData = { content: [] };
-        const result = randomiseOptionOrder(emptyData);
+        const result = createExamVersions(emptyData);
 
         expect(result).toHaveLength(DEFAULT_EXAM_VERSIONS);
         expect(result.map((v) => v.versionNumber)).toEqual(
@@ -39,7 +39,7 @@ describe('randomiseOptionOrder()', () => {
             ],
         };
 
-        randomiseOptionOrder(examData);
+        createExamVersions(examData);
 
         expect(generateOptionOrderSpy).not.toHaveBeenCalled();
     });
@@ -68,7 +68,7 @@ describe('randomiseOptionOrder()', () => {
             ],
         };
 
-        randomiseOptionOrder(examData);
+        createExamVersions(examData);
 
         // Called for both Q1 and Q2
         expect(generateOptionOrderSpy).toHaveBeenCalledTimes(DEFAULT_EXAM_VERSIONS * 2);
@@ -110,7 +110,7 @@ describe('randomiseOptionOrder()', () => {
             ],
         };
 
-        const examVersions = randomiseOptionOrder(examData);
+        const examVersions = createExamVersions(examData);
 
         expect(examVersions).toHaveLength(DEFAULT_EXAM_VERSIONS);
         expect(generateOptionOrderSpy).toHaveBeenCalledTimes(DEFAULT_EXAM_VERSIONS * 2);

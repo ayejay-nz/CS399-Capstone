@@ -20,7 +20,7 @@ function initialiseEmptyExams() {
     );
 }
 
-export function randomiseOptionOrder(examData: ExamData) {
+export function createExamVersions(examData: ExamData) {
     let examVersions = initialiseEmptyExams();
 
     examData.content.forEach((contentBlock) => {
