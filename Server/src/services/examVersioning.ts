@@ -4,11 +4,28 @@ import { VersionedExam } from '../dataTypes/versionedExam';
 import { padTo8 } from '../utils/format';
 import { generateOptionOrder } from '../utils/shuffle';
 
+/**
+ * Type-guard: true if the `contentBlock` is a `Section`.
+ *
+ * @param contentBlock
+ *  A question or section block from the exam content.
+ * @returns
+ *  `true` if `contentBlock` has a `section` property.
+ */
 function isSection(contentBlock: Question | Section) {
     return 'section' in contentBlock;
 }
 
-// Creates DEFAULT_EXAM_VERSIONS amount of empty exams
+/**
+ * Create an array of empty exam versions, each with a unique, zero-padded
+ * version identifier and an empty `optionOrder` list.
+ *
+ * Uses `DEFAULT_EXAM_VERSIONS` to determine how many `VersionedExams` to make.
+ *
+ * @returns
+ *  An array of `VersionedExam` objects, length of `DEFAULT_EXAM_VERSIONS`,
+ *  ready to have per-question `optionOrder` arrays appended.
+ */
 function initialiseEmptyExams() {
     return Array.from(
         { length: DEFAULT_EXAM_VERSIONS },
@@ -20,6 +37,27 @@ function initialiseEmptyExams() {
     );
 }
 
+/**
+ * Build multiple exam versions by generating a randomised option order
+ * for each question across all versions.
+ *
+ * For the data in the provided ExamData:
+ *  1. Skip all `Section` blocks
+ *  2. Determine how many options each question has
+ *  3. For each version (upto `DEFAULT_EXAM_VERSIONS`),
+ *     generate a random permutation of option indicies and
+ *     store it in that version's `optionOrder` array.
+ *
+ * @param examData
+ *  The parsed exam data containing a list of questions and sections.
+ *  Only the question blocks are processed.
+ *
+ * @returns
+ *  An array of `ExamVersion` objects (length = `DEFAULT_EXAM_VERSIONS`),
+ *  each with an `optionOrder` property that is a `number[][]`.
+ *  Each inner array represents the shuffled indicies for that question's
+ *  options in that version.
+ */
 export function createExamVersions(examData: ExamData) {
     let examVersions = initialiseEmptyExams();
 
