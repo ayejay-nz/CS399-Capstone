@@ -1,0 +1,216 @@
+const questions = [
+  {
+    "id": 1,
+    "text": "What decimal number is equivalent to the binary number 111011₂?",
+    "marks": 2,
+    "correctPct": 44,
+    "correctNumber": 36,
+    "answerCounts": { "A": 10, "B": 36, "C": 15, "D": 12, "E": 8 },
+    "answerOptions": { "A": "58", "B": "59", "C": "61", "D": "57", "E": "60" },
+    "correctOption": "B"
+  },
+  {
+    "id": 2,
+    "text": "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
+    "marks": 3,
+    "correctPct": 53,
+    "correctNumber": 43,
+    "answerCounts": { "A": 6, "B": 43, "C": 16, "D": 6, "E": 10 },
+    "answerOptions": { "A": "8 bytes", "B": "24 bytes", "C": "32 bytes", "D": "12 bytes", "E": "16 bytes" },
+    "correctOption": "B"
+  },
+  {
+    "id": 3,
+    "text": "What is the ASCII code for the word 'READ'?",
+    "marks": 1,
+    "correctPct": 60,
+    "correctNumber": 49,
+    "answerCounts": { "A": 49, "B": 12, "C": 8, "D": 6, "E": 6 },
+    "answerOptions": { "A": "82 69 65 68", "B": "82 65 69 68", "C": "68 65 69 82", "D": "69 82 65 68", "E": "65 82 69 68" },
+    "correctOption": "A"
+  },
+  {
+    "id": 4,
+    "text": "Which of the following prefixes is the largest?",
+    "marks": 2,
+    "correctPct": 72,
+    "correctNumber": 58,
+    "answerCounts": { "A": 8, "B": 4, "C": 6, "D": 5, "E": 58 },
+    "answerOptions": { "A": "kilo- (10³)", "B": "mega- (10⁶)", "C": "giga- (10⁹)", "D": "tera- (10¹²)", "E": "peta- (10¹⁵)" },
+    "correctOption": "E"
+  },
+  {
+    "id": 5,
+    "text": "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
+    "marks": 1,
+    "correctPct": 74,
+    "correctNumber": 60,
+    "answerCounts": { "A": 60, "B": 8, "C": 5, "D": 4, "E": 4 },
+    "answerOptions": { "A": "Shareware", "B": "Freeware", "C": "Open source", "D": "Adware", "E": "Public domain" },
+    "correctOption": "A"
+  },
+  {
+    "id": 6,
+    "text": "Convert the hexadecimal number 3F to decimal.",
+    "marks": 1,
+    "correctPct": 68,
+    "correctNumber": 55,
+    "answerCounts": { "A": 55, "B": 8, "C": 7, "D": 5, "E": 6 },
+    "answerOptions": { "A": "63", "B": "58", "C": "65", "D": "61", "E": "60" },
+    "correctOption": "A"
+  },
+  {
+    "id": 7,
+    "text": "Which layer of the OSI model is responsible for routing?",
+    "marks": 2,
+    "correctPct": 58,
+    "correctNumber": 47,
+    "answerCounts": { "A": 10, "B": 12, "C": 47, "D": 8, "E": 4 },
+    "answerOptions": { "A": "Physical", "B": "Data Link", "C": "Network", "D": "Transport", "E": "Application" },
+    "correctOption": "C"
+  },
+  {
+    "id": 8,
+    "text": "What is the time complexity of binary search?",
+    "marks": 1,
+    "correctPct": 80,
+    "correctNumber": 65,
+    "answerCounts": { "A": 4, "B": 65, "C": 6, "D": 2, "E": 4 },
+    "answerOptions": { "A": "O(n)", "B": "O(log n)", "C": "O(n log n)", "D": "O(1)", "E": "O(n²)" },
+    "correctOption": "B"
+  },
+  {
+    "id": 9,
+    "text": "In CSS, specificity is highest for which selector?",
+    "marks": 2,
+    "correctPct": 51,
+    "correctNumber": 41,
+    "answerCounts": { "A": 4, "B": 16, "C": 12, "D": 41, "E": 8 },
+    "answerOptions": { "A": "Type", "B": "Class", "C": "ID", "D": "Inline", "E": "Pseudo-class" },
+    "correctOption": "D"
+  },
+  {
+    "id": 10,
+    "text": "Which SQL clause is used to filter grouped records?",
+    "marks": 2,
+    "correctPct": 56,
+    "correctNumber": 45,
+    "answerCounts": { "A": 12, "B": 45, "C": 8, "D": 8, "E": 8 },
+    "answerOptions": { "A": "WHERE", "B": "HAVING", "C": "GROUP BY", "D": "ORDER BY", "E": "SELECT" },
+    "correctOption": "B"
+  },
+  {
+    "id": 11,
+    "text": "What does ACID stand for in databases?",
+    "marks": 3,
+    "correctPct": 40,
+    "correctNumber": 32,
+    "answerCounts": { "A": 32, "B": 16, "C": 12, "D": 8, "E": 13 },
+    "answerOptions": {
+      "A": "Atomicity, Consistency, Isolation, Durability",
+      "B": "Accessibility, Concurrency, Integrity, Durability",
+      "C": "Atomicity, Consistency, Integration, Durability",
+      "D": "Atomicity, Consistency, Isolation, Dependability",
+      "E": "Atomicity, Consistency, Isolation, Distribution"
+    },
+    "correctOption": "A"
+  },
+  {
+    "id": 12,
+    "text": "Which HTTP status code indicates a 'Not Found' error?",
+    "marks": 1,
+    "correctPct": 75,
+    "correctNumber": 61,
+    "answerCounts": { "A": 4, "B": 4, "C": 61, "D": 4, "E": 8 },
+    "answerOptions": { "A": "200", "B": "301", "C": "404", "D": "500", "E": "302" },
+    "correctOption": "C"
+  },
+  {
+    "id": 13,
+    "text": "Which JavaScript method converts JSON text to a JavaScript object?",
+    "marks": 1,
+    "correctPct": 62,
+    "correctNumber": 50,
+    "answerCounts": { "A": 50, "B": 8, "C": 6, "D": 10, "E": 7 },
+    "answerOptions": { "A": "JSON.parse()", "B": "JSON.stringify()", "C": "toJSON()", "D": "eval()", "E": "parseJSON()" },
+    "correctOption": "A"
+  },
+  {
+    "id": 14,
+    "text": "In Git, which command creates a new branch?",
+    "marks": 1,
+    "correctPct": 85,
+    "correctNumber": 69,
+    "answerCounts": { "A": 69, "B": 4, "C": 2, "D": 3, "E": 3 },
+    "answerOptions": { "A": "git checkout -b", "B": "git branch -d", "C": "git merge", "D": "git init", "E": "git clone" },
+    "correctOption": "A"
+  },
+  {
+    "id": 15,
+    "text": "What is the output of 7 % 3 in JavaScript?",
+    "marks": 1,
+    "correctPct": 70,
+    "correctNumber": 57,
+    "answerCounts": { "A": 8, "B": 57, "C": 4, "D": 8, "E": 4 },
+    "answerOptions": { "A": "1", "B": "2", "C": "0", "D": "3", "E": "4" },
+    "correctOption": "B"
+  },
+  {
+    "id": 16,
+    "text": "Which data structure uses FIFO ordering?",
+    "marks": 2,
+    "correctPct": 60,
+    "correctNumber": 49,
+    "answerCounts": { "A": 16, "B": 49, "C": 4, "D": 6, "E": 6 },
+    "answerOptions": { "A": "Stack", "B": "Queue", "C": "Tree", "D": "Graph", "E": "Hash Table" },
+    "correctOption": "B"
+  },
+  {
+    "id": 17,
+    "text": "What does DNS stand for?",
+    "marks": 2,
+    "correctPct": 65,
+    "correctNumber": 53,
+    "answerCounts": { "A": 53, "B": 8, "C": 8, "D": 4, "E": 8 },
+    "answerOptions": {
+      "A": "Domain Name System",
+      "B": "Data Network Service",
+      "C": "Digital Network System",
+      "D": "Domain Number System",
+      "E": "Data Name Service"
+    },
+    "correctOption": "A"
+  },
+  {
+    "id": 18,
+    "text": "Which HTML tag is used for the largest heading?",
+    "marks": 1,
+    "correctPct": 90,
+    "correctNumber": 73,
+    "answerCounts": { "A": 73, "B": 2, "C": 2, "D": 2, "E": 2 },
+    "answerOptions": { "A": "<h1>", "B": "<h2>", "C": "<h3>", "D": "<header>", "E": "<title>" },
+    "correctOption": "A"
+  },
+  {
+    "id": 19,
+    "text": "Which AWS service is used for object storage?",
+    "marks": 2,
+    "correctPct": 51,
+    "correctNumber": 41,
+    "answerCounts": { "A": 16, "B": 41, "C": 8, "D": 8, "E": 8 },
+    "answerOptions": { "A": "EC2", "B": "S3", "C": "RDS", "D": "Lambda", "E": "VPC" },
+    "correctOption": "B"
+  },
+  {
+    "id": 20,
+    "text": "What protocol does HTTPS use to encrypt data?",
+    "marks": 2,
+    "correctPct": 77,
+    "correctNumber": 62,
+    "answerCounts": { "A": 62, "B": 4, "C": 2, "D": 6, "E": 7 },
+    "answerOptions": { "A": "SSL/TLS", "B": "FTP", "C": "HTTP", "D": "SSH", "E": "TCP" },
+    "correctOption": "A"
+  }
+] as const;
+
+export default questions;
