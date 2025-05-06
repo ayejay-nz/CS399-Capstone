@@ -117,16 +117,16 @@ describe('createExamVersions()', () => {
 
         // Check properties of each version
         examVersions.forEach((version) => {
-            expect(version.optionOrder).toHaveLength(2);
+            expect(version.optionOrders).toHaveLength(2);
 
             // Check properties for Q1
-            const q1Order = version.optionOrder[0];
+            const q1Order = version.optionOrders[0];
             expect(q1Order).toBeInstanceOf(Array);
             expect(q1Order).toHaveLength(q1Options.length);
             expect([...q1Order!].sort((a, b) => a - b)).toEqual(expectedQ1Order); // q1Order contains all 1 to the number of Q1 options
 
             // Check properties for Q2
-            const q2Order = version.optionOrder[1];
+            const q2Order = version.optionOrders[1];
             expect(q2Order).toBeInstanceOf(Array);
             expect(q2Order).toHaveLength(q2Options.length);
             expect([...q2Order!].sort((a, b) => a - b)).toEqual(expectedQ2Order); // q2Order contains all 1 to the number of Q2 options

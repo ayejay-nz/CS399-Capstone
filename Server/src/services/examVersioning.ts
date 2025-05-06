@@ -32,7 +32,7 @@ function initialiseEmptyExams() {
         (_, v) =>
             ({
                 versionNumber: padTo8(v + 1),
-                optionOrder: [],
+                optionOrders: [],
             }) as VersionedExam,
     );
 }
@@ -70,7 +70,7 @@ export function createExamVersions(examData: ExamData) {
         // Create randomised option orders for each version
         for (let i = 0; i < DEFAULT_EXAM_VERSIONS; i++) {
             const optionOrder = generateOptionOrder(optionCount);
-            examVersions[i]!.optionOrder.push(optionOrder);
+            examVersions[i]!.optionOrders.push(optionOrder);
         }
     });
 
