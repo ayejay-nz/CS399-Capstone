@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Mark } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Heading from "@tiptap/extension-heading";
@@ -17,7 +17,37 @@ import {
   ListOrdered,
   Quote,
   Code,
+  Underline as UnderlineIcon,
 } from "lucide-react";
+
+// Custom Underline extension
+const Underline = Mark.create({
+  name: "underline",
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: "u",
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["u", HTMLAttributes, 0];
+  },
+  addCommands() {
+    return {
+      toggleUnderline:
+        () =>
+        ({ chain }) => {
+          return chain().toggleMark("underline").run();
+        },
+    };
+  },
+});
 
 const Tiptap = ({
   setEditor,
@@ -31,6 +61,7 @@ const Tiptap = ({
       StarterKit.configure({
         heading: false,
       }),
+      Underline,
       Heading.configure({ levels: [1, 2, 3] }),
       Image.configure({
         inline: false,
@@ -87,7 +118,7 @@ const Tiptap = ({
         onChange={handleImageUpload}
       />
 
-{editor && isQuestionEditor && (
+      {editor && isQuestionEditor && (
         <div className="flex flex-wrap gap-1">
           <div className="flex gap-1">
             <Button
@@ -111,6 +142,16 @@ const Tiptap = ({
               <Italic className="h-4 w-4 text-gray-400" />
             </Button>
             <Button
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              className={`h-auto w-auto p-1 hover:bg-white/10 ${
+                editor.isActive("underline") ? "ring-1 ring-white" : ""
+              }`}
+              variant="ghost"
+              size="sm"
+            >
+              <UnderlineIcon className="h-4 w-4 text-gray-400" />
+            </Button>
+            <Button
               onClick={() => editor.chain().focus().toggleStrike().run()}
               className={`h-auto w-auto p-1 hover:bg-white/10 ${
                 editor.isActive("strike") ? "ring-1 ring-white" : ""
@@ -123,84 +164,6 @@ const Tiptap = ({
           </div>
 
           <div className="flex gap-1">
-            <Button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              }
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("heading", { level: 1 })
-                  ? "ring-1 ring-white"
-                  : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Heading1 className="h-4 w-4 text-gray-400" />
-            </Button>
-            <Button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("heading", { level: 2 })
-                  ? "ring-1 ring-white"
-                  : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Heading2 className="h-4 w-4 text-gray-400" />
-            </Button>
-            <Button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 3 }).run()
-              }
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("heading", { level: 3 })
-                  ? "ring-1 ring-white"
-                  : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Heading3 className="h-4 w-4 text-gray-400" />
-            </Button>
-          </div>
-
-          <div className="flex gap-1">
-            <Button
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("bulletList") ? "ring-1 ring-white" : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <List className="h-4 w-4 text-gray-400" />
-            </Button>
-            <Button
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("orderedList") ? "ring-1 ring-white" : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <ListOrdered className="h-4 w-4 text-gray-400" />
-            </Button>
-          </div>
-
-          <div className="flex gap-1">
-            <Button
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("blockquote") ? "ring-1 ring-white" : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Quote className="h-4 w-4 text-gray-400" />
-            </Button>
             <Button
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
               className={`p-1 hover:bg-white/10 ${
