@@ -106,21 +106,21 @@ export default function QuestionForm({
 
   return (
     <div
-      className="flex-1 p-6 pr-10 rounded-md"
+      className="flex-1 p-6 pr-6 rounded-md"
       style={{ backgroundColor: "oklch(23% 0 0)" }}
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Questions</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-5">
           <div className="flex items-center text-sm text-white">
-            <div className="flex items-stretch border border-gray-600 rounded overflow-hidden">
-              <span className="px-3 py-0.5 flex items-center border-r border-gray-600">
+            <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
+              <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
                 Mark(s)
               </span>
-              <span className="px-3 py-0.5 flex items-center border-r border-gray-600">
+              <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
                 {marks}
               </span>
-              <div className="flex flex-col divide-y divide-gray-600">
+              <div className="flex flex-col divide-y divide-gray-500">
                 <button
                   className="px-2 h-full hover:bg-gray-700 leading-none"
                   onClick={() => adjustMarks(1)}
@@ -137,14 +137,16 @@ export default function QuestionForm({
               </div>
             </div>
           </div>
-          <Button variant="secondary" onClick={handleSubmit}>
-            {currentQuestionId ? "update" : "add question"}
-          </Button>
-          {currentQuestionId && (
-            <Button variant="secondary" onClick={handleCancel}>
-              cancel
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={handleSubmit}>
+              {currentQuestionId ? "update" : "add question"}
             </Button>
-          )}
+            {currentQuestionId && (
+              <Button variant="secondary" onClick={handleCancel}>
+                cancel
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -152,7 +154,7 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}-${version}`} 
+              key={`question-${currentQuestionId}-${version}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
@@ -178,7 +180,7 @@ export default function QuestionForm({
                   />
                   <div className="flex-1 w-full relative">
                     <Tiptap
-                      key={`${optionId}-${version}`} 
+                      key={`${optionId}-${version}`}
                       setEditor={(editor) => {
                         setOptionEditors((prev) => {
                           const updated = [...prev];

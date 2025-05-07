@@ -20,7 +20,6 @@ import {
   Underline as UnderlineIcon,
 } from "lucide-react";
 
-// Custom Underline extension
 const Underline = Mark.create({
   name: "underline",
   addOptions() {
@@ -71,7 +70,7 @@ const Tiptap = ({
     content,
     editorProps: {
       attributes: {
-        class: `p-3 text-white focus:outline-2 ${
+        class: `p-3 text-white focus:ring-1 focus:ring-gray-300 focus:ring-offset-background rounded-md ${
           isQuestionEditor ? "min-h-[75px]" : "min-h-[40px]"
         }`,
       },
