@@ -84,10 +84,10 @@ export function xmlParser(xml: string): ExamData {
 
             // answers
             const answers = ([] as any[]).concat(q.answer || []);
-            if (answers.length < 2) {
+            if (answers.length < 3) {
                 throw new ParserError(
                     API_ERROR_CODE.PARSING_FAILED,
-                    'At least two answers are required',
+                    'At least three answers are required',
                 );
             }
             const correct = answers.filter((a) => String(a['@_fraction']) === '100');
