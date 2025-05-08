@@ -47,7 +47,7 @@ function initialiseEmptyExams() {
  *  Each inner array represents the shuffled indicies for that question's
  *  options in that version.
  */
-export function createExamVersions(examData: ExamData) {
+export function generateExamVersions(examData: ExamData) {
     let examVersions = initialiseEmptyExams();
 
     examData.content.forEach((contentBlock) => {

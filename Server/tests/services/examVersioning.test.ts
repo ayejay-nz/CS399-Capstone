@@ -1,11 +1,11 @@
-import { createExamVersions } from '../../src/services/examVersioning';
+import { generateExamVersions } from '../../src/services/examVersioning';
 import { ExamData, FeedbackDefaults, Question, Section } from '../../src/dataTypes/examData';
 import { VersionedExam } from '../../src/dataTypes/versionedExam';
 import { padTo8 } from '../../src/utils/format';
 import * as shuffleUtils from '../../src/utils/shuffle';
 import { DEFAULT_EXAM_VERSIONS } from '../../src/constants/constants';
 
-describe('createExamVersions()', () => {
+describe('generateExamVersions()', () => {
     let generateOptionOrderSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -18,7 +18,7 @@ describe('createExamVersions()', () => {
 
     it('creates the correct number of versions with the padded version numbers', () => {
         const emptyData: ExamData = { content: [] };
-        const result = createExamVersions(emptyData);
+        const result = generateExamVersions(emptyData);
 
         expect(result).toHaveLength(DEFAULT_EXAM_VERSIONS);
         expect(result.map((v) => v.versionNumber)).toEqual(
@@ -39,7 +39,7 @@ describe('createExamVersions()', () => {
             ],
         };
 
-        createExamVersions(examData);
+        generateExamVersions(examData);
 
         expect(generateOptionOrderSpy).not.toHaveBeenCalled();
     });
@@ -68,7 +68,7 @@ describe('createExamVersions()', () => {
             ],
         };
 
-        createExamVersions(examData);
+        generateExamVersions(examData);
 
         // Called for both Q1 and Q2
         expect(generateOptionOrderSpy).toHaveBeenCalledTimes(DEFAULT_EXAM_VERSIONS * 2);
@@ -110,7 +110,7 @@ describe('createExamVersions()', () => {
             ],
         };
 
-        const examVersions = createExamVersions(examData);
+        const examVersions = generateExamVersions(examData);
 
         expect(examVersions).toHaveLength(DEFAULT_EXAM_VERSIONS);
         expect(generateOptionOrderSpy).toHaveBeenCalledTimes(DEFAULT_EXAM_VERSIONS * 2);
