@@ -11,3 +11,15 @@ import { Question, Section } from '../dataTypes/examData';
 export function isSection(contentBlock: Question | Section) {
     return 'section' in contentBlock;
 }
+
+/**
+ * Type-guard: true if the `contentBlock` is a `Question`.
+ *
+ * @param contentBlock
+ *  A question or section block from the exam content.
+ * @returns
+ *  `true` if `contentBlock` has a `question` property.
+ */
+export function isQuestion(contentBlock: Question | Section) {
+    return 'question' in contentBlock;
+}
