@@ -64,6 +64,13 @@ describe('getMarksAndIds()', () => {
         expect(marks).toEqual([2, 5]);
         expect(ids).toEqual([10, 20]);
     });
+
+    it('returns two empty arrays if there are no questions', () => {
+        const [marks, ids] = getMarksAndIds({ content: [sampleSection] });
+
+        expect(marks).toEqual([]);
+        expect(ids).toEqual([]);
+    });
 });
 
 describe('generateVersionSolutions()', () => {
@@ -116,6 +123,7 @@ describe('generateAnswerKey()', () => {
         const expectedVersionSolutions = generateVersionSolutions(versions, examData);
 
         expect(answerKey.source).toEqual(sampleQuestions);
+        expect(answerKey.versionSolutions.length).toEqual(versions.length);
         expect(answerKey.versionSolutions).toEqual(expectedVersionSolutions);
     });
 });
