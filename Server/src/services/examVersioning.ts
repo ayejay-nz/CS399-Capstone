@@ -3,18 +3,7 @@ import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { padTo8 } from '../utils/format';
 import { generateOptionOrder } from '../utils/shuffle';
-
-/**
- * Type-guard: true if the `contentBlock` is a `Section`.
- *
- * @param contentBlock
- *  A question or section block from the exam content.
- * @returns
- *  `true` if `contentBlock` has a `section` property.
- */
-function isSection(contentBlock: Question | Section) {
-    return 'section' in contentBlock;
-}
+import { isSection } from '../utils/typeGuards';
 
 /**
  * Create an array of empty exam versions, each with a unique, zero-padded
