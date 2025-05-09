@@ -150,29 +150,6 @@ const Tiptap = ({
             >
               <UnderlineIcon className="h-4 w-4 text-gray-400" />
             </Button>
-            <Button
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`h-auto w-auto p-1 hover:bg-white/10 ${
-                editor.isActive("strike") ? "ring-1 ring-white" : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Strikethrough className="h-4 w-4 text-gray-400" />
-            </Button>
-          </div>
-
-          <div className="flex gap-1">
-            <Button
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`p-1 hover:bg-white/10 ${
-                editor.isActive("codeBlock") ? "ring-1 ring-white" : ""
-              }`}
-              variant="ghost"
-              size="sm"
-            >
-              <Code className="h-4 w-4 text-gray-400" />
-            </Button>
           </div>
 
           {allowImageUpload && (
