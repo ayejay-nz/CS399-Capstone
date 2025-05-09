@@ -14,7 +14,6 @@ const app = express();
 app.use(express.json());
 
 // Routes
-
 app.get('/hello-world', (req, res) => {
     res.send('Hello World!');
 });
