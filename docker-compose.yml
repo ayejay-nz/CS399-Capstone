@@ -1,0 +1,32 @@
+services:
+  shuffle-frontend:
+    build: ./Client
+    ports:
+      - "3000:3000"
+    volumes:
+      - frontend_next_cache:/app/.next
+      - ./Client:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - shuffle-backend
+
+  shuffle-backend:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./Server:/app                # Bind mount project files (Don't need to rebuild when updating code)
+      - /app/node_modules     # Don't override container node_modules
+    ports:
+      - "8000:8000"           
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+    command: npm run dev
+
+volumes:
+  frontend_node_modules:
+  frontend_next_cache:
