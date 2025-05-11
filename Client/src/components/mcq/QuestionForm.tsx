@@ -89,6 +89,12 @@ export default function QuestionForm({
       ];
       return newEditors;
     });
+    useEffect(() => {
+      return () => {
+        setQuestionEditor(null);
+        setOptionEditors([]);
+      };
+    }, [version]);
 
     setOptionContents((prev) => {
       const newContents = [...prev];

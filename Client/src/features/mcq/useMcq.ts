@@ -151,16 +151,19 @@ export function useMcq() {
         displayText: questionTextObj?.questionText || "Question",
         options: question.options.map((opt: string) => `<p>${opt}</p>`),
         marks: question.marks || 1,
-        optionCount: question.options.length,
-        optionIds: question.options.map(() => generateOptionId()),
+        optionIds: question.options.map(generateOptionId),
       };
     });
 
+    const initialOptionCount = 5;
     setQuestions(newQuestions);
-    setOptionContents([]);
-    setOptionIds([]);
-    setCurrentQuestionId(null);
+    setOptionCount(initialOptionCount);
     setMarks(1);
+    setCurrentQuestionId(null);
+    setOptionIds(Array(initialOptionCount).fill(null).map(generateOptionId));
+    setOptionContents(Array(initialOptionCount).fill(""));
+    setOptionEditors(Array(initialOptionCount).fill(null));
+    setVersion((prev) => prev + 1);
   };
 
   return {
