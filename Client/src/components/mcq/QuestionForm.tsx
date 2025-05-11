@@ -17,6 +17,8 @@ interface Props {
   setOptionCount: (count: number) => void;
   optionIds: string[];
   setOptionIds: (fn: (prev: string[]) => string[]) => void;
+  optionContents: string[];
+  setOptionContents: (fn: (prev: string[]) => string[]) => void;
   version: number;
 }
 
@@ -34,6 +36,8 @@ export default function QuestionForm({
   optionCount,
   optionIds,
   setOptionIds,
+  optionContents,
+  setOptionContents,
   version,
 }: Props) {
   const [validationErrors, setValidationErrors] = useState({
@@ -49,7 +53,10 @@ export default function QuestionForm({
       const newIds = optionEditors.map((_, i) =>
         i < optionIds.length ? optionIds[i] : generateOptionId(),
       );
-      setOptionIds(newIds);
+
+      if (JSON.stringify(newIds) !== JSON.stringify(optionIds)) {
+        setOptionIds(newIds);
+      }
     }
   }, [optionEditors.length]);
 
@@ -63,10 +70,47 @@ export default function QuestionForm({
   const handleDeleteOption = (index: number) => {
     setOptionEditors((prev) => prev.filter((_, i) => i !== index));
     setOptionIds((prev) => prev.filter((_, i) => i !== index));
+    setOptionContents((prev) => prev.filter((_, i) => i !== index));
     setOptionCount((prev) => prev - 1);
     setValidationErrors((prev) => ({
       ...prev,
       options: prev.options.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleCheckboxChange = (clickedIndex: number) => {
+    if (clickedIndex === 0) return;
+    setOptionIds((prev) => {
+      const newIds = [...prev];
+      [newIds[0], newIds[clickedIndex]] = [newIds[clickedIndex], newIds[0]];
+      return newIds;
+    });
+
+    setOptionEditors((prev) => {
+      const newEditors = [...prev];
+      [newEditors[0], newEditors[clickedIndex]] = [
+        newEditors[clickedIndex],
+        newEditors[0],
+      ];
+      return newEditors;
+    });
+
+    setOptionContents((prev) => {
+      const newContents = [...prev];
+      [newContents[0], newContents[clickedIndex]] = [
+        newContents[clickedIndex],
+        newContents[0],
+      ];
+      return newContents;
+    });
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      options: prev.options.map((val, i) => {
+        if (i === 0) return prev.options[clickedIndex];
+        if (i === clickedIndex) return prev.options[0];
+        return val;
+      }),
     }));
   };
 
@@ -154,7 +198,7 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}-${version}`}
+              key={`question-${currentQuestionId}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
@@ -170,21 +214,30 @@ export default function QuestionForm({
               const optionId = optionIds[i] || generateOptionId();
               return (
                 <div
-                  key={`${optionId}-${version}`}
+                  key={`${optionId}-stable`}
                   className="flex items-center gap-2 mr-30"
                 >
                   <input
                     type="checkbox"
+                    checked={i === 0}
+                    onChange={() => handleCheckboxChange(i)}
                     className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
-                    readOnly
                   />
                   <div className="flex-1 w-full relative">
                     <Tiptap
-                      key={`${optionId}-${version}`}
+                      key={`${optionId}-editor`}
                       setEditor={(editor) => {
                         setOptionEditors((prev) => {
                           const updated = [...prev];
                           updated[i] = editor;
+                          return updated;
+                        });
+                      }}
+                      content={optionContents[i]}
+                      onUpdate={(content) => {
+                        setOptionContents((prev) => {
+                          const updated = [...prev];
+                          updated[i] = content;
                           return updated;
                         });
                       }}
@@ -224,6 +277,7 @@ export default function QuestionForm({
                   setOptionCount((prev) => prev + 1);
                   setOptionEditors((prev) => [...prev, null]);
                   setOptionIds((prev) => [...prev, newId]);
+                  setOptionContents((prev) => [...prev, ""]);
                   setValidationErrors((prev) => ({
                     ...prev,
                     options: [...prev.options, false],

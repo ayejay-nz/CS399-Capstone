@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, Mark } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -54,7 +54,11 @@ const Tiptap = ({
   allowImageUpload = false,
   isQuestionEditor = false,
   error = false,
+  onUpdate,
 }) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const fileInputRef = useRef(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -75,9 +79,15 @@ const Tiptap = ({
         }`,
       },
     },
+    onUpdate: ({ editor }) => {
+      onUpdate?.(editor.getHTML());
+    },
+    immediatelyRender: false,
   });
 
-  const fileInputRef = useRef(null);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (editor && setEditor) {
@@ -106,6 +116,8 @@ const Tiptap = ({
   const triggerImageUpload = () => {
     fileInputRef.current?.click();
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="flex flex-col gap-2">

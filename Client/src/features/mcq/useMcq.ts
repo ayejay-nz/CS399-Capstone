@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 export function useMcq() {
+  const [optionContents, setOptionContents] = useState<string[]>([]);
   const [optionIds, setOptionIds] = useState<string[]>([]);
   const [questionEditor, setQuestionEditor] = useState(null);
   const [optionCount, setOptionCount] = useState(5);
@@ -20,21 +21,23 @@ export function useMcq() {
   const [marks, setMarks] = useState(1);
   const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
   const [version, setVersion] = useState(0);
-  const extractTextFromHTML = (html) => {
+
+  const extractTextFromHTML = (html: string) => {
     if (!html) return "";
     const temp = document.createElement("div");
     temp.innerHTML = html;
     return temp.textContent || temp.innerText || "";
   };
-  const adjustMarks = (amount) => {
-    const newMarks = Math.max(1, marks + amount);
-    setMarks(newMarks);
+
+  const adjustMarks = (amount: number) => {
+    setMarks((prev) => Math.max(1, prev + amount));
   };
+
   const handleAddOrUpdateQuestion = () => {
     const content = questionEditor.getHTML();
-    const options = optionEditors.map((editor) => editor?.getHTML() || "");
-    const optionIds = optionEditors.map((_, i) => generateOptionId());
+    const options = optionContents;
     const displayText = extractTextFromHTML(content) || "Question";
+
     if (currentQuestionId !== null) {
       setQuestions((prev) =>
         prev.map((q) =>
@@ -46,44 +49,42 @@ export function useMcq() {
     } else {
       setQuestions((prev) => [
         ...prev,
-        { id: Date.now(), content, options, marks, displayText },
+        { id: Date.now(), content, options, marks, displayText, optionIds },
       ]);
     }
-    {
-      id: Date.now(), content, options, marks, displayText, optionIds;
-    }
+
     questionEditor.commands.setContent("");
-    optionEditors.forEach((editor) => editor.commands.setContent(""));
+    setOptionContents([]);
+    setOptionIds([]);
     setCurrentQuestionId(null);
     setMarks(1);
   };
+
   const handleEdit = (q: any) => {
     setEditingQuestion(q);
     setCurrentQuestionId(q.id);
     setOptionCount(q.options.length);
     setOptionEditors(Array(q.options.length).fill(null));
+    setOptionContents(q.options);
+    setOptionIds(
+      q.optionIds || q.options.map((_: any, i: number) => `${q.id}-${i}`),
+    );
     setMarks(q.marks || 1);
-    setOptionIds(q.options.map((_: any, i: number) => `${q.id}-${i}`));
     setVersion((prev) => prev + 1);
   };
+
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   useEffect(() => {
-    if (
-      editingQuestion &&
-      optionEditors.length === editingQuestion.options.length &&
-      optionEditors.every((editor) => editor !== null) &&
-      questionEditor !== null
-    ) {
+    if (editingQuestion && questionEditor) {
       questionEditor.commands.setContent(editingQuestion.content);
-
-      editingQuestion.options.forEach((opt: string, index: number) => {
-        optionEditors[index].commands.setContent(opt);
-      });
-
-      setEditingQuestion(null);
+      setTimeout(() => {
+        setOptionContents(editingQuestion.options);
+        setEditingQuestion(null);
+      }, 0);
     }
-  }, [editingQuestion, optionEditors, questionEditor]);
+  }, [editingQuestion, questionEditor]);
 
   // const simulateProcessQuestions = async (file: File) => {
   //   try {
@@ -117,12 +118,14 @@ export function useMcq() {
     }
   };
 
-  const handleProcessedQuestions = (data) => {
-    const newQuestions = data.content.map(({ question }) => {
+  const handleProcessedQuestions = (data: any) => {
+    const newQuestions = data.content.map(({ question }: any) => {
       const questionTextObj = question.content.find(
-        (c) => c.__type === "QuestionText",
+        (c: any) => c.__type === "QuestionText",
       );
-      const imageUriObj = question.content.find((c) => c.__type === "ImageURI");
+      const imageUriObj = question.content.find(
+        (c: any) => c.__type === "ImageURI",
+      );
 
       let htmlContent = "";
       if (questionTextObj)
@@ -133,15 +136,16 @@ export function useMcq() {
         id: Date.now() + Math.random(),
         content: htmlContent,
         displayText: questionTextObj?.questionText || "Question",
-        options: question.options.map((opt) => `<p>${opt}</p>`),
+        options: question.options.map((opt: string) => `<p>${opt}</p>`),
         marks: question.marks || 1,
         optionCount: question.options.length,
+        optionIds: question.options.map(() => generateOptionId()),
       };
     });
 
     setQuestions(newQuestions);
-    questionEditor?.commands.setContent("");
-    optionEditors.forEach((e) => e?.commands.setContent(""));
+    setOptionContents([]);
+    setOptionIds([]);
     setCurrentQuestionId(null);
     setMarks(1);
   };
@@ -167,6 +171,8 @@ export function useMcq() {
     setOptionCount,
     optionIds,
     setOptionIds,
+    optionContents,
+    setOptionContents,
     version,
   };
 }
