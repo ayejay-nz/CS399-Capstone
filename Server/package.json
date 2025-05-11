@@ -15,6 +15,7 @@
     "author": "Happy Coders",
     "license": "ISC",
     "dependencies": {
+        "docx": "^9.5.0",
         "exceljs": "^4.4.0",
         "express": "^5.1.0",
         "fast-xml-parser": "^5.2.1",
