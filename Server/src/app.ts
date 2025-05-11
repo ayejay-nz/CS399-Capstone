@@ -7,6 +7,7 @@ import coverPageRoutes from './routes/coverPageRoutes';
 import answerKeyRoutes from './routes/answerKeyRoutes';
 import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
+import examBundleRoutes from './routes/examBundleRoutes';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(`${config.server.apiPrefix}/cover-page`, coverPageRoutes);
 app.use(`${config.server.apiPrefix}/answer-key`, answerKeyRoutes);
 app.use(`${config.server.apiPrefix}/teleform-data`, teleformDataRoutes);
 app.use(`${config.server.apiPrefix}/asset`, assetRoutes);
+app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
 
 app.use(errorHandler);
 
