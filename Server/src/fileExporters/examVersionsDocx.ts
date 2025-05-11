@@ -90,15 +90,15 @@ function renderExamContent(
 export function exportExamVersionsDocx(
     versions: VersionedExam[],
     exam: ExamData,
-): Record<string, Paragraph[]> {
-    const versionsParagraphs: Record<string, Paragraph[]> = {};
+): { versionNumber: string; paragraphs: Paragraph[] }[] {
+    const versionsParagraphs: { versionNumber: string; paragraphs: Paragraph[] }[] = [];
 
     versions.forEach((version) => {
         const qIndex = { current: 0 }; // TODO -- ADD PROPER QUESTION NUMBERING
 
         // Build the actual exam
         const vParagraphs = renderExamContent(exam, version, qIndex);
-        versionsParagraphs[version.versionNumber] = vParagraphs;
+        versionsParagraphs.push({ versionNumber: version.versionNumber, paragraphs: vParagraphs });
     });
 
     return versionsParagraphs;
