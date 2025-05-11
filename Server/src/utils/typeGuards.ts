@@ -1,4 +1,4 @@
-import { Question, Section } from '../dataTypes/examData';
+import { BrandType, Question, Section } from '../dataTypes/examData';
 
 /**
  * Type-guard: true if the `contentBlock` is a `Section`.
@@ -22,4 +22,29 @@ export function isSection(contentBlock: Question | Section) {
  */
 export function isQuestion(contentBlock: Question | Section) {
     return 'question' in contentBlock;
+}
+
+function isBrandType(content: unknown, type: String) {
+    // prettier-ignore
+    return (
+        typeof content === 'object' &&
+        content !== null &&
+        (content as any).__type === type
+    )
+}
+
+export function isQuestionText(content: object) {
+    return isBrandType(content, 'QuestionText');
+}
+
+export function isSectionText(content: object) {
+    return isBrandType(content, 'SectionText');
+}
+
+export function isTableURI(content: object) {
+    return isBrandType(content, 'TableURI');
+}
+
+export function isImageURI(content: object) {
+    return isBrandType(content, 'ImageURI');
 }
