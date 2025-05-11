@@ -4,6 +4,7 @@ import {
     getMarksAndIds,
     generateVersionSolutions,
     generateAnswerKey,
+    examQuestionToAnswerKeyQuestion,
 } from '../../src/services/answerKey';
 
 const sampleSection: Section = {
@@ -121,8 +122,9 @@ describe('generateAnswerKey()', () => {
     it('extracts all questions into source and generates versionSolutions via generateVersionSolutions', () => {
         const answerKey = generateAnswerKey(versions, examData);
         const expectedVersionSolutions = generateVersionSolutions(versions, examData);
+        const answerKeyQuestions = sampleQuestions.map((q) => examQuestionToAnswerKeyQuestion(q));
 
-        expect(answerKey.source).toEqual(sampleQuestions);
+        expect(answerKey.source).toEqual(answerKeyQuestions);
         expect(answerKey.versionSolutions.length).toEqual(versions.length);
         expect(answerKey.versionSolutions).toEqual(expectedVersionSolutions);
     });

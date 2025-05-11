@@ -1,9 +1,34 @@
-import { VersionSolution, QuestionSolution, AnswerKey } from '../dataTypes/answerKey';
+import {
+    VersionSolution,
+    QuestionSolution,
+    AnswerKey,
+    AnswerKeyQuestion,
+} from '../dataTypes/answerKey';
 import { ExamData, Question } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { indexToTeleformAnswer } from '../utils/answerKey';
-import { isQuestion, isSection } from '../utils/typeGuards';
-import { generateExamVersions } from './examVersioning';
+import { isImageURI, isQuestion, isQuestionText, isSection, isTableURI } from '../utils/typeGuards';
+
+// TODO -- ADD TESTS AND DOCUMENTATION
+export function examQuestionToAnswerKeyQuestion(question: Question): AnswerKeyQuestion {
+    // Convert exam question content to answer key question content format
+    let content = '';
+    question.question.content.forEach((contentBlock) => {
+        if (isQuestionText(contentBlock)) content += contentBlock.questionText;
+        else if (isImageURI(contentBlock)) content += ' [image] ';
+        else if (isTableURI(contentBlock)) content += ' [table] ';
+    });
+
+    const answerKeyQuestion: AnswerKeyQuestion = {
+        marks: question.question.marks,
+        id: question.question.id,
+        feedback: question.question.feedback,
+        content: content,
+        options: question.question.options,
+    };
+
+    return answerKeyQuestion;
+}
 
 /**
  * Extracts parallel arrays of question marks and ids from supplied exam data.
@@ -113,11 +138,11 @@ export function generateVersionSolutions(
  *   - `versionSolutions`: the array of `VersionSolution` for each exam version.
  */
 export function generateAnswerKey(versions: VersionedExam[], examData: ExamData): AnswerKey {
-    let questions: Question[] = [];
+    let questions: AnswerKeyQuestion[] = [];
 
     examData.content.forEach((contentBlock) => {
         if (isQuestion(contentBlock)) {
-            questions.push(contentBlock);
+            questions.push(examQuestionToAnswerKeyQuestion(contentBlock));
         }
     });
 
