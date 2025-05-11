@@ -42,22 +42,35 @@ export function useMcq() {
       setQuestions((prev) =>
         prev.map((q) =>
           q.id === currentQuestionId
-            ? { ...q, content, options, marks, displayText }
+            ? { ...q, content, options, marks, displayText, optionIds }
             : q,
         ),
       );
     } else {
       setQuestions((prev) => [
         ...prev,
-        { id: Date.now(), content, options, marks, displayText, optionIds },
+        {
+          id: Date.now(),
+          content,
+          options,
+          marks,
+          displayText,
+          optionIds: [...optionIds],
+        },
       ]);
     }
 
     questionEditor.commands.setContent("");
-    setOptionContents([]);
-    setOptionIds([]);
+    const initialOptionCount = 5;
+    const newOptionIds = Array(initialOptionCount)
+      .fill(null)
+      .map(generateOptionId);
+    setOptionCount(initialOptionCount);
+    setOptionIds(newOptionIds);
+    setOptionContents(Array(initialOptionCount).fill(""));
     setCurrentQuestionId(null);
     setMarks(1);
+    setVersion((prev) => prev + 1);
   };
 
   const handleEdit = (q: any) => {

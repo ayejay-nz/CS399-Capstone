@@ -13,8 +13,6 @@ interface Props {
   cancelEdit: () => void;
   marks: number;
   adjustMarks: (amount: number) => void;
-  optionCount: number;
-  setOptionCount: (count: number) => void;
   optionIds: string[];
   setOptionIds: (fn: (prev: string[]) => string[]) => void;
   optionContents: string[];
@@ -53,10 +51,7 @@ export default function QuestionForm({
       const newIds = optionEditors.map((_, i) =>
         i < optionIds.length ? optionIds[i] : generateOptionId(),
       );
-
-      if (JSON.stringify(newIds) !== JSON.stringify(optionIds)) {
-        setOptionIds(newIds);
-      }
+      setOptionIds(newIds);
     }
   }, [optionEditors.length]);
 
