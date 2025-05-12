@@ -81,7 +81,7 @@ describe('xmlParser', () => {
         expect(() => xmlParser(xml)).toThrow(/no correct answer/i);
     });
 
-    it('throws if there is less than three <answer> element', () => {
+    it('throws if there are fewer than three <answer> elements', () => {
         const xml = `
       <quiz>
         <question type="multichoice">
@@ -90,11 +90,30 @@ describe('xmlParser', () => {
           <correctfeedback><text><![CDATA[x]]></text></correctfeedback>
           <incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>
           <answer fraction="100"><text><![CDATA[Only]]></text></answer>
+          <answer fraction="0"><text><![CDATA[One]]></text></answer>
         </question>
       </quiz>`;
-        expect(() => xmlParser(xml)).toThrow(/at least three answers/i);
+        expect(() => xmlParser(xml)).toThrow(/between 3 and 5/);
     });
 
+    it('throws if there are more than five <answer> elements', () => {
+        const xml = `
+      <quiz>
+        <question type="multichoice">
+          <questiontext><text><![CDATA[q]]></text></questiontext>
+          <defaultgrade>1</defaultgrade>
+          <correctfeedback><text><![CDATA[x]]></text></correctfeedback>
+          <incorrectfeedback><text><![CDATA[y]]></text></incorrectfeedback>
+          <answer fraction="100"><text><![CDATA[A]]></text></answer>
+          <answer fraction="0"><text><![CDATA[B]]></text></answer>
+          <answer fraction="0"><text><![CDATA[C]]></text></answer>
+          <answer fraction="0"><text><![CDATA[D]]></text></answer>
+          <answer fraction="0"><text><![CDATA[E]]></text></answer>
+          <answer fraction="0"><text><![CDATA[F]]></text></answer>
+        </question>
+      </quiz>`;
+        expect(() => xmlParser(xml)).toThrow(/between 3 and 5/);
+    });
     it('throws if any mandatory field is missing in a multichoice', () => {
         const base = `
     <quiz>
