@@ -80,7 +80,9 @@ const Tiptap = ({
       },
     },
     onUpdate: ({ editor }) => {
-      onUpdate?.(editor.getHTML());
+      const html = editor.getHTML();
+      const text = editor.getText().trim();
+      onUpdate?.(html, text);
     },
     immediatelyRender: false,
   });
@@ -180,12 +182,17 @@ const Tiptap = ({
       <div
         className={`flex-1 rounded-md border ${
           error ? "border-red-500" : "border-[#27272a]"
-        }`}
+        } relative`}
         style={{
           minHeight: isQuestionEditor ? "75px" : "40px",
         }}
       >
         <EditorContent editor={editor} />
+        {error && (
+          <div className="absolute bottom-1 left-3 text-xs text-red-500">
+            This field is required
+          </div>
+        )}
       </div>
     </div>
   );

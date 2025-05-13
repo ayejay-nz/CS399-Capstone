@@ -18,6 +18,8 @@ interface Props {
   optionContents: string[];
   setOptionContents: (fn: (prev: string[]) => string[]) => void;
   version: number;
+  setOptionCount: (fn: (prev: number) => number) => void;
+  optionCount: number;
 }
 
 export default function QuestionForm({
@@ -53,14 +55,15 @@ export default function QuestionForm({
       );
       setOptionIds(newIds);
     }
-  }, [optionEditors.length]);
+  }, [optionEditors.length, optionIds.length, setOptionIds]);
 
+  // Fixed useEffect with consistent dependencies
   useEffect(() => {
     setValidationErrors({
       question: false,
       options: Array(optionEditors.length).fill(false),
     });
-  }, [currentQuestionId]);
+  }, [currentQuestionId]); // Keep dependency array consistent
 
   const handleDeleteOption = (index: number) => {
     setOptionEditors((prev) => prev.filter((_, i) => i !== index));
@@ -193,11 +196,17 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}`}
+              key={`question-${currentQuestionId}-${version}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
               error={validationErrors.question}
+              onUpdate={(_, text) => {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  question: !text,
+                }));
+              }}
             />
           </div>
         </div>
@@ -209,7 +218,7 @@ export default function QuestionForm({
               const optionId = optionIds[i] || generateOptionId();
               return (
                 <div
-                  key={`${optionId}-stable`}
+                  key={`${optionId}-stable-${version}`}
                   className="flex items-center gap-2 mr-30"
                 >
                   <input
@@ -220,7 +229,7 @@ export default function QuestionForm({
                   />
                   <div className="flex-1 w-full relative">
                     <Tiptap
-                      key={`${optionId}-editor`}
+                      key={`${optionId}-editor-${version}`}
                       setEditor={(editor) => {
                         setOptionEditors((prev) => {
                           const updated = [...prev];
@@ -229,11 +238,11 @@ export default function QuestionForm({
                         });
                       }}
                       content={optionContents[i]}
-                      onUpdate={(content) => {
-                        setOptionContents((prev) => {
-                          const updated = [...prev];
-                          updated[i] = content;
-                          return updated;
+                      onUpdate={(_, text) => {
+                        setValidationErrors((prev) => {
+                          const newOptions = [...prev.options];
+                          newOptions[i] = !text;
+                          return { ...prev, options: newOptions };
                         });
                       }}
                       error={validationErrors.options[i]}
