@@ -22,7 +22,7 @@ function initialiseEmptyExams() {
             ({
                 versionNumber: padTo8(v + 1),
                 optionOrders: [],
-            }) as VersionedExam,
+            } as VersionedExam),
     );
 }
 
