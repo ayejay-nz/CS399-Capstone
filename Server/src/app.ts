@@ -8,11 +8,19 @@ import answerKeyRoutes from './routes/answerKeyRoutes';
 import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
 import examBundleRoutes from './routes/examBundleRoutes';
+import cors from 'cors';
 
 const app = express();
 
 // Middlewares
 app.use(express.json());
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+    }),
+);
 
 // Routes
 app.get('/hello-world', (req, res) => {
