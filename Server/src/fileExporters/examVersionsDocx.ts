@@ -98,7 +98,10 @@ export function exportExamVersionsDocx(
 
         // Build the actual exam
         const vParagraphs = renderExamContent(exam, version, qIndex);
-        versionsParagraphs.push({ versionNumber: version.versionNumber, paragraphs: vParagraphs });
+        versionsParagraphs.push({
+            versionNumber: version.versionNumber,
+            paragraphs: vParagraphs,
+        });
     });
 
     return versionsParagraphs;
