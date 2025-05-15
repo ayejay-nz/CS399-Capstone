@@ -46,15 +46,18 @@ async function handlePreview(questions: Question[]) {
       };
     }),
   };
-  console.log(payload)
+  console.log(payload);
   try {
-    const res = await fetch("{localhost}/api/{}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      "http://localhost:8000/api/v1/exam-source/upload-json",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+    );
 
     if (!res.ok) {
       throw new Error("Download failed");

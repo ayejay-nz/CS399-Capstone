@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse"; // Clean these imports up
+import { ExamData } from "../../../../Server/src/dataTypes/examData";
 
 export function useMcq() {
   const [optionContents, setOptionContents] = useState<string[]>([]);
@@ -99,37 +101,43 @@ export function useMcq() {
     }
   }, [editingQuestion, questionEditor]);
 
-  // const simulateProcessQuestions = async (file: File) => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("file", file);
-
-  //     const res = await fetch("{localhost}/api/{}", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     if (!res.ok) {
-  //       throw new Error("File upload failed");
-  //     }
-
-  //     const data = await res.json();
-  //     handleProcessedQuestions(data);
-  //   } catch (err) {
-  //     console.error("Error uploading and processing file:", err);
-  //     alert("Failed to upload and process the file.");
-  //   }
-  // };
   const simulateProcessQuestions = async (file: File) => {
     try {
-      const fileText = await file.text();
-      const data = JSON.parse(fileText);
-      handleProcessedQuestions(data);
+      const formData = new FormData();
+      formData.append("examSourceFile", file);
+
+      const res = await fetch(
+        "http://localhost:8000/api/v1/exam-source/upload-file",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("File upload failed");
+      }
+
+      // Extract parsed JSON from API response
+      const { data: parseResult } =
+        (await res.json()) as ApiSuccessResponse<ExamData>;
+      handleProcessedQuestions(parseResult);
     } catch (err) {
-      console.error("Error processing file:", err);
-      alert("Failed to process the file. Make sure it's valid JSON.");
+      console.error("Error uploading and processing file:", err);
+      alert("Failed to upload and process the file.");
     }
   };
+
+  // const simulateProcessQuestions = async (file: File) => {
+  //   try {
+  //     const fileText = await file.text();
+  //     const data = JSON.parse(fileText);
+  //     handleProcessedQuestions(data);
+  //   } catch (err) {
+  //     console.error("Error processing file:", err);
+  //     alert("Failed to process the file. Make sure it's valid JSON.");
+  //   }
+  // };
 
   const handleProcessedQuestions = (data: any) => {
     const newQuestions = data.content.map(({ question }: any) => {
