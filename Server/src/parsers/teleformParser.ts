@@ -28,7 +28,7 @@ export function teleformParser(data: Buffer | string): TeleformData {
         }
 
         const courseNumber = courseAndVersion.slice(0, 3);
-        const versionNumber = courseAndVersion.slice(-1);
+        const versionNumber = courseAndVersion.slice(-1).padStart(8, '0');
 
         const answers: number[] = [];
         for (let i = 0; i + 1 < answerString.length; i += 2) {
