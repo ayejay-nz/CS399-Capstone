@@ -4,6 +4,7 @@ export interface Summary {
     median: number;
     upperQuartile: number;
     highestScore: number;
+    examMarks: number;
     studentScores: number[];
     lowestScoringQuestions: number[]; // array of question ids with the lowest mark
 }
