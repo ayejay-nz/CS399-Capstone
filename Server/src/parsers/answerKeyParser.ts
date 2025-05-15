@@ -49,7 +49,7 @@ function parseSourceQuestionsFromWorkbook(wb: Workbook): AnswerKeyQuestion[] {
         if (cellTxt === 'questionid') columns.questionId = idx;
         else if (cellTxt === 'questionstem') columns.questionStem = idx;
         else if (cellTxt === 'markweight') columns.markWeight = idx;
-        else if (/^[0..9]$/.test(cellTxt)) columns.optionColumns.push({ idx });
+        else if (/^[0-9]$/.test(cellTxt)) columns.optionColumns.push({ idx });
     });
 
     const questions: AnswerKeyQuestion[] = [];
