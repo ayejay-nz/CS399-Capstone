@@ -22,6 +22,26 @@ describe('parseTeleformData()', () => {
         expect(result.studentAnswers[0]).toEqual(expected);
     });
 
+    it('handles Buffer input correctly', () => {
+        const rawString = `01123456712 NGWERUME     MUGOVEV 11100000002 04080202040101161604`;
+        const rawBuffer = Buffer.from(rawString, 'utf-8');
+        const result: TeleformData = teleformParser(rawBuffer);
+
+        expect(result).toHaveProperty('studentAnswers');
+        expect(result.studentAnswers).toHaveLength(1);
+
+        const expected: StudentTeleformData = {
+            auid: '01123456712',
+            lastName: 'NGWERUME',
+            firstName: 'MUGOVEV',
+            courseNumber: '111',
+            versionNumber: '2',
+            answers: [4, 8, 2, 2, 4, 1, 1, 16, 16, 4],
+        };
+
+        expect(result.studentAnswers[0]).toEqual(expected);
+    });
+
     it('skips empty lines', () => {
         const raw = `
 
