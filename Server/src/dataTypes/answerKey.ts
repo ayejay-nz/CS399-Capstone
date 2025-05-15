@@ -2,7 +2,7 @@ import { Feedback } from './examData';
 
 export interface QuestionSolution {
     questionId: number;
-    answers: number[];
+    answers: number[]; // Teleform answer format (1, 2, 4, 8, 16)
     mark: number;
     optionSequence: number[];
 }

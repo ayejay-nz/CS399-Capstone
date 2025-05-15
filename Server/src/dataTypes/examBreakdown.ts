@@ -10,7 +10,7 @@ export interface Summary {
 
 export interface Answer {
     questionId: number;
-    optionSelected?: number;
+    optionSelected?: number; // Teleform answer format (1, 2, 4, 8, 16)
     isCorrect: boolean;
     customFeedback?: string;
 }
@@ -27,7 +27,7 @@ export interface StudentBreakdown {
 }
 
 export interface OptionBreakdown {
-    optionNumber: number;
+    optionNumber: number; // Index format (0, 1, 2, 3, 4)
     timesPicked: number;
     pickPercentage: number;
     isCorrect: boolean;
