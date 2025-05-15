@@ -10,3 +10,7 @@
 export function padTo8(n: number) {
     return n.toString().padStart(8, '0');
 }
+
+export function toPercentage2dp(n: number) {
+    return parseInt((n * 100).toFixed(2));
+}
