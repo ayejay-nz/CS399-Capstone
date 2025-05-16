@@ -57,13 +57,12 @@ export default function QuestionForm({
     }
   }, [optionEditors.length, optionIds.length, setOptionIds]);
 
-  // Fixed useEffect with consistent dependencies
   useEffect(() => {
     setValidationErrors({
       question: false,
       options: Array(optionEditors.length).fill(false),
     });
-  }, [currentQuestionId]); // Keep dependency array consistent
+  }, [currentQuestionId]);
 
   const handleDeleteOption = (index: number) => {
     setOptionEditors((prev) => prev.filter((_, i) => i !== index));
@@ -238,7 +237,12 @@ export default function QuestionForm({
                         });
                       }}
                       content={optionContents[i]}
-                      onUpdate={(_, text) => {
+                      onUpdate={(html, text) => {
+                        setOptionContents((prev) => {
+                          const newContents = [...prev];
+                          newContents[i] = html;
+                          return newContents;
+                        });
                         setValidationErrors((prev) => {
                           const newOptions = [...prev.options];
                           newOptions[i] = !text;
