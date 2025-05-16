@@ -127,12 +127,12 @@ export async function parseDocxFile(file: Buffer | Blob): Promise<ExamData> {
           id: qId++,
           marks: parseInt(m[1]!, 10),
           feedback: FeedbackDefaults,
-          content: [{ questionText: m[2]! } as QuestionText],
+          content: [{ __type: 'QuestionText', questionText: m[2]! } as QuestionText],
           options: [],
         };
       } else if (currentQ) {
         if (/^[ivx]+\.\s*/i.test(piece)) {
-          currentQ.content.push({ questionText: piece } as QuestionText);
+          currentQ.content.push({ __type: 'QuestionText', questionText: piece } as QuestionText);
         } else {
           currentQ.options.push(piece);
         }

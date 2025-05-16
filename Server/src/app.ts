@@ -7,11 +7,20 @@ import coverPageRoutes from './routes/coverPageRoutes';
 import answerKeyRoutes from './routes/answerKeyRoutes';
 import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
+import examBundleRoutes from './routes/examBundleRoutes';
+import cors from 'cors';
 
 const app = express();
 
 // Middlewares
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+    }),
+);
 
 // Routes
 app.get('/hello-world', (req, res) => {
@@ -23,6 +32,7 @@ app.use(`${config.server.apiPrefix}/cover-page`, coverPageRoutes);
 app.use(`${config.server.apiPrefix}/answer-key`, answerKeyRoutes);
 app.use(`${config.server.apiPrefix}/teleform-data`, teleformDataRoutes);
 app.use(`${config.server.apiPrefix}/asset`, assetRoutes);
+app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
 
 app.use(errorHandler);
 

@@ -10,13 +10,61 @@ import {
 import path from 'path';
 import { ExamData } from '../dataTypes/examData';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
-
-// Import parsers when theyre defined
+import { parseDocxFile } from '../parsers/docxParser';
+import { parseTxtFile } from '../parsers/txtParser';
+import fetch from 'node-fetch';
+import { generateExamVersions } from '../services/examVersioning';
+import { generateAnswerKey } from '../services/answerKey';
+import config from '../config/config';
 
 const router = express.Router();
 
+router.post('/upload-json', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const exam = req.body as ExamData;
+
+        if (!exam) {
+            throw new ApiError(
+                HTTP_STATUS_CODE.BAD_REQUEST,
+                API_ERROR_MESSAGE.invalidInputData,
+                API_ERROR_CODE.INVALID_INPUT_DATA,
+                { message: 'Malformed JSON' },
+            );
+        }
+
+        const examVersions = generateExamVersions(exam);
+        const answerKey = generateAnswerKey(examVersions, exam);
+
+        // Generate randomised exam versions and answer key
+        const generateRes = await fetch(
+            `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/exam-bundle`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    exam: exam,
+                    versions: examVersions,
+                    answerKey: answerKey,
+                }),
+            },
+        );
+
+        const zipBuffer = Buffer.from(await generateRes.arrayBuffer());
+
+        // Stream it back to the caller
+        res.set({
+            'Content-Type': 'application/zip',
+            'Content-Disposition': 'attachment; filename="exam_package.zip"',
+            'Content-Length': zipBuffer.length,
+        });
+        res.send(zipBuffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post(
-    '/upload',
+    '/upload-file',
     uploadExamSourceFile,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -36,10 +84,10 @@ router.post(
 
             switch (fileExt) {
                 case '.docx':
-                    // parse docx
+                    parseResult = await parseDocxFile(fileBuffer);
                     break;
                 case '.txt':
-                    // parse txt
+                    parseResult = await parseTxtFile(fileBuffer);
                     break;
                 case '.xml':
                     // parse xml
@@ -60,7 +108,7 @@ router.post(
             const response: ApiSuccessResponse<ExamData> = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
-                // data: parseResult
+                data: parseResult!,
             };
             res.status(response.status).json(response);
         } catch (error) {
