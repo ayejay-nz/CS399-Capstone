@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
-
+import { useState } from "react";
 interface Question {
   id: number;
   content: string;
@@ -46,7 +46,7 @@ async function handlePreview(questions: Question[]) {
       };
     }),
   };
-  console.log(payload)
+  console.log(payload);
   try {
     const res = await fetch("{localhost}/api/{}", {
       method: "POST",
@@ -81,6 +81,7 @@ export default function QuestionList({
   onDelete,
   onClearAll,
 }: Props) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   return (
     <div
       className="lg:w-[400px] rounded-lg p-6 flex flex-col"
@@ -100,8 +101,15 @@ export default function QuestionList({
         {questions.map((q, index) => (
           <div
             key={q.id}
-            className="cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 bg-[oklch(21%_0_0)] hover:bg-[oklch(19%_0_0)]"
-            onClick={() => onEdit(q)}
+            className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 ${
+              q.id === selectedId
+                ? "bg-[oklch(19%_0_0)]"
+                : "bg-[oklch(21%_0_0)]"
+            } hover:bg-[oklch(19%_0_0)] transition-colors`}
+            onClick={() => {
+              setSelectedId(q.id);
+              onEdit(q);
+            }}
           >
             <div className="flex items-start gap-2">
               <span className="font-semibold">{index + 1}.</span>
@@ -112,6 +120,7 @@ export default function QuestionList({
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(q.id);
+                if (selectedId === q.id) setSelectedId(null);
               }}
             >
               <svg
