@@ -11,6 +11,7 @@ def ping():
 
 @app.route('/generate-coverpage', methods=['POST'])
 def generate_coverpage():
+    
     if not request.is_json:
         return jsonify(error="Expected JSON"), 400
     context = request.get_json()
@@ -20,7 +21,6 @@ def generate_coverpage():
     except Exception as e:
         return jsonify(error=f"Cannot open template: {e}"), 500
 
-    # Renders all {{ var }} placeholders in‐place, preserving run styling
     tpl.render(context)
 
     buf = io.BytesIO()
