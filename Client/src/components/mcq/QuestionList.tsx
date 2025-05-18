@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/src/components/ui/button";
 
-// Dynamically load the PdfSlideOver component, client-only
+// Dynamically load the PdfSlideOver component
 const PdfSlideOver = dynamic(
   () => import("./PdfSlideOver").then((mod) => mod.PdfSlideOver),
   { ssr: false }
@@ -34,7 +34,7 @@ function convertHtmlToPlainText(html: string) {
   return temp.textContent || temp.innerText || "";
 }
 
-// unchanged: ZIP download
+
 async function handlePreview(questions: Question[]) {
   const payload = {
     content: questions.map((q, idx) => {
@@ -204,27 +204,32 @@ export default function QuestionList({
           ))}
         </div>
 
-        {/* GENERATE button */}
+                {/* GENERATE & PREVIEW */}
         <div className="mt-auto pt-4">
           <hr className="w-full border-gray-600" />
-          <Button variant="secondary" onClick={() => handlePreview(questions)}>
-            generate
-          </Button>
+          <div className="flex justify-between mt-4 space-x-2">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => handlePreview2(questions, setPreviewUrl)}
+            >
+              Preview
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => handlePreview(questions)}
+            >
+              Generate
+            </Button>
+
+          </div>
         </div>
 
-        {/* PREVIEW button */}
-        <div className="mt-4">
-          <hr className="w-full border-gray-600" />
-          <Button
-            variant="secondary"
-            onClick={() => handlePreview2(questions, setPreviewUrl)}
-          >
-            preview
-          </Button>
-        </div>
+ 
       </div>
 
-      {/* PDF slide-over (client only) */}
+      {/* PDF slide-over */}
       {previewUrl && (
         <PdfSlideOver
           fileUrl={previewUrl}
