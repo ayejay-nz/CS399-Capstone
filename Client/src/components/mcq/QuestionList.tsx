@@ -1,6 +1,12 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
-import { useState } from "react";
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "@hello-pangea/dnd";
+
 interface Question {
   id: number;
   content: string;
@@ -14,6 +20,9 @@ interface Props {
   onEdit: (q: Question) => void;
   onDelete: (id: number) => void;
   onClearAll: () => void;
+  onReorder: (updated: Question[]) => void;
+  selectedId: number | null;
+  setSelectedId: (id: number | null) => void;
 }
 
 function convertHtmlToPlainText(html: string) {
@@ -80,8 +89,21 @@ export default function QuestionList({
   onEdit,
   onDelete,
   onClearAll,
+  onReorder,
+  selectedId,
+  setSelectedId,
 }: Props) {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) return;
+    if (destination.index === source.index) return;
+
+    const updated = [...questions];
+    const [movedItem] = updated.splice(source.index, 1);
+    updated.splice(destination.index, 0, movedItem);
+    onReorder(updated);
+  };
+
   return (
     <div
       className="lg:w-[400px] rounded-lg p-6 flex flex-col"
@@ -98,48 +120,71 @@ export default function QuestionList({
           </button>
         </div>
 
-        {questions.map((q, index) => (
-          <div
-            key={q.id}
-            className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 ${
-              q.id === selectedId
-                ? "bg-[oklch(19%_0_0)]"
-                : "bg-[oklch(21%_0_0)]"
-            } hover:bg-[oklch(19%_0_0)] transition-colors`}
-            onClick={() => {
-              setSelectedId(q.id);
-              onEdit(q);
-            }}
-          >
-            <div className="flex items-start gap-2">
-              <span className="font-semibold">{index + 1}.</span>
-              <div className="line-clamp-1">{q.displayText || "Question"}</div>
-            </div>
-            <button
-              className="p-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(q.id);
-                if (selectedId === q.id) setSelectedId(null);
-              }}
-            >
-              <svg
-                width="14"
-                height="16"
-                viewBox="0 0 14 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        ))}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="questions-list">
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {questions.map((q, index) => (
+                  <Draggable
+                    key={q.id}
+                    draggableId={q.id.toString()}
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
+                          q.id === selectedId
+                            ? "bg-[oklch(19%_0_0)]"
+                            : "bg-[oklch(21%_0_0)]"
+                        } hover:bg-[oklch(19%_0_0)] transition-colors ${
+                          snapshot.isDragging ? "opacity-80" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedId(q.id);
+                          onEdit(q);
+                        }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="font-semibold">{index + 1}.</span>
+                          <div className="line-clamp-1">
+                            {q.displayText || "Question"}
+                          </div>
+                        </div>
+                        <button
+                          className="p-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(q.id);
+                            if (selectedId === q.id) setSelectedId(null);
+                          }}
+                        >
+                          <svg
+                            width="14"
+                            height="16"
+                            viewBox="0 0 14 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                              stroke="white"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
 
       <div className="mt-auto pt-4">

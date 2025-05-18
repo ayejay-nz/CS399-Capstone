@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useMcq } from "@/src/features/mcq/useMcq";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
@@ -8,6 +9,7 @@ import QuestionList from "@/src/components/mcq/QuestionList";
 
 export default function GenerateMCQPage() {
   const mcq = useMcq();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
@@ -36,6 +38,7 @@ export default function GenerateMCQPage() {
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
               mcq.setCurrentQuestionId(null);
               mcq.setMarks(1);
+              setSelectedId(null);
             }}
             marks={mcq.marks}
             adjustMarks={mcq.adjustMarks}
@@ -50,7 +53,10 @@ export default function GenerateMCQPage() {
 
           <QuestionList
             questions={mcq.questions}
-            onEdit={mcq.handleEdit}
+            onEdit={(q) => {
+              mcq.handleEdit(q);
+              setSelectedId(q.id);
+            }}
             onDelete={(id) => {
               mcq.setQuestions((prev: any[]) =>
                 prev.filter((q) => q.id !== id),
@@ -59,6 +65,7 @@ export default function GenerateMCQPage() {
               mcq.questionEditor?.commands.setContent("");
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
               mcq.setMarks(1);
+              if (selectedId === id) setSelectedId(null);
             }}
             onClearAll={() => {
               mcq.setQuestions([]);
@@ -66,7 +73,11 @@ export default function GenerateMCQPage() {
               mcq.questionEditor?.commands.setContent("");
               mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
               mcq.setMarks(1);
+              setSelectedId(null);
             }}
+            onReorder={(updated) => mcq.setQuestions(updated)}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
           />
         </div>
       </div>
