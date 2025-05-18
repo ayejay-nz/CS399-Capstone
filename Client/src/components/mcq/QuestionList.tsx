@@ -10,7 +10,7 @@ const PdfSlideOver = dynamic(
   { ssr: false }
 );
 
-const [pdfData, setPdfData] = useState<ArrayBuffer|null>(null);
+
 
 
 interface Question {
