@@ -78,6 +78,61 @@ async function handlePreview(questions: Question[]) {
   }
 }
 
+async function handlePreview2(questions: Question[]) {
+  // Build the “exam” object inline—this *is* your ExamData
+  const payload = {
+    exam: {
+      title: 'Preview Exam',       // optional
+      content: questions.map((q, idx) => ({
+        question: {
+          id: idx + 1,
+          marks: q.marks ?? 1,
+          feedback: {
+            correctFeedback: 'Correct',
+            incorrectFeedback: 'Incorrect',
+          },
+          content: [
+            {
+              questionText: convertHtmlToPlainText(q.content),
+              __type: 'QuestionText',
+            },
+            ...( 
+              (() => {
+                const m = q.content.match(/<img[^>]+src="([^">]+)"/);
+                return m ? [{ imageUri: m[1], __type: 'ImageURI' }] : [];
+              })()
+            ),
+          ],
+          options: q.options.map((opt) =>
+            convertHtmlToPlainText(opt)
+          ),
+        },
+      })),
+    },
+  };
+
+  try {
+    const res = await fetch(
+      'http://localhost:8000/api/v1/exam-bundle/preview-pdf',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!res.ok) throw new Error(res.statusText);
+
+    // PDF comes back inline—open it
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to generate preview.');
+  }
+}
+
 export default function QuestionList({
   questions,
   onEdit,
@@ -141,6 +196,14 @@ export default function QuestionList({
           <hr className="w-full border-gray-600" />
           <Button variant="secondary" onClick={() => handlePreview(questions)}>
             generate
+          </Button>
+        </div>
+      </div>
+            <div className="mt-auto pt-4">
+        <div className="flex flex-col items-center space-y-4">
+          <hr className="w-full border-gray-600" />
+          <Button variant="secondary" onClick={() => handlePreview2(questions)}>
+            preview
           </Button>
         </div>
       </div>
