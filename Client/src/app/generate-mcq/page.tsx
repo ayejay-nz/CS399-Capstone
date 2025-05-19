@@ -10,6 +10,7 @@ import QuestionList from "@/src/components/mcq/QuestionList";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
   const [coverPage, setCoverPage] = useState({
     id: -1,
     content: "",
