@@ -16,6 +16,7 @@ interface Question {
 }
 
 interface Props {
+  coverPage: Question;
   questions: Question[];
   onEdit: (q: Question) => void;
   onDelete: (id: number) => void;
@@ -85,6 +86,7 @@ async function handlePreview(questions: Question[]) {
 }
 
 export default function QuestionList({
+  coverPage,
   questions,
   onEdit,
   onDelete,
@@ -118,6 +120,25 @@ export default function QuestionList({
           >
             clear all
           </button>
+        </div>
+
+        <div
+          className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
+            coverPage.id === selectedId
+              ? "bg-[oklch(19%_0_0)]"
+              : "bg-[oklch(21%_0_0)]"
+          } hover:bg-[oklch(19%_0_0)] transition-colors`}
+          onClick={() => {
+            setSelectedId(coverPage.id);
+            onEdit(coverPage);
+          }}
+        >
+          <div className="flex items-start gap-2">
+            <span className=""></span>
+            <div className="line-clamp-1">
+              {coverPage.displayText || "Cover Page"}
+            </div>
+          </div>
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
