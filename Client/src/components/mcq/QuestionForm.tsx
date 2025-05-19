@@ -91,7 +91,6 @@ export default function QuestionForm({
       ];
       return newEditors;
     });
-
     setOptionContents((prev) => {
       const newContents = [...prev];
       [newContents[0], newContents[clickedIndex]] = [

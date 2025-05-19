@@ -1,12 +1,21 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Installation of dependencies
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      libreoffice-writer \
+      libreoffice-calc \
+      libreoffice-impress \
+      fonts-dejavu-core \
+      fontconfig && \
+    rm -rf /var/lib/apt/lists/*
+
+
 COPY package*.json ./
 RUN npm install
 
-#COPY . .
 
 RUN npm install -g ts-node nodemon
 

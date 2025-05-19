@@ -1,9 +1,18 @@
+"use client";
+
+import * as React from "react";
 import { Progress } from "../components/ui/progress";
 
-const questions = [
+type LowestQuestions = {
+  id: string;
+  text: string;
+  percentage: number;
+};
+
+const questions: LowestQuestions[] = [
   {
     id: "Q1",
-    text: "What decimal number is equivalent to the binary number 1110112?",
+    text: "What decimal number is equivalent to the binary number 111011₂?",
     percentage: 45,
   },
   {
@@ -29,43 +38,37 @@ const questions = [
 ];
 
 export function LowestScoringQuestions() {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium text-white">
-            Lowest Scoring Questions
-          </h3>
-          <span className="text-sm text-gray-400">
-            Student’s correct %
-          </span>
-        </div>
-        <div className="space-y-6">
-          {questions.map((q) => (
-            <div key={q.id} className="space-y-2">
-              {/* question + % */}
-              <div className="flex justify-between items-start">
-                {/* give the text flex-1 and some right padding */}
-                <p className="text-sm flex-1 pr-4 text-white">
-                  {q.id}. {q.text}
-                </p>
-                <span className="text-sm font-medium text-white">
-                  {q.percentage}%
-                </span>
-              </div>
-  
-              {/* custom-styled progress */}
-              <Progress
-                value={q.percentage}
-                className="
-                  h-1 
-                  bg-[#27272A]       /* dark track */
-                  rounded-full
-                  [&_div]:bg-white   /* force the inner bar white */
-                "
-              />
-            </div>
-          ))}
-        </div>
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium text-white">
+          Lowest Scoring Questions
+        </h3>
+        <span className="text-sm text-gray-400">Student’s correct %</span>
       </div>
-    );
-  }
+      <div className="space-y-6">
+        {questions.map((q) => (
+          <div key={q.id} className="space-y-2">
+            <div className="flex justify-between items-start">
+              <p className="text-sm flex-1 pr-4 text-white">
+                {q.id}. {q.text}
+              </p>
+              <span className="text-sm font-medium text-white">
+                {q.percentage}%
+              </span>
+            </div>
+            <Progress
+              value={q.percentage}
+              className="
+                h-1
+                bg-[#27272A]
+                rounded-full
+                [&_div]:bg-white
+              "
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

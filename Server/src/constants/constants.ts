@@ -92,3 +92,5 @@ export const API_SUCCESS_MESSAGE = {
     created: 'Resource created successfully',
     accepted: 'Request accepted and is being processed',
 };
+
+export const DEFAULT_EXAM_VERSIONS = 4;
