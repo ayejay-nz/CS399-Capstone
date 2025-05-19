@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+// TODO: Why are we importing from Server? We may have to split Client and Server later on
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse"; // Clean these imports up
 import { ExamData } from "../../../../Server/src/dataTypes/examData";
 
@@ -127,17 +128,6 @@ export function useMcq() {
       alert("Failed to upload and process the file.");
     }
   };
-
-  // const simulateProcessQuestions = async (file: File) => {
-  //   try {
-  //     const fileText = await file.text();
-  //     const data = JSON.parse(fileText);
-  //     handleProcessedQuestions(data);
-  //   } catch (err) {
-  //     console.error("Error processing file:", err);
-  //     alert("Failed to process the file. Make sure it's valid JSON.");
-  //   }
-  // };
 
   const handleProcessedQuestions = (data: any) => {
     const newQuestions = data.content.map(({ question }: any) => {
