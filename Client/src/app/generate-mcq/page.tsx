@@ -5,6 +5,7 @@ import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import QuestionForm from "@/src/components/mcq/QuestionForm";
+import AppendixForm from "@/src/components/mcq/AppendixForm";
 import QuestionList from "@/src/components/mcq/QuestionList";
 
 export default function GenerateMCQPage() {
@@ -71,6 +72,81 @@ export default function GenerateMCQPage() {
     setSelectedId(q.id);
   };
 
+  const handleAddAppendix = () => {
+    const newAppendix = {
+      id: Date.now(),
+      content: "",
+      options: [],
+      marks: 0,
+      displayText: "Appendix",
+      isAppendix: true,
+    };
+    mcq.setQuestions((prev) => [...prev, newAppendix]);
+    mcq.questionEditor?.commands.setContent("");
+    mcq.setCurrentQuestionId(newAppendix.id);
+    setSelectedId(newAppendix.id);
+  };
+
+  const renderForm = () => {
+    if (mcq.currentQuestionId === -1) {
+      return (
+        <QuestionForm
+          questionEditor={mcq.questionEditor}
+          setQuestionEditor={mcq.setQuestionEditor}
+          optionEditors={mcq.optionEditors}
+          setOptionEditors={mcq.setOptionEditors}
+          currentQuestionId={mcq.currentQuestionId}
+          handleAddOrUpdate={handleAddOrUpdateQuestion}
+          cancelEdit={() => {
+            mcq.questionEditor?.commands.setContent("");
+            mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+            mcq.setCurrentQuestionId(null);
+            mcq.setMarks(1);
+            setSelectedId(null);
+          }}
+          marks={mcq.marks}
+          adjustMarks={mcq.adjustMarks}
+          optionCount={mcq.optionCount}
+          setOptionCount={mcq.setOptionCount}
+          optionIds={mcq.optionIds}
+          setOptionIds={mcq.setOptionIds}
+          version={mcq.version}
+          optionContents={mcq.optionContents}
+          setOptionContents={mcq.setOptionContents}
+          questions={mcq.questions}
+        />
+      );
+    }
+
+    return (
+      <QuestionForm
+        questionEditor={mcq.questionEditor}
+        setQuestionEditor={mcq.setQuestionEditor}
+        optionEditors={mcq.optionEditors}
+        setOptionEditors={mcq.setOptionEditors}
+        currentQuestionId={mcq.currentQuestionId}
+        handleAddOrUpdate={handleAddOrUpdateQuestion}
+        cancelEdit={() => {
+          mcq.questionEditor?.commands.setContent("");
+          mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+          mcq.setCurrentQuestionId(null);
+          mcq.setMarks(1);
+          setSelectedId(null);
+        }}
+        marks={mcq.marks}
+        adjustMarks={mcq.adjustMarks}
+        optionCount={mcq.optionCount}
+        setOptionCount={mcq.setOptionCount}
+        optionIds={mcq.optionIds}
+        setOptionIds={mcq.setOptionIds}
+        version={mcq.version}
+        optionContents={mcq.optionContents}
+        setOptionContents={mcq.setOptionContents}
+        questions={mcq.questions}
+      />
+    );
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <Navbar />
@@ -86,30 +162,7 @@ export default function GenerateMCQPage() {
         />
 
         <div className="flex flex-col lg:flex-row gap-6">
-          <QuestionForm
-            questionEditor={mcq.questionEditor}
-            setQuestionEditor={mcq.setQuestionEditor}
-            optionEditors={mcq.optionEditors}
-            setOptionEditors={mcq.setOptionEditors}
-            currentQuestionId={mcq.currentQuestionId}
-            handleAddOrUpdate={handleAddOrUpdateQuestion}
-            cancelEdit={() => {
-              mcq.questionEditor?.commands.setContent("");
-              mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
-              mcq.setCurrentQuestionId(null);
-              mcq.setMarks(1);
-              setSelectedId(null);
-            }}
-            marks={mcq.marks}
-            adjustMarks={mcq.adjustMarks}
-            optionCount={mcq.optionCount}
-            setOptionCount={mcq.setOptionCount}
-            optionIds={mcq.optionIds}
-            setOptionIds={mcq.setOptionIds}
-            version={mcq.version}
-            optionContents={mcq.optionContents}
-            setOptionContents={mcq.setOptionContents}
-          />
+          {renderForm()}
 
           <QuestionList
             coverPage={coverPage}
@@ -151,6 +204,7 @@ export default function GenerateMCQPage() {
             onReorder={(updated) => mcq.setQuestions(updated)}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
+            onAddAppendix={handleAddAppendix}
           />
         </div>
       </div>

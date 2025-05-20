@@ -23,6 +23,7 @@ interface Question {
   options: string[];
   marks: number;
   displayText?: string;
+  isAppendix: boolean;
 }
 
 interface Props {
@@ -34,6 +35,7 @@ interface Props {
   onReorder: (updated: Question[]) => void;
   selectedId: number | null;
   setSelectedId: (id: number | null) => void;
+  onAddAppendix: () => void;
 }
 
 function convertHtmlToPlainText(html: string) {
@@ -152,6 +154,7 @@ export default function QuestionList({
   onReorder,
   selectedId,
   setSelectedId,
+  onAddAppendix,
 }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -232,7 +235,8 @@ export default function QuestionList({
                           <div className="flex items-start gap-2">
                             <span className="font-semibold">{index + 1}.</span>
                             <div className="line-clamp-1">
-                              {q.displayText || "Question"}
+                              {q.displayText ||
+                                (q.isAppendix ? "Appendix" : "Question")}
                             </div>
                           </div>
                           <button
@@ -267,6 +271,14 @@ export default function QuestionList({
               )}
             </Droppable>
           </DragDropContext>
+
+          <Button
+            variant="secondary"
+            className="w-full mt-4"
+            onClick={onAddAppendix}
+          >
+            + Add Appendix
+          </Button>
         </div>
 
         {/* GENERATE & PREVIEW */}
