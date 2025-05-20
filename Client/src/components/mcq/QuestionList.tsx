@@ -14,9 +14,8 @@ import dynamic from "next/dynamic";
 // Dynamically load the PdfSlideOver component
 const PdfSlideOver = dynamic(
   () => import("./PdfSlideOver").then((mod) => mod.PdfSlideOver),
-  { ssr: false }
+  { ssr: false },
 );
-
 
 interface Question {
   id: number;
@@ -62,9 +61,7 @@ async function handlePreview(questions: Question[]) {
             { questionText, __type: "QuestionText" },
             ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
           ],
-          options: q.options.map((optHtml) =>
-            convertHtmlToPlainText(optHtml)
-          ),
+          options: q.options.map((optHtml) => convertHtmlToPlainText(optHtml)),
         },
       };
     }),
@@ -77,7 +74,7 @@ async function handlePreview(questions: Question[]) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }
+      },
     );
     if (!res.ok) throw new Error("Download failed");
 
@@ -97,7 +94,7 @@ async function handlePreview(questions: Question[]) {
 
 async function handlePreview2(
   questions: Question[],
-  setPreviewUrl: (url: string | null) => void
+  setPreviewUrl: (url: string | null) => void,
 ) {
   const payload = {
     exam: {
@@ -120,9 +117,7 @@ async function handlePreview2(
               return m ? [{ imageUri: m[1], __type: "ImageURI" }] : [];
             })(),
           ],
-          options: q.options.map((opt) =>
-            convertHtmlToPlainText(opt)
-          ),
+          options: q.options.map((opt) => convertHtmlToPlainText(opt)),
         },
       })),
     },
@@ -135,7 +130,7 @@ async function handlePreview2(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }
+      },
     );
     if (!res.ok) throw new Error(res.statusText);
 
@@ -158,7 +153,6 @@ export default function QuestionList({
   selectedId,
   setSelectedId,
 }: Props) {
-
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDragEnd = (result: DropResult) => {
@@ -172,128 +166,141 @@ export default function QuestionList({
     onReorder(updated);
   };
 
-return (
-  <>
-    <div
-      className="lg:w-[400px] rounded-lg p-6 flex flex-col"
-      style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
-    >
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Edit Questions</h2>
-          <button
-            className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
-            onClick={onClearAll}
-          >
-            clear all
-          </button>
-        </div>
+  return (
+    <>
+      <div
+        className="lg:w-[400px] rounded-lg p-6 flex flex-col"
+        style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
+      >
+        <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold">Edit Questions</h2>
+            <button
+              className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
+              onClick={onClearAll}
+            >
+              clear all
+            </button>
+          </div>
 
-        <div
-          className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
-            coverPage.id === selectedId
-              ? "bg-[oklch(19%_0_0)]"
-              : "bg-[oklch(21%_0_0)]"
-          } hover:bg-[oklch(19%_0_0)] transition-colors`}
-          onClick={() => {
-            setSelectedId(coverPage.id);
-            onEdit(coverPage);
-          }}
-        >
-          <div className="flex items-start gap-2">
-            <span className=""></span>
-            <div className="line-clamp-1">
-              {coverPage.displayText || "Cover Page"}
+          <div
+            className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
+              coverPage.id === selectedId
+                ? "bg-[oklch(19%_0_0)]"
+                : "bg-[oklch(21%_0_0)]"
+            } hover:bg-[oklch(19%_0_0)] transition-colors`}
+            onClick={() => {
+              setSelectedId(coverPage.id);
+              onEdit(coverPage);
+            }}
+          >
+            <div className="flex items-start gap-2">
+              <span className=""></span>
+              <div className="line-clamp-1">
+                {coverPage.displayText || "Cover Page"}
+              </div>
             </div>
           </div>
-        </div>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="questions-list">
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                {questions.map((q, index) => (
-                  <Draggable
-                    key={q.id}
-                    draggableId={q.id.toString()}
-                    index={index}
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
-                          q.id === selectedId
-                            ? "bg-[oklch(19%_0_0)]"
-                            : "bg-[oklch(21%_0_0)]"
-                        } hover:bg-[oklch(19%_0_0)] transition-colors ${
-                          snapshot.isDragging ? "opacity-80" : ""
-                        }`}
-                        onClick={() => {
-                          setSelectedId(q.id);
-                          onEdit(q);
-                        }}
-                      >
-                        <div className="flex items-start gap-2">
-                          <span className="font-semibold">{index + 1}.</span>
-                          <div className="line-clamp-1">
-                            {q.displayText || "Question"}
-                          </div>
-                        </div>
-                        <button
-                          className="p-1"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(q.id);
-                            if (selectedId === q.id) setSelectedId(null);
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="questions-list">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {questions.map((q, index) => (
+                    <Draggable
+                      key={q.id}
+                      draggableId={q.id.toString()}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
+                            q.id === selectedId
+                              ? "bg-[oklch(19%_0_0)]"
+                              : "bg-[oklch(21%_0_0)]"
+                          } hover:bg-[oklch(19%_0_0)] transition-colors ${
+                            snapshot.isDragging ? "opacity-80" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedId(q.id);
+                            onEdit(q);
                           }}
                         >
-                          {/* delete icon SVG */}
-                        </button>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+                          <div className="flex items-start gap-2">
+                            <span className="font-semibold">{index + 1}.</span>
+                            <div className="line-clamp-1">
+                              {q.displayText || "Question"}
+                            </div>
+                          </div>
+                          <button
+                            className="p-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete(q.id);
+                              if (selectedId === q.id) setSelectedId(null);
+                            }}
+                          >
+                            <svg
+                              width="14"
+                              height="16"
+                              viewBox="0 0 14 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                                stroke="white"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
 
-      {/* GENERATE & PREVIEW */}
-      <div className="mt-auto pt-4">
-        <hr className="w-full border-gray-600" />
-        <div className="flex justify-between mt-4 space-x-2">
-          <Button
-            variant="secondary"
-            className="flex-1"
-            onClick={() => handlePreview2(questions, setPreviewUrl)}
-          >
-            Preview
-          </Button>
-          <Button
-            variant="secondary"
-            className="flex-1"
-            onClick={() => handlePreview(questions)}
-          >
-            Generate
-          </Button>
+        {/* GENERATE & PREVIEW */}
+        <div className="mt-auto pt-4">
+          <hr className="w-full border-gray-600" />
+          <div className="flex justify-between mt-4 space-x-2">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => handlePreview2(questions, setPreviewUrl)}
+            >
+              Preview
+            </Button>
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => handlePreview(questions)}
+            >
+              Generate
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* PDF slide-over */}
-    {previewUrl && (
-      <PdfSlideOver
-        fileUrl={previewUrl}
-        onClose={() => {
-          URL.revokeObjectURL(previewUrl);
-          setPreviewUrl(null);
-        }}
-      />
-    )}
-  </>
-);
+      {/* PDF slide-over */}
+      {previewUrl && (
+        <PdfSlideOver
+          fileUrl={previewUrl}
+          onClose={() => {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+          }}
+        />
+      )}
+    </>
+  );
 }
