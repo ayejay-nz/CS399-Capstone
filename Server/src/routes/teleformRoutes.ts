@@ -10,6 +10,7 @@ import {
 import path from 'path';
 import { TeleformData } from '../dataTypes/teleformData';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
+import { teleformParser } from '../parsers/teleformParser';
 
 const router = express.Router();
 
@@ -34,7 +35,8 @@ router.post(
 
             switch (fileExt) {
                 case '.txt':
-                    // parse teleform data
+                    // Parse teleform data using the async parser
+                    parseResult = await teleformParser(fileBuffer);
                     break;
                 default:
                     // Ideally should never be reached but is a safeguard

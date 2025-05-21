@@ -3,12 +3,14 @@ import { StudentTeleformData, TeleformData } from '../dataTypes/teleformData';
 import ParserError from '../utils/parserError';
 
 /**
- * Parses raw teleform text data into a TeleformData object.
+ * Parses raw teleform data into a TeleformData object.
  *
- * @param fileContent Raw text content of the Teleform txt file
+ * @param data Raw content of the Teleform txt file (either Buffer or string)
  * @returns TeleformData containing studentAnswers
  */
-export function teleformParser(rawText: string): TeleformData {
+export async function teleformParser(data: Buffer | string): Promise<TeleformData> {
+    // Convert Buffer to string if necessary
+    const rawText = Buffer.isBuffer(data) ? data.toString('utf-8') : data;
     const studentAnswers: StudentTeleformData[] = [];
 
     for (const line of rawText.split(/\r?\n/)) {

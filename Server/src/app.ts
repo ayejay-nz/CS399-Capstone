@@ -1,6 +1,8 @@
 import express from 'express';
 import config from './config/config';
 import errorHandler from './middlewares/errorHandler';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger';
 
 import examSourceRoutes from './routes/examSourceRoutes';
 import coverPageRoutes from './routes/coverPageRoutes';
@@ -21,6 +23,9 @@ app.use(
         credentials: true,
     }),
 );
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.get('/hello-world', (req, res) => {
