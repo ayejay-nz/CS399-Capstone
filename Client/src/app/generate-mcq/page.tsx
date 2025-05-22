@@ -38,7 +38,13 @@ export default function GenerateMCQPage() {
       mcq.setQuestions((prev) =>
         prev.map((q) =>
           q.id === mcq.currentQuestionId
-            ? { ...q, content, options, marks, displayText }
+            ? {
+                ...q,
+                content,
+                options,
+                marks,
+                displayText: q.isAppendix ? "Appendix" : displayText,
+              }
             : q,
         ),
       );
@@ -118,6 +124,11 @@ export default function GenerateMCQPage() {
       );
     }
 
+    const currentQuestion = mcq.questions.find(
+      (q) => q.id === mcq.currentQuestionId,
+    );
+    const isAppendix = currentQuestion?.isAppendix;
+
     return (
       <QuestionForm
         questionEditor={mcq.questionEditor}
@@ -128,7 +139,21 @@ export default function GenerateMCQPage() {
         handleAddOrUpdate={handleAddOrUpdateQuestion}
         cancelEdit={() => {
           mcq.questionEditor?.commands.setContent("");
-          mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+          if (isAppendix) {
+            mcq.setOptionCount(2);
+            mcq.setOptionEditors(Array(2).fill(null));
+            mcq.setOptionIds(
+              Array(2)
+                .fill(null)
+                .map(
+                  () =>
+                    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                ),
+            );
+            mcq.setOptionContents(Array(2).fill(""));
+          } else {
+            mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+          }
           mcq.setCurrentQuestionId(null);
           mcq.setMarks(1);
           setSelectedId(null);

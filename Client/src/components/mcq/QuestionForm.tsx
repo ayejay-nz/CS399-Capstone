@@ -191,14 +191,14 @@ export default function QuestionForm({
           <div className="flex items-center gap-2">
             <Button variant="secondary" onClick={handleSubmit}>
               {currentQuestionId
-                ? "update"
+                ? "Update"
                 : isAppendix
-                  ? "add appendix"
-                  : "add question"}
+                  ? "Add appendix"
+                  : "Add question"}
             </Button>
             {currentQuestionId && (
               <Button variant="secondary" onClick={handleCancel}>
-                cancel
+                Cancel
               </Button>
             )}
           </div>
@@ -213,6 +213,7 @@ export default function QuestionForm({
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
+              isAppendix={isAppendix}
               error={validationErrors.question}
               onUpdate={(_, text) => {
                 setValidationErrors((prev) => ({
