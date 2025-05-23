@@ -20,7 +20,12 @@ export interface AnswerKeyQuestion {
     options: string[];
 }
 
+export interface Metadata {
+    courseName?: string;
+}
+
 export interface AnswerKey {
+    metadata: Metadata;
     source: AnswerKeyQuestion[];
     versionSolutions: VersionSolution[];
 }

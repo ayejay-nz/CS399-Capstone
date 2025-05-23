@@ -12,13 +12,55 @@ import { ExamData } from '../dataTypes/examData';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 import { parseDocxFile } from '../parsers/docxParser';
 import { parseTxtFile } from '../parsers/txtParser';
-import fetch from 'node-fetch';
 import { generateExamVersions } from '../services/examVersioning';
 import { generateAnswerKey } from '../services/answerKey';
 import config from '../config/config';
+import { xmlParser } from '../parsers/xmlParser';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /exam-source/upload-json:
+ *   post:
+ *     summary: Upload exam data in JSON format
+ *     description: Accepts exam data as JSON, generates exam versions and answer key
+ *     tags:
+ *       - Exam Source
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExamData'
+ *           example:
+ *             content:
+ *               - question:
+ *                   id: 1
+ *                   marks: 2
+ *                   feedback:
+ *                     correctFeedback: "Correct answer!"
+ *                     incorrectFeedback: "Sorry, that's wrong."
+ *                   content:
+ *                     - questionText: "What is 2+2?"
+ *                   options: ["4", "3", "5", "6"]
+ *               - section:
+ *                   questionCount: null
+ *                   content:
+ *                     - sectionText: "Mathematics Section"
+ *     responses:
+ *       200:
+ *         description: Exam package (ZIP file) containing exam versions and answer key
+ *         content:
+ *           application/zip:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request - invalid input data
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/upload-json', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const exam = req.body as ExamData;
@@ -34,6 +76,9 @@ router.post('/upload-json', async (req: Request, res: Response, next: NextFuncti
 
         const examVersions = generateExamVersions(exam);
         const answerKey = generateAnswerKey(examVersions, exam);
+
+        // Dynamic import of fetch
+        const { default: fetch } = await import('node-fetch');
 
         // Generate randomised exam versions and answer key
         const generateRes = await fetch(
@@ -63,6 +108,39 @@ router.post('/upload-json', async (req: Request, res: Response, next: NextFuncti
     }
 });
 
+/**
+ * @swagger
+ * /exam-source/upload-file:
+ *   post:
+ *     summary: Upload exam source file
+ *     description: Upload and parse exam source files (DOCX, TXT, XML, TEX)
+ *     tags:
+ *       - Exam Source
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               examSourceFile:
+ *                 type: string
+ *                 format: binary
+ *                 description: Exam source file (DOCX, TXT, XML, TEX)
+ *     responses:
+ *       200:
+ *         description: Successfully parsed exam data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiSuccessResponse'
+ *       400:
+ *         description: Bad request - no file uploaded
+ *       415:
+ *         description: Unsupported file type
+ *       500:
+ *         description: Internal server error
+ */
 router.post(
     '/upload-file',
     uploadExamSourceFile,
@@ -90,7 +168,7 @@ router.post(
                     parseResult = await parseTxtFile(fileBuffer);
                     break;
                 case '.xml':
-                    // parse xml
+                    parseResult = await xmlParser(fileBuffer);
                     break;
                 case '.tex':
                     // parse tex
@@ -116,5 +194,89 @@ router.post(
         }
     },
 );
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ExamData:
+ *       type: object
+ *       required: [content]
+ *       properties:
+ *         content:
+ *           type: array
+ *           items:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/Question'
+ *               - $ref: '#/components/schemas/Section'
+ *     Question:
+ *       type: object
+ *       required: [question]
+ *       properties:
+ *         question:
+ *           type: object
+ *           required: [id, marks, feedback, content, options]
+ *           properties:
+ *             id:
+ *               type: integer
+ *               description: Unique identifier for the question
+ *             marks:
+ *               type: number
+ *               description: Points awarded for correct answer
+ *             feedback:
+ *               type: object
+ *               required: [correctFeedback, incorrectFeedback]
+ *               properties:
+ *                 correctFeedback:
+ *                   type: string
+ *                   description: Feedback shown for correct answer
+ *                 incorrectFeedback:
+ *                   type: string
+ *                   description: Feedback shown for incorrect answer
+ *             content:
+ *               type: array
+ *               description: Question text and media content
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   questionText:
+ *                     type: string
+ *             options:
+ *               type: array
+ *               description: Answer options (first one is correct)
+ *               items:
+ *                 type: string
+ *               minItems: 2
+ *     Section:
+ *       type: object
+ *       required: [section]
+ *       properties:
+ *         section:
+ *           type: object
+ *           required: [content]
+ *           properties:
+ *             questionCount:
+ *               type: integer
+ *               nullable: true
+ *               description: Number of questions in this section or null if not applicable
+ *             content:
+ *               type: array
+ *               required: true
+ *               description: Section text and media content
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   sectionText:
+ *                     type: string
+ *     ApiSuccessResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: integer
+ *         message:
+ *           type: string
+ *         data:
+ *           type: object
+ */
 
 export default router;
