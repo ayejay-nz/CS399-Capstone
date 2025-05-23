@@ -18,14 +18,28 @@ services:
       context: ./Server
       dockerfile: Dockerfile.dev
     volumes:
-      - ./Server:/app                # Bind mount project files (Don't need to rebuild when updating code)
-      - /app/node_modules     # Don't override container node_modules
+      - ./Server:/app
+      - /app/node_modules
     ports:
-      - "8000:8000"           
+      - "8000:8000"
     environment:
       - NODE_ENV=development
       - PORT=8000
     command: npm run dev
+    depends_on:
+      - flask-helper-api  # Optional if backend talks to Flask
+
+  flask-helper-api:
+    build:
+      context: ./Flask_helper_api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Flask_helper_api:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
 
 volumes:
   frontend_node_modules:

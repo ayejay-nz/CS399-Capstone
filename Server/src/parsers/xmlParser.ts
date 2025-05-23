@@ -110,7 +110,7 @@ export function xmlParser(xmlBuffer: string | Buffer): ExamData {
                         : 'Multiple correct answers are not allowed';
                 throw new ParserError(API_ERROR_CODE.PARSING_FAILED, reason);
             }
-
+          
             // build options, with correct first - strip HTML tags
             const options: string[] = [
                 stripHtmlTags(extract(correct[0].text)),

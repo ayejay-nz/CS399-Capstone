@@ -53,6 +53,7 @@ const Tiptap = ({
   content = "",
   allowImageUpload = false,
   isQuestionEditor = false,
+  isAppendix = false,
   error = false,
   onUpdate,
 }) => {
@@ -75,12 +76,18 @@ const Tiptap = ({
     editorProps: {
       attributes: {
         class: `p-3 text-white focus:ring-1 focus:ring-gray-300 focus:ring-offset-background rounded-md ${
-          isQuestionEditor ? "min-h-[75px]" : "min-h-[40px]"
+          isQuestionEditor
+            ? isAppendix
+              ? "min-h-[400px]"
+              : "min-h-[75px]"
+            : "min-h-[40px]"
         }`,
       },
     },
     onUpdate: ({ editor }) => {
-      onUpdate?.(editor.getHTML());
+      const html = editor.getHTML();
+      const text = editor.getText().trim();
+      onUpdate?.(html, text);
     },
     immediatelyRender: false,
   });
@@ -180,12 +187,21 @@ const Tiptap = ({
       <div
         className={`flex-1 rounded-md border ${
           error ? "border-red-500" : "border-[#27272a]"
-        }`}
+        } relative`}
         style={{
-          minHeight: isQuestionEditor ? "75px" : "40px",
+          minHeight: isQuestionEditor
+            ? isAppendix
+              ? "400px"
+              : "75px"
+            : "40px",
         }}
       >
         <EditorContent editor={editor} />
+        {error && (
+          <div className="absolute bottom-1 left-3 text-xs text-red-500">
+            This field is required
+          </div>
+        )}
       </div>
     </div>
   );
