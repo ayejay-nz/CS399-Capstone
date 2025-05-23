@@ -14,3 +14,7 @@ export function padTo8(n: number) {
 export function toPercentage2dp(n: number) {
     return parseFloat((n * 100).toFixed(2));
 }
+
+export function percentageToDecimal2dp(p: number) {
+    return (p / 100).toFixed(2);
+}
