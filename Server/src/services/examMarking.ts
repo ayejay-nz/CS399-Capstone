@@ -148,6 +148,8 @@ function generateQuestionsBreakdown(
             if (isCorrect) qBreakdown.totalCorrectAnswers += 1;
             if (optionSelected) {
                 const optionIndex = teleformAnswerToIndex(optionSelected);
+                // Student selected more than one answer
+                if (!Number.isInteger(optionIndex)) return;
                 const originalIndex = optionOrder[optionIndex]; // Get option in source exam
                 // Find the option selected by the student in the question breakdown
                 const oBreakdown = qBreakdown.optionBreakdown.find(
