@@ -17,9 +17,9 @@ export interface Answer {
 }
 
 export interface StudentBreakdown {
-    auid?: string;
-    lastName?: string;
-    firstName?: string;
+    auid: string;
+    lastName: string;
+    firstName: string;
     versionNumber: string;
     totalCorrect: number;
     totalAnswered: number;
