@@ -17,8 +17,12 @@ export function teleformParser(data: Buffer | string): TeleformData {
         const trimmed = line.trim();
         if (!trimmed) continue;
 
-        const [auid = '', lastName = '', firstName = '', courseAndVersion = '', answerString = ''] =
-            trimmed.split(/\s+/);
+        const auid = trimmed.slice(0, 11).trim();
+        const lastName = trimmed.slice(12, 25).trim() || undefined;
+        const firstName = trimmed.slice(25, 32).trim() || undefined;
+        const middleInitial = trimmed.slice(32, 33).trim() || undefined;
+        const courseAndVersion = trimmed.slice(33, 44).trim() || undefined;
+        const answerString = trimmed.slice(45).trim();
 
         if (!lastName || !firstName || !courseAndVersion || answerString.length === 0) {
             throw new ParserError(
@@ -38,6 +42,7 @@ export function teleformParser(data: Buffer | string): TeleformData {
         studentAnswers.push({
             auid,
             lastName,
+            middleInitial,
             firstName,
             courseNumber,
             versionNumber,
