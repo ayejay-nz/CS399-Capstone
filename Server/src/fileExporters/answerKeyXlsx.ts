@@ -91,7 +91,7 @@ export async function exportAnswerKeyXlsx(answerKey: AnswerKey): Promise<Buffer>
     renderVersionSheets(workbook, answerKey.versionSolutions);
     renderSheet1(workbook, answerKey.versionSolutions);
 
-    const buffer: any = workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare as type any
+    const buffer: any = await workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare as type any
 
     return buffer;
 }
