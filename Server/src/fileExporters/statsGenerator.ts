@@ -1,5 +1,7 @@
 import { Workbook } from 'exceljs';
 import { ExamBreakdown, StudentBreakdown } from '../dataTypes/examBreakdown';
+import { only } from 'node:test';
+import { percentageToDecimal2dp } from '../utils/format';
 
 /**
  * Generates a statistics report in TXT format based on an exam breakdown
@@ -74,6 +76,57 @@ export async function generateMarksXlsx(students: StudentBreakdown[]): Promise<B
             auid: student.auid,
             mark: student.mark.toString(),
         };
+        sheet.addRow(row);
+    });
+
+    const buffer: any = await workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare type as any
+
+    return buffer;
+}
+
+export async function generateStatsXlsx(examBreakdown: ExamBreakdown): Promise<Buffer> {
+    const questions = examBreakdown.questions;
+    const students = examBreakdown.students;
+    const totalStudents = students.length;
+
+    const workbook = new Workbook();
+    const sheet = workbook.addWorksheet('Sheet1');
+
+    // Add column headers
+    const optionColumns = Array.from({ length: 10 }, (_, i) => ({
+        header: String(i),
+        key: `opt${i}`,
+    }));
+    sheet.columns = [
+        { header: 'Question', key: 'question' },
+        { header: 'Correct Count', key: 'correctCount' },
+        { header: '%', key: 'percentage' },
+        {},
+        {},
+        {},
+        { header: 'Option Index:' },
+        ...optionColumns,
+        { header: 'Invalid(count)', key: 'invalidCount' },
+    ];
+
+    // Insert row containing number of students
+    const numStudents: Record<string, number> = { correctCount: totalStudents };
+    sheet.addRow(numStudents);
+
+    // Add question statistics
+    questions.forEach((q) => {
+        const row: Record<string, number | string> = {
+            question: q.questionId,
+            correctCount: q.totalCorrectAnswers,
+            percentage: percentageToDecimal2dp(q.percentageCorrect), // Display percentage as decimal for some reason
+            invalidCount: totalStudents - q.totalAnswers,
+        };
+
+        // Fill out option columns
+        q.optionBreakdown.forEach(
+            (o) => (row[`opt${o.optionNumber}`] = percentageToDecimal2dp(o.pickPercentage)),
+        );
+
         sheet.addRow(row);
     });
 
