@@ -43,7 +43,7 @@ const fieldConfigs: {
   { name: "exam_title", label: "Exam Title" },
   { name: "duration", label: "Duration" },
   { name: "version_number", label: "Version Number" },
-  { name: "note_content", label: "Notes", as: "textarea" },
+  { name: "note_content", label: "Note Content", as: "textarea" },
 ];
 
 export default function CoverPageForm() {
