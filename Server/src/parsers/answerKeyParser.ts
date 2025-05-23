@@ -104,11 +104,27 @@ function getVersionsFromSheet1(wb: Workbook): string[] {
     return versions;
 }
 
+function parseMetadata(wb: Workbook): Record<string, string> {
+    const metadata: Record<string, string> = {};
+    const metadataSheet = wb.getWorksheet('__meta__');
+
+    if (!metadataSheet) return metadata;
+
+    for (const row of metadataSheet.getRows(2, metadataSheet.rowCount - 1) || []) {
+        const key = row.getCell(1).text.trim();
+        const value = row.getCell(2).text.trim();
+        if (key) metadata[key] = value;
+    }
+
+    return metadata;
+}
+
 export async function parseAnswerKeyXLSX(buffer: Buffer): Promise<AnswerKey> {
     const workbook = new Workbook();
     await workbook.xlsx.load(buffer);
 
     const sourceQuestions = parseSourceQuestionsFromWorkbook(workbook);
+    const metadata = parseMetadata(workbook);
     const versionNames = getVersionsFromSheet1(workbook);
     let versionSolutions: VersionSolution[] = [];
 
@@ -160,6 +176,7 @@ export async function parseAnswerKeyXLSX(buffer: Buffer): Promise<AnswerKey> {
     });
 
     const answerKey = {
+        metadata: metadata,
         source: sourceQuestions,
         versionSolutions: versionSolutions,
     };

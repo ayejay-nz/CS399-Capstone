@@ -20,6 +20,14 @@ function extract(node: any): string {
     return String(node);
 }
 
+// Strip HTML tags from text using regex
+function stripHtmlTags(html: string): string {
+    // First remove all HTML tags
+    const withoutTags = html.replace(/<\/?[^>]+(>|$)/g, '');
+    // Then trim whitespace (including newlines) from both ends
+    return withoutTags.trim();
+}
+
 // mandatory fields for multichoice
 const MANDATORY_FIELDS: Array<[keyof any, string]> = [
     ['questiontext', '<questiontext> is mandatory'],
@@ -102,31 +110,96 @@ export function xmlParser(xmlBuffer: string | Buffer): ExamData {
                         : 'Multiple correct answers are not allowed';
                 throw new ParserError(API_ERROR_CODE.PARSING_FAILED, reason);
             }
-
-            // build options, with correct first
+          
+            // build options, with correct first - strip HTML tags
             const options: string[] = [
-                extract(correct[0].text),
+                stripHtmlTags(extract(correct[0].text)),
                 ...answers
                     .filter((a) => String(a['@_fraction']) !== '100')
-                    .map((a) => extract(a.text)),
+                    .map((a) => stripHtmlTags(extract(a.text))),
             ];
 
-            // content: text + images + tables
+            // content: text + images + tables - strip HTML tags from question text
             const content: (QuestionText | ImageURI | TableURI)[] = [];
-            content.push({ questionText: extract(q.questiontext.text) } as QuestionText);
+            const rawQuestionText = extract(q.questiontext.text);
+            const cleanQuestionText = stripHtmlTags(rawQuestionText);
+
+            content.push({
+                questionText: cleanQuestionText,
+                __type: 'QuestionText',
+            } as QuestionText);
 
             const files = ([] as any[]).concat(q.questiontext.file || []);
             for (const f of files) {
                 const name = String(f['@_name']);
                 const ext = name.split('.').pop()?.toLowerCase() || '';
-                const b64 = f['#cdata'];
+
+                // For debugging - print file object keys and structure without the actual base64 data
+                const debugObj = { ...f };
+                Object.keys(debugObj).forEach((key) => {
+                    if (typeof debugObj[key] === 'string' && debugObj[key].length > 50) {
+                        debugObj[key] = `[String of length ${debugObj[key].length}]`;
+                    }
+                });
+                // console.log('File object keys:', Object.keys(f));
+                // console.log('File object structure:', JSON.stringify(debugObj, null, 2));
+
+                // Try different ways to access the base64 content
+                let b64 = '';
+
+                // Common patterns for accessing text content in parsed XML
+                if (typeof f === 'string') {
+                    b64 = f;
+                } else if (f['#text']) {
+                    // Moodle XML typically stores image data in #text
+                    b64 = f['#text'];
+                } else if (f['#cdata']) {
+                    b64 = f['#cdata'];
+                } else if (f['text']) {
+                    b64 = f['text'];
+                } else if (f['__text']) {
+                    b64 = f['__text'];
+                } else if (typeof f === 'object') {
+                    // If it's an object but doesn't have the expected properties,
+                    // try to find the longest string property which might be our base64 data
+                    const stringProps = Object.entries(f)
+                        .filter(([key, val]) => typeof val === 'string' && !key.startsWith('@_'))
+                        .sort(([, a], [, b]) => (b as string).length - (a as string).length);
+
+                    if (stringProps.length > 0) {
+                        const keyValue = stringProps[0];
+                        if (keyValue) {
+                            const key = keyValue[0];
+                            const value = keyValue[1];
+                            // console.log(`Using property '${key}' as base64 data source`);
+                            b64 = value as string;
+                        }
+                    }
+                }
+
+                if (!b64) {
+                    // Last resort, try to convert the whole object to string
+                    b64 = String(f);
+                    // If that fails too, just log an error
+                    if (!b64 || b64 === '[object Object]') {
+                        // console.error(`Failed to extract base64 data for file ${name}`);
+                        // console.error('File object:', f);
+                        b64 = '';
+                    }
+                }
+
+                // console.log(`Extracted base64 data for ${name} (length: ${b64.length})`);
+
                 const uri = `data:image/${ext};base64,${b64}`;
-                content.push({ imageUri: uri } as ImageURI);
+                content.push({
+                    imageUri: uri,
+                    __type: 'ImageURI',
+                } as ImageURI);
             }
 
             const feedback = {
-                correctFeedback: extract(q.correctfeedback.text),
-                incorrectFeedback: extract(q.incorrectfeedback.text),
+                correctFeedback: stripHtmlTags(extract(q.correctfeedback.text)),
+                incorrectFeedback: stripHtmlTags(extract(q.incorrectfeedback.text)),
             };
             const marks = Number(q.defaultgrade);
             const idMatches = [...xmlString.matchAll(/<!--\s*question\s*:\s*(\d+)\s*-->/g)].map(
@@ -136,9 +209,18 @@ export function xmlParser(xmlBuffer: string | Buffer): ExamData {
 
             output.push({ question: { id, marks, feedback, content, options } });
         } else if (type === 'description' && q.questiontext) {
-            const text = extract(q.questiontext.text);
+            const rawText = extract(q.questiontext.text);
+            const cleanText = stripHtmlTags(rawText);
             output.push({
-                section: { questionCount: null, content: [{ sectionText: text } as SectionText] },
+                section: {
+                    questionCount: null,
+                    content: [
+                        {
+                            sectionText: cleanText,
+                            __type: 'SectionText',
+                        } as SectionText,
+                    ],
+                },
             });
         }
     });
