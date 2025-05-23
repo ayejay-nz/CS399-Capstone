@@ -77,7 +77,7 @@ describe('parseTeleformData()', () => {
 
     it('throws if a line is missing mandatory fields', () => {
         // missing answers part
-        const raw = `01123456712 NGWERUME MUGOVEV 11100000002`;
+        const raw = `01123456712              MUGOVEV 11100000002 04080202040101161604`;
         expect(() => teleformParser(raw)).toThrow(ParserError);
         expect(() => teleformParser(raw)).toThrow('Invalid lines: missing fields');
     });

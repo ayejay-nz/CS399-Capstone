@@ -5,7 +5,7 @@ export interface StudentTeleformData {
     firstName: string;
     courseNumber: string;
     versionNumber: string;
-    answers: number[];
+    answers: (number | null)[];
 }
 
 export interface TeleformData {
