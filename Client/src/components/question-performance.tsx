@@ -71,8 +71,8 @@ const questions: QuestionPerf[] = [
     marks: 3,
     correctPct: 53,
     correctNumber: 32,
-    answerCounts: { A: 8, B: 53, C: 20, D: 7, E: 12 },
-    answerOptions: { A: "8 bytes", B: "24 bytes", C: "32 bytes", D: "12 bytes", E: "16 bytes" },
+    answerCounts: { A: 8, B: 53},
+    answerOptions: { A: "8 bytes", B: "24 bytes"},
     correctOptions: ["B"],
   },
   {
