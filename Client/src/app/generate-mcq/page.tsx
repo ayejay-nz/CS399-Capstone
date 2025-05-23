@@ -7,6 +7,7 @@ import Toolbar from "@/src/components/mcq/Toolbar";
 import QuestionForm from "@/src/components/mcq/QuestionForm";
 import AppendixForm from "@/src/components/mcq/AppendixForm";
 import QuestionList from "@/src/components/mcq/QuestionList";
+import CoverPageForm from '@/src/components/mcq/CoverPageForm';
 
 export default function GenerateMCQPage() {
   const mcq = useMcq();
@@ -187,7 +188,7 @@ export default function GenerateMCQPage() {
         />
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {renderForm()}
+          {CoverPageForm()}
 
           <QuestionList
             coverPage={coverPage}
@@ -233,7 +234,6 @@ export default function GenerateMCQPage() {
           />
         </div>
       </div>
-
       <Footer />
     </div>
   );
