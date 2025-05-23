@@ -118,6 +118,8 @@ export function generateVersionSolutions(
     return versionSolutions;
 }
 
+function generateMetadata(examData: ExamData) {}
+
 /**
  * Generate the full answer key for the given versioned exams and original exam.
  *
@@ -148,6 +150,7 @@ export function generateAnswerKey(versions: VersionedExam[], examData: ExamData)
 
     const versionSolutions = generateVersionSolutions(versions, examData);
     const answerKey: AnswerKey = {
+        metadata: {},
         source: questions,
         versionSolutions: versionSolutions,
     };
