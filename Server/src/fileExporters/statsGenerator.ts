@@ -2,6 +2,8 @@ import { Workbook } from 'exceljs';
 import { ExamBreakdown, StudentBreakdown } from '../dataTypes/examBreakdown';
 import { only } from 'node:test';
 import { percentageToDecimal2dp } from '../utils/format';
+import archiver from 'archiver';
+import { PassThrough } from 'node:stream';
 
 /**
  * Generates a statistics report in TXT format based on an exam breakdown
@@ -133,4 +135,33 @@ export async function generateStatsXlsx(examBreakdown: ExamBreakdown): Promise<B
     const buffer: any = await workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare type as any
 
     return buffer;
+}
+
+export async function exportGeneratedStats(examBreakdown: ExamBreakdown): Promise<Buffer> {
+    const statsTxtBuffer = generateStatsTxt(examBreakdown);
+    const statsXlsxBuffer = await generateStatsXlsx(examBreakdown);
+    const marksXlsxBuffer = await generateMarksXlsx(examBreakdown.students);
+
+    // Zip everything
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const pass = new PassThrough();
+    const chunks: Buffer[] = [];
+
+    // Collect the streamed bytes
+    pass.on('data', (chunk) => chunks.push(chunk));
+
+    const finished = new Promise<Buffer>((resolve, reject) => {
+        pass.on('end', () => resolve(Buffer.concat(chunks)));
+        archive.on('error', reject);
+    });
+
+    archive.pipe(pass);
+
+    // Add generated files to zip
+    archive.append(statsTxtBuffer, { name: 'Statistics.txt' });
+    archive.append(statsXlsxBuffer, { name: 'Statistics.xlsx' });
+    archive.append(marksXlsxBuffer, { name: 'Marks.xlsx' });
+
+    await archive.finalize(); // Flush the archive
+    return finished;
 }
