@@ -31,6 +31,8 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
+import { AnswerOptionsEditor } from "@/src/components/AnswerOptionsEditor";
+
 
 type QuestionPerf = {
   id: number;
@@ -46,8 +48,11 @@ type QuestionPerf = {
     D: string;
     E: string;
   };
-  correctOption: keyof QuestionPerf["answerOptions"];
+  correctOptions: (keyof QuestionPerf["answerOptions"])[];
 };
+
+const allLabels = ["A","B","C","D","E"] as const;
+
 
 const questions: QuestionPerf[] = [
   {
@@ -58,7 +63,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 18,
     answerCounts: { A: 12, B: 45, C: 18, D: 15, E: 10 },
     answerOptions: { A: "58", B: "59", C: "61", D: "57", E: "60" },
-    correctOption: "B",
+    correctOptions: ["B", "A"],
   },
   {
     id: 2,
@@ -68,7 +73,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 32,
     answerCounts: { A: 8, B: 53, C: 20, D: 7, E: 12 },
     answerOptions: { A: "8 bytes", B: "24 bytes", C: "32 bytes", D: "12 bytes", E: "16 bytes" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 3,
@@ -78,7 +83,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 25,
     answerCounts: { A: 61, B: 15, C: 10, D: 8, E: 6 },
     answerOptions: { A: "82 69 65 68", B: "82 65 69 68", C: "68 65 69 82", D: "69 82 65 68", E: "65 82 69 68" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 4,
@@ -88,7 +93,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 30,
     answerCounts: { A: 10, B: 5, C: 8, D: 6, E: 71 },
     answerOptions: { A: "kilo- (10³)", B: "mega- (10⁶)", C: "giga- (10⁹)", D: "tera- (10¹²)", E: "peta- (10¹⁵)" },
-    correctOption: "E",
+    correctOptions: ["E"],
   },
   {
     id: 5,
@@ -98,7 +103,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 28,
     answerCounts: { A: 74, B: 10, C: 6, D: 5, E: 5 },
     answerOptions: { A: "Shareware", B: "Freeware", C: "Open source", D: "Adware", E: "Public domain" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 6,
@@ -108,7 +113,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 40,
     answerCounts: { A: 68, B: 10, C: 9, D: 6, E: 7 },
     answerOptions: { A: "63", B: "58", C: "65", D: "61", E: "60" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 7,
@@ -118,7 +123,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 22,
     answerCounts: { A: 12, B: 15, C: 58, D: 10, E: 5 },
     answerOptions: { A: "Physical", B: "Data Link", C: "Network", D: "Transport", E: "Application" },
-    correctOption: "C",
+    correctOptions: ["C"],
   },
   {
     id: 8,
@@ -128,7 +133,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 50,
     answerCounts: { A: 5, B: 80, C: 7, D: 3, E: 5 },
     answerOptions: { A: "O(n)", B: "O(log n)", C: "O(n log n)", D: "O(1)", E: "O(n²)" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 9,
@@ -138,7 +143,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 45,
     answerCounts: { A: 5, B: 20, C: 15, D: 50, E: 10 },
     answerOptions: { A: "Type", B: "Class", C: "ID", D: "Inline", E: "Pseudo-class" },
-    correctOption: "D",
+    correctOptions: ["D"],
   },
   {
     id: 10,
@@ -148,7 +153,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 35,
     answerCounts: { A: 15, B: 55, C: 10, D: 10, E: 10 },
     answerOptions: { A: "WHERE", B: "HAVING", C: "GROUP BY", D: "ORDER BY", E: "SELECT" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 11,
@@ -164,7 +169,7 @@ const questions: QuestionPerf[] = [
       D: "Atomicity, Consistency, Isolation, Dependability",
       E: "Atomicity, Consistency, Isolation, Distribution",
     },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 12,
@@ -174,7 +179,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 60,
     answerCounts: { A: 5, B: 5, C: 75, D: 5, E: 10 },
     answerOptions: { A: "200", B: "301", C: "404", D: "500", E: "302" },
-    correctOption: "C",
+    correctOptions: ["C"],
   },
   {
     id: 13,
@@ -182,9 +187,9 @@ const questions: QuestionPerf[] = [
     marks: 1,
     correctPct: 62,
     correctNumber: 38,
-    answerCounts: { A: 62, B: 10, C: 8, D: 12, E: 8 },
+    answerCounts: { A: 62, B: 10, C: 8, D: 12, E: 8 },   
     answerOptions: { A: "JSON.parse()", B: "JSON.stringify()", C: "toJSON()", D: "eval()", E: "parseJSON()" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 14,
@@ -194,7 +199,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 34,
     answerCounts: { A: 85, B: 5, C: 3, D: 4, E: 3 },
     answerOptions: { A: "git checkout -b", B: "git branch -d", C: "git merge", D: "git init", E: "git clone" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 15,
@@ -204,7 +209,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 42,
     answerCounts: { A: 10, B: 70, C: 5, D: 10, E: 5 },
     answerOptions: { A: "1", B: "2", C: "0", D: "3", E: "4" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 16,
@@ -214,7 +219,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 48,
     answerCounts: { A: 20, B: 60, C: 5, D: 8, E: 7 },
     answerOptions: { A: "Stack", B: "Queue", C: "Tree", D: "Graph", E: "Hash Table" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 17,
@@ -223,14 +228,8 @@ const questions: QuestionPerf[] = [
     correctPct: 65,
     correctNumber: 26,
     answerCounts: { A: 65, B: 10, C: 10, D: 5, E: 10 },
-    answerOptions: {
-      A: "Domain Name System",
-      B: "Data Network Service",
-      C: "Digital Network System",
-      D: "Domain Number System",
-      E: "Data Name Service",
-    },
-    correctOption: "A",
+    answerOptions: { A: "Domain Name System", B: "Data Network Service", C: "Digital Network System", D: "Domain Number System", E: "Data Name Service" },
+    correctOptions: ["A"],
   },
   {
     id: 18,
@@ -240,7 +239,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 18,
     answerCounts: { A: 90, B: 2, C: 2, D: 3, E: 3 },
     answerOptions: { A: "<h1>", B: "<h2>", C: "<h3>", D: "<header>", E: "<title>" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
   {
     id: 19,
@@ -250,7 +249,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 36,
     answerCounts: { A: 20, B: 50, C: 10, D: 10, E: 10 },
     answerOptions: { A: "EC2", B: "S3", C: "RDS", D: "Lambda", E: "VPC" },
-    correctOption: "B",
+    correctOptions: ["B"],
   },
   {
     id: 20,
@@ -260,7 +259,7 @@ const questions: QuestionPerf[] = [
     correctNumber: 28,
     answerCounts: { A: 77, B: 5, C: 2, D: 8, E: 8 },
     answerOptions: { A: "SSL/TLS", B: "FTP", C: "HTTP", D: "SSH", E: "TCP" },
-    correctOption: "A",
+    correctOptions: ["A"],
   },
 ];
 
@@ -429,12 +428,16 @@ export function QuestionPerformanceTab() {
               <p><span className="font-medium">Marks:</span> {selectedQuestion.marks}</p>
               <p><span className="font-medium">Percentage Correct:</span> {selectedQuestion.correctPct}%</p>
             </div>
+            {/* Question Option Area (where I need to add an edit) */}
             <div className="space-y-1">
-              {(["A","B","C","D","E"] as const).map(opt => (
-                <p key={opt} className={opt === selectedQuestion.correctOption ? "font-semibold text-green-400" : ""}>
-                  <span className="font-medium">{opt}.</span> {selectedQuestion.answerOptions[opt]}
-                </p>
-              ))}
+              <AnswerOptionsEditor
+                answerOptions={selectedQuestion.answerOptions}
+                correctOptions={selectedQuestion.correctOptions}
+                onSave={(newCorrect) => {
+                  console.log("New correct options:", newCorrect);
+                  // TODO: Send this to our API and then update the page (still need to figure out how to update the page? reload the data?)
+                }}
+              />
             </div>
             <div className="rounded-xl border border-[#27272A] bg-black p-6">
               <h5 className="text-white font-medium mb-4 flex justify-center">
