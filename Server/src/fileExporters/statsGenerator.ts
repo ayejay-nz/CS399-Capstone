@@ -1,4 +1,5 @@
-import { ExamBreakdown } from '../dataTypes/examBreakdown';
+import { Workbook } from 'exceljs';
+import { ExamBreakdown, StudentBreakdown } from '../dataTypes/examBreakdown';
 
 /**
  * Generates a statistics report in TXT format based on an exam breakdown
@@ -57,4 +58,26 @@ export function generateStatsTxt(examBreakdown: ExamBreakdown): Buffer {
     });
 
     return Buffer.from(reportText);
+}
+
+export async function generateMarksXlsx(students: StudentBreakdown[]): Promise<Buffer> {
+    const workbook = new Workbook();
+    const sheet = workbook.addWorksheet('Sheet1');
+
+    // Add student data in columns (AUID, Mark)
+    sheet.columns = [
+        { header: 'AUID', key: 'auid' },
+        { header: 'Mark', key: 'mark' },
+    ];
+    students.forEach((student) => {
+        const row: Record<string, string> = {
+            auid: student.auid,
+            mark: student.mark.toString(),
+        };
+        sheet.addRow(row);
+    });
+
+    const buffer: any = await workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare type as any
+
+    return buffer;
 }
