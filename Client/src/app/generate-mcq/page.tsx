@@ -74,6 +74,14 @@ export default function GenerateMCQPage() {
     });
     mcq.setCurrentQuestionId(null);
     setSelectedId(null);
+    mcq.setOptionEditors(Array(5).fill(null));
+    mcq.setOptionContents(Array(5).fill(""));
+    mcq.setOptionCount(5);
+    mcq.setOptionIds(
+      Array(5)
+        .fill(null)
+        .map(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`),
+    );
   };
 
   const handleEditQuestion = (q: any) => {
@@ -90,7 +98,7 @@ export default function GenerateMCQPage() {
     const newAppendix = {
       id: Date.now(),
       content: "",
-      options: [],
+      options: Array(5).fill(""),
       marks: 0,
       displayText: "Appendix",
       isAppendix: true,
@@ -99,6 +107,14 @@ export default function GenerateMCQPage() {
     mcq.questionEditor?.commands.setContent("");
     mcq.setCurrentQuestionId(newAppendix.id);
     setSelectedId(newAppendix.id);
+    mcq.setOptionCount(5);
+    mcq.setOptionEditors(Array(5).fill(null));
+    mcq.setOptionIds(
+      Array(5)
+        .fill(null)
+        .map(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`),
+    );
+    mcq.setOptionContents(Array(5).fill(""));
   };
 
   const renderForm = () => {
