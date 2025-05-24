@@ -19,15 +19,26 @@ const PdfSlideOver = dynamic(
 
 interface Question {
   id: number;
-  content: string;
-  options: string[];
-  marks: number;
+  content?: string;
+  options?: string[];
+  marks?: number;
   displayText?: string;
-  isAppendix: boolean;
+  isAppendix?: boolean;
 }
 
 interface Props {
-  coverPage: Question;
+  coverPage: {
+    id: number;
+    semester: string;
+    campus: string;
+    department: string;
+    course_code: string;
+    course_name: string;
+    exam_title: string;
+    duration: string;
+    version_number: string;
+    note_content: string;
+  };
   questions: Question[];
   onEdit: (q: Question) => void;
   onDelete: (id: number) => void;
@@ -47,8 +58,8 @@ function convertHtmlToPlainText(html: string) {
 async function handlePreview(questions: Question[]) {
   const payload = {
     content: questions.map((q, idx) => {
-      const questionText = convertHtmlToPlainText(q.content);
-      const imgSrcMatch = q.content.match(/<img[^>]+src="([^">]+)"/);
+      const questionText = convertHtmlToPlainText(q.content || "");
+      const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
       const imageUri = imgSrcMatch?.[1] || "";
 
       return {
@@ -63,7 +74,8 @@ async function handlePreview(questions: Question[]) {
             { questionText, __type: "QuestionText" },
             ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
           ],
-          options: q.options.map((optHtml) => convertHtmlToPlainText(optHtml)),
+          options:
+            q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) || [],
         },
       };
     }),
@@ -111,15 +123,15 @@ async function handlePreview2(
           },
           content: [
             {
-              questionText: convertHtmlToPlainText(q.content),
+              questionText: convertHtmlToPlainText(q.content || ""),
               __type: "QuestionText",
             },
             ...(function () {
-              const m = q.content.match(/<img[^>]+src="([^">]+)"/);
+              const m = q.content?.match(/<img[^>]+src="([^">]+)"/);
               return m ? [{ imageUri: m[1], __type: "ImageURI" }] : [];
             })(),
           ],
-          options: q.options.map((opt) => convertHtmlToPlainText(opt)),
+          options: q.options?.map((opt) => convertHtmlToPlainText(opt)) || [],
         },
       })),
     },
@@ -199,9 +211,7 @@ export default function QuestionList({
           >
             <div className="flex items-start gap-2">
               <span className=""></span>
-              <div className="line-clamp-1">
-                {coverPage.displayText || "Cover Page"}
-              </div>
+              <div className="line-clamp-1">Cover Page</div>
             </div>
           </div>
 

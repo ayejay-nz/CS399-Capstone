@@ -7,7 +7,7 @@ import Toolbar from "@/src/components/mcq/Toolbar";
 import QuestionForm from "@/src/components/mcq/QuestionForm";
 import AppendixForm from "@/src/components/mcq/AppendixForm";
 import QuestionList from "@/src/components/mcq/QuestionList";
-import CoverPageForm from '@/src/components/mcq/CoverPageForm';
+import CoverPageForm from "@/src/components/mcq/CoverPageForm";
 
 export default function GenerateMCQPage() {
   const mcq = useMcq();
@@ -15,10 +15,15 @@ export default function GenerateMCQPage() {
 
   const [coverPage, setCoverPage] = useState({
     id: -1,
-    content: "",
-    options: [],
-    marks: 0,
-    displayText: "Cover Page",
+    semester: "",
+    campus: "",
+    department: "",
+    course_code: "",
+    course_name: "",
+    exam_title: "",
+    duration: "",
+    version_number: "",
+    note_content: "",
   });
 
   const handleAddOrUpdateQuestion = () => {
@@ -29,13 +34,7 @@ export default function GenerateMCQPage() {
     const options = mcq.optionContents;
     const marks = mcq.marks;
 
-    if (mcq.currentQuestionId === -1) {
-      setCoverPage({
-        ...coverPage,
-        content,
-        displayText,
-      });
-    } else if (mcq.currentQuestionId !== null) {
+    if (mcq.currentQuestionId !== null) {
       mcq.setQuestions((prev) =>
         prev.map((q) =>
           q.id === mcq.currentQuestionId
@@ -68,10 +67,18 @@ export default function GenerateMCQPage() {
     setSelectedId(null);
   };
 
+  const handleCoverPageUpdate = (values: any) => {
+    setCoverPage({
+      ...coverPage,
+      ...values,
+    });
+    mcq.setCurrentQuestionId(null);
+    setSelectedId(null);
+  };
+
   const handleEditQuestion = (q: any) => {
     if (q.id === -1) {
       setCoverPage(q);
-      mcq.questionEditor?.commands.setContent(q.content);
       mcq.setCurrentQuestionId(-1);
     } else {
       mcq.handleEdit(q);
@@ -97,30 +104,24 @@ export default function GenerateMCQPage() {
   const renderForm = () => {
     if (mcq.currentQuestionId === -1) {
       return (
-        <QuestionForm
-          questionEditor={mcq.questionEditor}
-          setQuestionEditor={mcq.setQuestionEditor}
-          optionEditors={mcq.optionEditors}
-          setOptionEditors={mcq.setOptionEditors}
-          currentQuestionId={mcq.currentQuestionId}
-          handleAddOrUpdate={handleAddOrUpdateQuestion}
+        <CoverPageForm
+          handleAddOrUpdate={handleCoverPageUpdate}
           cancelEdit={() => {
-            mcq.questionEditor?.commands.setContent("");
-            mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
             mcq.setCurrentQuestionId(null);
-            mcq.setMarks(1);
             setSelectedId(null);
+            mcq.setOptionEditors(Array(5).fill(null));
+            mcq.setOptionContents(Array(5).fill(""));
+            mcq.setOptionCount(5);
+            mcq.setOptionIds(
+              Array(5)
+                .fill(null)
+                .map(
+                  () =>
+                    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                ),
+            );
           }}
-          marks={mcq.marks}
-          adjustMarks={mcq.adjustMarks}
-          optionCount={mcq.optionCount}
-          setOptionCount={mcq.setOptionCount}
-          optionIds={mcq.optionIds}
-          setOptionIds={mcq.setOptionIds}
-          version={mcq.version}
-          optionContents={mcq.optionContents}
-          setOptionContents={mcq.setOptionContents}
-          questions={mcq.questions}
+          initialValues={coverPage}
         />
       );
     }
@@ -188,7 +189,7 @@ export default function GenerateMCQPage() {
         />
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {CoverPageForm()}
+          {renderForm()}
 
           <QuestionList
             coverPage={coverPage}
@@ -198,10 +199,15 @@ export default function GenerateMCQPage() {
               if (id === -1) {
                 setCoverPage({
                   id: -1,
-                  content: "",
-                  options: [],
-                  marks: 0,
-                  displayText: "Cover Page",
+                  semester: "",
+                  campus: "",
+                  department: "",
+                  course_code: "",
+                  course_name: "",
+                  exam_title: "",
+                  duration: "",
+                  version_number: "",
+                  note_content: "",
                 });
               } else {
                 mcq.setQuestions((prev) => prev.filter((q) => q.id !== id));
@@ -215,10 +221,15 @@ export default function GenerateMCQPage() {
             onClearAll={() => {
               setCoverPage({
                 id: -1,
-                content: "",
-                options: [],
-                marks: 0,
-                displayText: "Cover Page",
+                semester: "",
+                campus: "",
+                department: "",
+                course_code: "",
+                course_name: "",
+                exam_title: "",
+                duration: "",
+                version_number: "",
+                note_content: "",
               });
               mcq.setQuestions([]);
               mcq.setCurrentQuestionId(null);
