@@ -43,6 +43,7 @@ export const API_ERROR_MESSAGE = {
     missingRequiredData:
         'Required data is missing within the provided file (e.g. missing questions, student IDs, ...)',
     solutionGenerationFailed: 'Could not generate the solution key from the provided source',
+    examVersionGenerationFailed: 'Could not generate the versioned exams from the provided source',
     markingProcessFailed: 'An error occurred during the marking process',
     statsGenerationFailed: 'Failed to generate the required statistics or results files',
     invalidInputData: 'The data provided contains invalid values',
@@ -75,6 +76,7 @@ export const API_ERROR_CODE = {
     // Processing Errors
     MISSING_REQUIRED_DATA: 'MISSING_REQUIRED_DATA',
     SOLUTION_GENERATION_FAILED: 'SOLUTION_GENERATION_FAILED',
+    EXAM_VERSION_GENERATION_FAILED: 'EXAM_VERSION_GENERATION_FAILED',
     MARKING_PROCESS_FAILED: 'MARKING_PROCESS_FAILED',
     STATS_GENERATION_FAILED: 'STATS_GENERATION_FAILED',
     INVALID_INPUT_DATA: 'INVALID_INPUT_DATA',
