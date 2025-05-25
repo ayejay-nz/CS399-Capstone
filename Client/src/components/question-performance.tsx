@@ -64,7 +64,6 @@ export function QuestionPerformanceTab({
   questionStats,
   answerKey,
   onCorrectnessChange,
-  onFeedbackChange,
 }: QuestionPerformanceTabProps) {
   const [columnFilters, setColumnFilters] = React.useState<any[]>([]);
   const [percentageView, setPercentageView] = React.useState(true);

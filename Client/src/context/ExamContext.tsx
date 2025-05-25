@@ -9,6 +9,9 @@ import type {
   AnswerKeyQuestion,
 } from "../dataTypes/examBreakdown";
 
+import testPayload from "./test.json";
+
+
 interface ExamCtx {
   stats: ExamBreakdown | null;
   summary: Summary | null;
@@ -62,18 +65,22 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     setStats({ ...statsPayload, questions: enriched });
   };
 
-  const fetchExam = async () => {
-    const res = await fetch("http://localhost:8000/api/exam-breakdown");
-    if (!res.ok) throw new Error("Failed to fetch exam");
-    const payload = (await res.json()) as [
-      { stats: ExamBreakdown },
-      { questions: AnswerKeyQuestion[] }
-    ];
-    handleResponse(payload);
-  };
+  // const fetchExam = async () => {
+  //   const res = await fetch("http://localhost:8000/api/exam-breakdown");
+  //   if (!res.ok) throw new Error("Failed to fetch exam");
+  //   const payload = (await res.json()) as [
+  //     { stats: ExamBreakdown },
+  //     { questions: AnswerKeyQuestion[] }
+  //   ];
+  //   handleResponse(payload);
+  // };
+
+  // useEffect(() => {
+  //   void fetchExam();
+  // }, []);
 
   useEffect(() => {
-    void fetchExam();
+    handleResponse(testPayload);
   }, []);
 
   const update = async (change: object) => {
@@ -113,7 +120,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const students = useMemo<StudentBreakdown[] | null>(() => stats?.students ?? null, [stats]);
 
   const value = useMemo(
-    () => ({ stats, summary, questionStats, students, answerKey, refresh: fetchExam, updateQuestion, updateFeedback }),
+    () => ({ stats, summary, questionStats, students, answerKey, updateQuestion, updateFeedback }),
     [stats, answerKey]
   );
 
