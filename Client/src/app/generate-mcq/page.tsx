@@ -24,6 +24,7 @@ export default function GenerateMCQPage() {
     duration: "",
     version_number: "",
     note_content: "",
+    isImported: false,
   });
 
   const handleAddOrUpdateQuestion = () => {
@@ -102,6 +103,7 @@ export default function GenerateMCQPage() {
       marks: 0,
       displayText: "Appendix",
       isAppendix: true,
+      isImported: false,
     };
     mcq.setQuestions((prev) => [...prev, newAppendix]);
     mcq.questionEditor?.commands.setContent("");
@@ -224,6 +226,7 @@ export default function GenerateMCQPage() {
                   duration: "",
                   version_number: "",
                   note_content: "",
+                  isImported: false,
                 });
               } else {
                 mcq.setQuestions((prev) => prev.filter((q) => q.id !== id));
@@ -246,6 +249,7 @@ export default function GenerateMCQPage() {
                 duration: "",
                 version_number: "",
                 note_content: "",
+                isImported: false,
               });
               mcq.setQuestions([]);
               mcq.setCurrentQuestionId(null);
