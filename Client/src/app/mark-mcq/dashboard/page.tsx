@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,8 +18,19 @@ import { Download } from "lucide-react";
 import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 import { QuestionPerformanceTab } from "@/src/components/question-performance";
 import { DownloadAnswers } from "@/src/components/download-answers";
+import { useExam } from "@/src/context/ExamContext";
+
 
 export default function Dashboard() {
+
+  const { summary, questionStats } = useExam();
+
+  const scores = summary?.studentScores ?? [];
+
+  const questionTexts = Object.fromEntries(
+    examSource.map(q => [q.id, q.text])
+  );
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -92,7 +105,7 @@ export default function Dashboard() {
                       color: "#fff",
                     }}
                   >
-                    <StudentDistribution />
+                    <StudentDistribution studentScores={scores} />
                   </div>
                   <div
                     className="rounded-lg p-4"
@@ -102,7 +115,11 @@ export default function Dashboard() {
                       color: "#fff",
                     }}
                   >
-                    <LowestScoringQuestions />
+                    <LowestScoringQuestions
+                      questionStats={questionStats ?? []}
+                      questionTexts={questionTexts}
+                      count={5}
+                    />
                   </div>
                 </div>
               </TabsContent>

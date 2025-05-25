@@ -2,42 +2,41 @@
 
 import * as React from "react";
 import { Progress } from "../components/ui/progress";
+import type { QuestionBreakdown } from "../dataTypes/examBreakdown";
 
-type LowestQuestions = {
-  id: string;
-  text: string;
-  percentage: number;
-};
+/**
+ * Props for LowestScoringQuestions:
+ * - questionStats: array of per-question breakdown data
+ * - questionTexts: map from questionId to question text
+ * - count: how many lowest items to show (default 5)
+ */
+interface LowestScoringQuestionsProps {
+  questionStats: QuestionBreakdown[];
+  questionTexts: Record<string, string>;
+  count?: number;
+}
 
-const questions: LowestQuestions[] = [
-  {
-    id: "Q1",
-    text: "What decimal number is equivalent to the binary number 111011₂?",
-    percentage: 45,
-  },
-  {
-    id: "Q2",
-    text: "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours?",
-    percentage: 53,
-  },
-  {
-    id: "Q3",
-    text: "What is the ASCII code for the word 'READ'?",
-    percentage: 61,
-  },
-  {
-    id: "Q4",
-    text: "Which of the following prefixes is the largest?",
-    percentage: 71,
-  },
-  {
-    id: "Q5",
-    text: "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
-    percentage: 74,
-  },
-];
+export function LowestScoringQuestions({
+  questionStats,
+  questionTexts,
+  count = 5,
+}: LowestScoringQuestionsProps) {
+  // 1) sort ascending by percentageCorrect
+  // 2) take the lowest `count` items
+  // 3) map to id, text, and percentage for display
+  const lowest = React.useMemo(
+    () =>
+      [...questionStats]
+        .sort((a, b) => a.percentageCorrect - b.percentageCorrect)
+        .slice(0, count)
+        .map((q) => ({
+          id: q.questionId,
+          text: questionTexts[q.questionId] ?? q.questionId,
+          percentage: q.percentageCorrect,
+        })),
+    [questionStats, questionTexts, count]
+  );
 
-export function LowestScoringQuestions() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -47,7 +46,7 @@ export function LowestScoringQuestions() {
         <span className="text-sm text-gray-400">Student’s correct %</span>
       </div>
       <div className="space-y-6">
-        {questions.map((q) => (
+        {lowest.map((q) => (
           <div key={q.id} className="space-y-2">
             <div className="flex justify-between items-start">
               <p className="text-sm flex-1 pr-4 text-white">
