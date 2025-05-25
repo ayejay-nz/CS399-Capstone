@@ -4,11 +4,20 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface AnswerKeyQuestion {
+  id: number;
+  content: string;
+  marks: number;
+  options: string[];
+  feedback?: Record<string, string>;
+}
+
 export interface Answer {
   questionId: number;
   optionSelected?: number;
   isCorrect: boolean;
   mark: number;
+  feedback?: string;
 }
 
 export interface StudentBreakdown {
@@ -38,6 +47,7 @@ export interface QuestionBreakdown {
   percentageCorrect: number;
   optionBreakdown: OptionBreakdown[];
   correctAnswers: number[];
+  options: string[];
 }
 
 export interface Summary {

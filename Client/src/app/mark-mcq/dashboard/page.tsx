@@ -17,7 +17,7 @@ import { useExam } from "@/src/context/ExamContext";
 
 export default function Dashboard() {
 
-  const { summary, questionStats } = useExam();
+  const { summary, questionStats, students, answerKey, refresh, updateQuestion, updateFeedback } = useExam();
 
   const scores = summary?.studentScores ?? [];
 
@@ -114,11 +114,19 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="question-performance">
-                <QuestionPerformanceTab />
+                  <QuestionPerformanceTab
+                    questionStats={questionStats ?? []}
+                    answerKey={answerKey ?? []}
+                    onCorrectnessChange={updateQuestion}
+                    onFeedbackChange={updateFeedback}
+                  />
               </TabsContent>
-
               <TabsContent value="individual-performance">
-                <IndividualPerformanceTab />
+                <IndividualPerformanceTab
+                  students={students ?? []}
+                  examMarks={summary?.examMarks ?? 0}
+                  onFeedbackChange={updateFeedback}
+                />
               </TabsContent>
             </Tabs>
           </div>

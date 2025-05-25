@@ -6,17 +6,13 @@ import Link from "next/link";
 import { Button } from "../../components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
-import { ExamBreakdown } from "../../../../Server/src/dataTypes/examBreakdown";
 import { useExam } from "@/src/context/ExamContext";
 
 export default function MarkMCQ() {
 
-  const { setExam } = useExam();
-  
+  const { refresh } = useExam();
   const [answerKeyFile, setAnswerKeyFile] = useState<File | null>(null);
   const [teleformDataFile, setTeleformDataFile] = useState<File | null>(null);
-
   const router = useRouter();
   const ready = !!answerKeyFile && !!teleformDataFile;
 
@@ -43,15 +39,7 @@ export default function MarkMCQ() {
         throw new Error(message);
       }
 
-      const { data: examBreakdown } =
-        (await res.json()) as ApiSuccessResponse<ExamBreakdown>;
-
-      if (!examBreakdown) {
-        throw new Error("Exam marking failed.");
-      }
-
-      // Storing JSON for other pages to use
-      setExam(examBreakdown);
+      await refresh();
 
       router.push("/mark-mcq/dashboard");
     } catch (err) {
