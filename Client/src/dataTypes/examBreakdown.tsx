@@ -1,14 +1,21 @@
+export interface ApiResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+}
+
 export interface Answer {
-  questionId: string;
-  optionSelected?: string;
+  questionId: number;
+  optionSelected?: number;
   isCorrect: boolean;
+  mark: number;
 }
 
 export interface StudentBreakdown {
   auid: string;
   lastName: string;
   firstName: string;
-  versionNumber: number;
+  versionNumber: string;
   totalCorrect: number;
   totalAnswered: number;
   mark: number;
@@ -23,22 +30,25 @@ export interface OptionBreakdown {
 }
 
 export interface QuestionBreakdown {
-  questionId: string;
+  questionId: number;
+  questionText: string;
+  marks: number;
   totalAnswers: number;
   totalCorrectAnswers: number;
   percentageCorrect: number;
   optionBreakdown: OptionBreakdown[];
+  correctAnswers: number[];
 }
 
 export interface Summary {
   lowestScore: number;
   lowerQuartile: number;
   median: number;
-  upperQuartile: number;
+  upperQuartile: number | null;
   highestScore: number;
   examMarks: number;
   studentScores: number[];
-  lowestScoringQuestions: string[];
+  lowestScoringQuestions: number[];
 }
 
 export interface ExamBreakdown {

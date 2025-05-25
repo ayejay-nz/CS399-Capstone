@@ -7,17 +7,11 @@ import Link from "next/link";
 import { MetricCards } from "../../../components/metric-cards";
 import { StudentDistribution } from "../../../components/student-distribution";
 import { LowestScoringQuestions } from "../../../components/lowest-scoring-questions";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../../components/ui/tabs";
-import { Button } from "../../../components/ui/button";
-import { Download } from "lucide-react";
-import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 import { QuestionPerformanceTab } from "@/src/components/question-performance";
+import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 import { DownloadAnswers } from "@/src/components/download-answers";
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/src/components/ui/tabs";
 import { useExam } from "@/src/context/ExamContext";
 
 
@@ -26,10 +20,6 @@ export default function Dashboard() {
   const { summary, questionStats } = useExam();
 
   const scores = summary?.studentScores ?? [];
-
-  const questionTexts = Object.fromEntries(
-    examSource.map(q => [q.id, q.text])
-  );
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
@@ -117,7 +107,6 @@ export default function Dashboard() {
                   >
                     <LowestScoringQuestions
                       questionStats={questionStats ?? []}
-                      questionTexts={questionTexts}
                       count={5}
                     />
                   </div>

@@ -1,15 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
-// TODO: adjust import path, add the datatypes to client instead
-// import { ExamBreakdown } from "../../../../Server/src/dataTypes/examBreakdown";
-
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import type {
   ExamBreakdown,
   Summary,
@@ -22,12 +13,16 @@ interface ExamCtx {
   summary: Summary | null;
   questionStats: QuestionBreakdown[] | null;
   students: StudentBreakdown[] | null;
-  // Reload full exam JSON 
+  // Reload the full exam JSON
   refresh: () => Promise<void>;
-  // Update one question locally and persist back to server
   updateQuestion: (
-    questionId: string,
+    questionId: number,
     updatedFields: Partial<QuestionBreakdown>
+  ) => Promise<void>;
+  updateFeedback: (
+    questionId: number,
+    auid: string,
+    customFeedback: string
   ) => Promise<void>;
 }
 
@@ -36,8 +31,8 @@ const ExamContext = createContext<ExamCtx | undefined>(undefined);
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [exam, setExam] = useState<ExamBreakdown | null>(null);
 
-  // Fetch the full exam breakdown JSON 
   const fetchExam = async () => {
+    // TODO: update this fetch 
     const res = await fetch("http://localhost:8000/api/exam-breakdown");
     if (!res.ok) throw new Error("Failed to fetch exam");
     const data: ExamBreakdown = await res.json();
@@ -45,33 +40,51 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    fetchExam();
+    void fetchExam();
   }, []);
 
   const updateQuestion = async (
-    questionId: string,
+    questionId: number,
     updatedFields: Partial<QuestionBreakdown>
   ) => {
-    if (!exam) return;
-
-    // Locally update the exam object
-    const updatedQuestions = exam.questions.map((q) =>
-      q.questionId === questionId ? { ...q, ...updatedFields } : q
+    // TODO: update this fetch 
+    const res = await fetch(
+      `http://localhost:8000/api/exam-breakdown/questions/${questionId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedFields),
+      }
     );
-    const updatedExam: ExamBreakdown = { ...exam, questions: updatedQuestions };
-    setExam(updatedExam);
-
-    // Persist the full JSON back to the server
-    // TODO: Update fetch endpoint
-    const res = await fetch("http://localhost:8000/api/exam-breakdown", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedExam),
-    });
     if (!res.ok) {
-      console.error("Failed to persist exam update");
-      // TODO: handle this error 
+      console.error("Failed to update question");
+      return;
     }
+    const newExam: ExamBreakdown = await res.json();
+    setExam(newExam);
+  };
+
+  const updateFeedback = async (
+    questionId: number,
+    auid: string,
+    customFeedback: string
+  ) => {
+    const payload = { auid, customFeedback };
+    // TODO: update this fetch 
+    const res = await fetch(
+      `http://localhost:8000/api/exam-breakdown/questions/${questionId}/feedback`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!res.ok) {
+      console.error("Failed to update feedback");
+      return;
+    }
+    const newExam: ExamBreakdown = await res.json();
+    setExam(newExam);
   };
 
   // Derived slices
@@ -86,7 +99,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ exam, summary, questionStats, students, refresh: fetchExam, updateQuestion }),
+    () => ({ exam, summary, questionStats, students, refresh: fetchExam, updateQuestion, updateFeedback }),
     [exam]
   );
 

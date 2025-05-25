@@ -6,35 +6,24 @@ import type { QuestionBreakdown } from "../dataTypes/examBreakdown";
 
 /**
  * Props for LowestScoringQuestions:
- * - questionStats: array of per-question breakdown data
- * - questionTexts: map from questionId to question text
+ * - questionStats: array of per-question breakdown data (must include questionText and percentageCorrect)
  * - count: how many lowest items to show (default 5)
  */
 interface LowestScoringQuestionsProps {
   questionStats: QuestionBreakdown[];
-  questionTexts: Record<string, string>;
   count?: number;
 }
 
 export function LowestScoringQuestions({
   questionStats,
-  questionTexts,
   count = 5,
 }: LowestScoringQuestionsProps) {
-  // 1) sort ascending by percentageCorrect
-  // 2) take the lowest `count` items
-  // 3) map to id, text, and percentage for display
   const lowest = React.useMemo(
     () =>
       [...questionStats]
         .sort((a, b) => a.percentageCorrect - b.percentageCorrect)
-        .slice(0, count)
-        .map((q) => ({
-          id: q.questionId,
-          text: questionTexts[q.questionId] ?? q.questionId,
-          percentage: q.percentageCorrect,
-        })),
-    [questionStats, questionTexts, count]
+        .slice(0, count),
+    [questionStats, count]
   );
 
   return (
@@ -47,17 +36,17 @@ export function LowestScoringQuestions({
       </div>
       <div className="space-y-6">
         {lowest.map((q) => (
-          <div key={q.id} className="space-y-2">
+          <div key={q.questionId} className="space-y-2">
             <div className="flex justify-between items-start">
               <p className="text-sm flex-1 pr-4 text-white">
-                {q.id}. {q.text}
+                {q.questionId}. {q.questionText}
               </p>
               <span className="text-sm font-medium text-white">
-                {q.percentage}%
+                {q.percentageCorrect}%
               </span>
             </div>
             <Progress
-              value={q.percentage}
+              value={q.percentageCorrect}
               className="
                 h-1
                 bg-[#27272A]
