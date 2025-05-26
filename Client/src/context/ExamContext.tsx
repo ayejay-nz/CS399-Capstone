@@ -84,23 +84,24 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const update = async (change: object) => {
-    const res = await fetch(
-      "http://localhost:8000/api/exam-breakdown/update-dashboard",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(change),
-      }
-    );
-    if (!res.ok) {
-      console.error("Failed to update exam");
-      return;
-    }
-    const payload = (await res.json()) as [
-      { stats: ExamBreakdown },
-      { questions: AnswerKeyQuestion[] }
-    ];
-    handleResponse(payload);
+    // const res = await fetch(
+    //   "http://localhost:8000/api/exam-breakdown/update-dashboard",
+    //   {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(change),
+    //   }
+    // );
+    // if (!res.ok) {
+    //   console.error("Failed to update exam");
+    //   return;
+    // }
+    // const payload = (await res.json()) as [
+    //   { stats: ExamBreakdown },
+    //   { questions: AnswerKeyQuestion[] }
+    // ];
+    // handleResponse(payload);
+    console.log('Payload to send:', JSON.stringify(change));
   };
 
   const updateQuestion = (

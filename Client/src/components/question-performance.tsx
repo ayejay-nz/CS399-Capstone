@@ -274,7 +274,7 @@ export function QuestionPerformanceTab({
                 correctOptions={selectedQuestion.correctOptions}
                 onSave={(newCorrect) => {
                   const indices = newCorrect.map((letter) => letter.charCodeAt(0) - 65);
-                  onCorrectnessChange(selectedQuestion.questionId, indices);
+                  onCorrectnessChange(selectedQuestion.questionId, { correctAnswers: indices });
                 }}
               />
             </div>
