@@ -83,6 +83,7 @@ export function IndividualPerformanceTab({
   const table = useReactTable({
     data: students,
     columns,
+    getRowId: (row) => row.auid,
     state: { columnFilters },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -92,10 +93,11 @@ export function IndividualPerformanceTab({
   const selectedStudent = React.useMemo(
     () =>
       selectedRowId
-        ? table.getRowModel().rows.find((r) => r.id === selectedRowId)?.original
+        ? students.find((s) => s.auid === selectedRowId) || null
         : null,
-    [selectedRowId, table.getRowModel().rows]
+    [selectedRowId, students]
   );
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,12 +181,23 @@ export function IndividualPerformanceTab({
                     <TableCell>{letter}</TableCell>
                     <TableCell>
                       <Input
+                        key={ans.feedback ?? ""}
                         defaultValue={ans.feedback ?? ""}
-                        onBlur={(e) =>
-                          onFeedbackChange(ans.questionId, selectedStudent.auid, e.target.value)
-                        }
-                        className="w-full border border-[#27272A] text-white"
-                      />
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const val = (e.target as HTMLInputElement).value;
+                            onFeedbackChange(
+                              ans.questionId,
+                              selectedStudent.auid,
+                              val
+                            );
+                            // blur to remount with new feedback or revert on cancel
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                       className="w-full border border-[#27272A] text-white"
+                     />
                     </TableCell>
                   </TableRow>
                 );

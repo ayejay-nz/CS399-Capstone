@@ -55,7 +55,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       keyPayload.map((q) => [q.id, q])
     ) as Record<number, AnswerKeyQuestion>;
 
-    const enriched = statsPayload.questions.map((qb) => {
+    const enrichedQuestions  = statsPayload.questions.map((qb) => {
       const meta = keyById[qb.questionId];
 
       // correctAnswers indices from optionBreakdown
@@ -72,7 +72,14 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       };
     });
 
-    setStats({ ...statsPayload, questions: enriched });
+  const enrichedStudents = statsPayload.students;
+  const enrichedSummary  = statsPayload.summary;
+
+    setStats({
+      summary:   enrichedSummary,
+      students:  enrichedStudents,
+      questions: enrichedQuestions,
+    });
   };
 
   // const fetchExam = async () => {
@@ -124,26 +131,27 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateQuestion = (
-    questionId: number,
-    updatedFields: Partial<QuestionBreakdown>
-  ) => update({ type: "correctness", questionId, correctOptions: (updatedFields as any).correctAnswers });
+  const updateQuestion = (questionId: number, updatedFields: any) =>
+    update({ type: "correctness", questionId, correctOptions: updatedFields.correctAnswers });
 
-  const updateFeedback = (
-    questionId: number,
-    auid: string,
-    customFeedback: string
-  ) => update({ type: "feedback", questionId, auid, customFeedback });
+  const updateFeedback = (questionId: number, auid: string, customFeedback: string) =>
+    update({ type: "feedback", questionId, auid, customFeedback });
 
   // derive slices
-  const summary = useMemo<Summary | null>(() => stats?.summary ?? null, [stats]);
-  const questionStats = useMemo<QuestionBreakdown[] | null>(() => stats?.questions ?? null, [stats]);
-  const students = useMemo<StudentBreakdown[] | null>(() => stats?.students ?? null, [stats]);
+  const summary       = stats?.summary   ?? null;
+  const questionStats = stats?.questions ?? null;
+  const students      = stats?.students  ?? null;
 
-  const value = useMemo(
-    () => ({ stats, summary, questionStats, students, answerKey, updateQuestion, updateFeedback }),
-    [stats, answerKey]
-  );
+
+  const value = useMemo(() => ({
+    stats,
+    summary,
+    questionStats,
+    students,
+    answerKey,
+    updateQuestion,
+    updateFeedback,
+  }), [stats, answerKey]);
 
   return <ExamContext.Provider value={value}>{children}</ExamContext.Provider>;
 }
