@@ -28,7 +28,7 @@ export default function Toolbar({ mode, setMode, onUpload }: Props) {
           variant={mode === "form" ? "switch" : "secondary"}
           onClick={() => setMode("form")}
         >
-          form editor
+          Form editor
         </Button>
         <Button
           variant={mode === "text" ? "switch" : "secondary"}
@@ -46,7 +46,7 @@ export default function Toolbar({ mode, setMode, onUpload }: Props) {
           className="hidden"
         />
         <Button variant="secondary" onClick={triggerFileInput}>
-          upload file
+          Upload file
         </Button>
       </div>
     </div>

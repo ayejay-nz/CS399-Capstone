@@ -12,6 +12,25 @@ docker compose up --build
 docker compose up
 ```
 
+## API Documentation
+
+The backend API is documented using Swagger UI. Once the server is running, you can access the API documentation at:
+
+```
+http://localhost:8000/api-docs
+```
+
+The documentation provides detailed information about available endpoints, request parameters, and response formats.
+
+## File Uploads
+
+When uploading files via the API, make sure to use the correct field names:
+- `examSourceFile` - For exam source files (DOCX, TXT, XML, TEX)
+- `coverPageFile` - For cover page files (DOCX)
+- `teleformDataFile` - For teleform data files (TXT)
+- `answerKeyFile` - For answer key files (XLSX)
+- `assetFile` - For asset files (PNG, JPEG)
+
 ## Install Packages on Docker
 
 `docker compose exec frontend npm install <package_name>`
