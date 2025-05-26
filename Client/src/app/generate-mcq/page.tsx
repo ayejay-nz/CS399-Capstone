@@ -174,14 +174,51 @@ export default function GenerateMCQPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (mcq.currentQuestionId !== null) {
-      mcq.setQuestions((prev) =>
-        prev.map((q) =>
-          q.id === mcq.currentQuestionId && q.isAppendix
-            ? { ...q, isImported: true }
-            : q,
-        ),
+    try {
+      const formData = new FormData();
+      formData.append("examSourceFile", file);
+
+      const res = await fetch(
+        //to be completed
+        "http://localhost:8000/api/",
+        {
+          method: "POST",
+          body: formData,
+        },
       );
+      if (!res.ok) {
+        throw new Error("File upload failed");
+      }
+      const { data } = await res.json();
+
+      let htmlContent = "";
+      data.appendix.content.forEach((item: any) => {
+        if (item.__type === "AppendixText") {
+          htmlContent += `<p>${item.appendixTxt}</p>`;
+        } else if (item.__type === "ImageURI") {
+          htmlContent += `<img src="${item.imageUri}" />`;
+        }
+      });
+
+      if (mcq.currentQuestionId !== null) {
+        mcq.setQuestions((prev) =>
+          prev.map((q) =>
+            q.id === mcq.currentQuestionId && q.isAppendix
+              ? {
+                  ...q,
+                  isImported: true,
+                  content: htmlContent,
+                  displayText: "Appendix",
+                }
+              : q,
+          ),
+        );
+
+        mcq.questionEditor?.commands.setContent(htmlContent);
+      }
+    } catch (err) {
+      console.error("Error uploading appendix:", err);
+      alert("Failed to upload appendix.");
     }
   };
 
@@ -230,20 +267,6 @@ export default function GenerateMCQPage() {
     const isAppendix = currentQuestion?.isAppendix;
 
     if (isAppendix) {
-      if (currentQuestion?.isImported) {
-        return (
-          <CustomAppendix
-            onReset={handleResetAppendix}
-            onUpload={() => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.accept = ".doc,.docx,.pdf";
-              input.onchange = (e) => handleUploadAppendix(e as any);
-              input.click();
-            }}
-          />
-        );
-      }
       return (
         <AppendixForm
           questionEditor={mcq.questionEditor}

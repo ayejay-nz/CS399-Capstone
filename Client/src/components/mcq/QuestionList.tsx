@@ -27,6 +27,12 @@ interface Question {
   isImported?: boolean;
 }
 
+interface AppendixContent {
+  appendixText?: string;
+  imageUri?: string;
+  __type: "AppendixText" | "ImageURI";
+}
+
 interface Props {
   coverPage: {
     id: number;
@@ -58,15 +64,6 @@ function convertHtmlToPlainText(html: string) {
 }
 
 async function handlePreview(questions: Question[], coverPage: any) {
-  console.log(
-    questions.map((q) => ({
-      id: q.id,
-      isAppendix: q.isAppendix,
-      content: q.content,
-      displayText: q.displayText,
-    })),
-  );
-
   const payload = {
     content: [
       {
@@ -89,12 +86,36 @@ async function handlePreview(questions: Question[], coverPage: any) {
       },
       ...questions.map((q, idx) => {
         if (q.isAppendix) {
+          const temp = document.createElement("div");
+          temp.innerHTML = q.content || "";
+
+          const content: AppendixContent[] = [];
+          temp.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+              content.push({
+                appendixText: node.textContent.trim(),
+                __type: "AppendixText",
+              });
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              if (element.tagName === "P" && element.textContent?.trim()) {
+                content.push({
+                  appendixText: element.textContent.trim(),
+                  __type: "AppendixText",
+                });
+              } else if (element.tagName === "IMG") {
+                content.push({
+                  imageUri: element.getAttribute("src") || "",
+                  __type: "ImageURI",
+                });
+              }
+            }
+          });
+
           return {
             appendix: {
               isUploaded: q.isImported || false,
-              content: q.isImported
-                ? { XML: q.content || "" }
-                : { content: q.content || "" },
+              content: content,
             },
           };
         } else {
@@ -123,19 +144,6 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-
-  console.log(payload);
-
-  const jsonString = JSON.stringify(payload, null, 2);
-  const blob = new Blob([jsonString], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "test-payload.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 
   try {
     const res = await fetch(
