@@ -1,19 +1,56 @@
-import { Document, Paragraph } from 'docx';
+import { Document, ImageRun, Paragraph } from 'docx';
 import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
 import {
     isImageURI,
+    isQuestion,
     isQuestionText,
     isSection,
     isSectionText,
     isTableURI,
 } from '../utils/typeGuards';
+import { imageSize } from 'image-size';
+import ApiError from '../utils/apiError';
+import { API_ERROR_CODE, API_ERROR_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
 
 function reorderQuestionOptions(options: string[], optionOrder: number[] | null): string[] {
     if (!optionOrder || optionOrder.length !== options.length) return options;
 
     return optionOrder.map((i) => options[i]!);
+}
+
+function imageFromBase64(b64: string): ImageRun {
+    const cleaned = b64.replace(/^data:[^;]+;base64,/, '');
+    const data = Buffer.from(cleaned, 'base64');
+
+    const typeData = b64.match(/^data:image\/([\S]+);base64,/) || 'png';
+    const type = typeData[1];
+
+    if (!type) {
+        throw new ApiError(
+            HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
+            API_ERROR_MESSAGE.examVersionGenerationFailed,
+            API_ERROR_CODE.EXAM_VERSION_GENERATION_FAILED,
+        );
+    }
+
+    if (type !== 'jpg' && type !== 'png' && type !== 'gif' && type !== 'bmp') {
+        throw new ApiError(
+            HTTP_STATUS_CODE.UNSUPPORTED_MEDIA_TYPE,
+            API_ERROR_MESSAGE.invalidFileFormat,
+            API_ERROR_CODE.INVALID_FILE_FORMAT,
+        );
+    }
+
+    const { width, height } = imageSize(data);
+
+    return new ImageRun({
+        type,
+        data,
+        transformation: { width, height },
+        altText: { name: 'image' },
+    });
 }
 
 function renderExamQuestion(question: Question, optionOrder: number[] | null): Paragraph[] {
@@ -24,7 +61,13 @@ function renderExamQuestion(question: Question, optionOrder: number[] | null): P
         if (isQuestionText(contentBlock)) {
             qParagraph.push(new Paragraph({ text: contentBlock.questionText }));
         } else if (isImageURI(contentBlock)) {
-            qParagraph.push(new Paragraph({ text: '\n[image]\n' })); // TODO -- HANDLE IMAGES
+            const b64 = contentBlock.imageUri;
+            const img = imageFromBase64(b64);
+            qParagraph.push(
+                new Paragraph({
+                    children: [img],
+                }),
+            );
         } else if (isTableURI(contentBlock)) {
             qParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
         }
@@ -55,7 +98,13 @@ function renderExamSection(section: Section): Paragraph[] {
         if (isSectionText(contentBlock)) {
             sParagraph.push(new Paragraph({ text: contentBlock.sectionText }));
         } else if (isImageURI(contentBlock)) {
-            sParagraph.push(new Paragraph({ text: '\n[image]\n' })); // TODO -- HANDLE IMAGES
+            const b64 = contentBlock.imageUri;
+            const img = imageFromBase64(b64);
+            sParagraph.push(
+                new Paragraph({
+                    children: [img],
+                }),
+            );
         } else if (isTableURI(contentBlock)) {
             sParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
         }
@@ -75,9 +124,10 @@ function renderExamContent(
     const eParagraphs: Paragraph[] = [];
 
     examData.content.forEach((contentBlock) => {
+        // TODO -- HANDLE APPENDICES
         if (isSection(contentBlock)) {
             eParagraphs.push(...renderExamSection(contentBlock));
-        } else {
+        } else if (isQuestion(contentBlock)) {
             const optionOrder = version.optionOrders[qPtr.current]!;
             eParagraphs.push(...renderExamQuestion(contentBlock, optionOrder));
             qPtr.current += 1;

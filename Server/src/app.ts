@@ -11,7 +11,6 @@ import answerKeyRoutes from './routes/answerKeyRoutes';
 import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
 import examBundleRoutes from './routes/examBundleRoutes';
-import markingRoutes from './routes/markingRoutes';
 
 const app = express();
 
@@ -39,7 +38,6 @@ app.use(`${config.server.apiPrefix}/answer-key`, answerKeyRoutes);
 app.use(`${config.server.apiPrefix}/teleform-data`, teleformDataRoutes);
 app.use(`${config.server.apiPrefix}/asset`, assetRoutes);
 app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
-app.use(`${config.server.apiPrefix}/marking`, markingRoutes);
 
 app.use(errorHandler);
 

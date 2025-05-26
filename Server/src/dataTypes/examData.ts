@@ -1,3 +1,5 @@
+import { AppendixPage, Coverpage } from './coverpage';
+
 export type BrandType<K, T> = K & { __type: T };
 export type ImageURI = BrandType<{ imageUri: string }, 'ImageURI'>;
 export type TableURI = BrandType<{ tableUri: string }, 'TableURI'>;
@@ -32,5 +34,6 @@ export interface Section {
 }
 
 export interface ExamData {
-    content: (Question | Section)[];
+    coverpage?: Coverpage;
+    content: (Question | Section | AppendixPage)[]; // Remove Section later -- made redundant by AppendixPage, although may have to add attachments? Angela doesn't make it very clear. could be better to store a reference to once instead.
 }
