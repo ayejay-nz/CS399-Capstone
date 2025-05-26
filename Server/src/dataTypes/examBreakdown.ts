@@ -47,11 +47,3 @@ export interface ExamBreakdown {
     students: StudentBreakdown[];
     questions: QuestionBreakdown[];
 }
-
-export interface AnswerKeyQuestion {
-    marks: number;
-    id: number;
-    feedback: Feedback;
-    content: string;
-    options: string[];
-}
