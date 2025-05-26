@@ -93,6 +93,7 @@ export const API_SUCCESS_MESSAGE = {
     ok: 'Request processed successfully',
     created: 'Resource created successfully',
     accepted: 'Request accepted and is being processed',
+    coverpageFileStoredForProcessing: 'File uploaded but could not be parsed automatically - stored for manual processing',
 };
 
 export const DEFAULT_EXAM_VERSIONS = 4;

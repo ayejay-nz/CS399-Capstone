@@ -4,6 +4,7 @@ import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
 import {
     isImageURI,
+    isQuestion,
     isQuestionText,
     isSection,
     isSectionText,
@@ -123,9 +124,10 @@ function renderExamContent(
     const eParagraphs: Paragraph[] = [];
 
     examData.content.forEach((contentBlock) => {
+        // TODO -- HANDLE APPENDICES
         if (isSection(contentBlock)) {
             eParagraphs.push(...renderExamSection(contentBlock));
-        } else {
+        } else if (isQuestion(contentBlock)) {
             const optionOrder = version.optionOrders[qPtr.current]!;
             eParagraphs.push(...renderExamQuestion(contentBlock, optionOrder));
             qPtr.current += 1;

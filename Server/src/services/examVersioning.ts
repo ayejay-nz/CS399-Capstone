@@ -3,7 +3,7 @@ import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { padTo8 } from '../utils/format';
 import { generateOptionOrder } from '../utils/shuffle';
-import { isSection } from '../utils/typeGuards';
+import { isQuestion } from '../utils/typeGuards';
 
 /**
  * Create an array of empty exam versions, each with a unique, zero-padded
@@ -51,8 +51,8 @@ export function generateExamVersions(examData: ExamData) {
     let examVersions = initialiseEmptyExams();
 
     examData.content.forEach((contentBlock) => {
-        if (isSection(contentBlock)) {
-            return; // Skip sections
+        if (!isQuestion(contentBlock)) {
+            return; // Skip non-questions
         }
 
         const optionCount = contentBlock.question.options.length;
