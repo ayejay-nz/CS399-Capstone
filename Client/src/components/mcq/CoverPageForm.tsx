@@ -25,6 +25,7 @@ const coverPageSchema = z.object({
   duration: z.string().nonempty(),
   version_number: z.string().nonempty(),
   note_content: z.string().nonempty(),
+  isImported: z.boolean(),
 });
 
 type CoverPageFormValues = z.infer<typeof coverPageSchema>;
@@ -46,46 +47,100 @@ const fieldConfigs: {
   { name: "note_content", label: "Note Content", as: "textarea" },
 ];
 
-export default function CoverPageForm() {
+interface Props {
+  handleAddOrUpdate: (values: CoverPageFormValues) => void;
+  cancelEdit: () => void;
+  initialValues?: CoverPageFormValues;
+}
+
+export default function CoverPageForm({
+  handleAddOrUpdate,
+  cancelEdit,
+  initialValues,
+}: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
-    defaultValues: Object.fromEntries(
-      fieldConfigs.map((f) => [f.name, ""])
-    ) as CoverPageFormValues,
+    defaultValues:
+      initialValues ||
+      (Object.fromEntries(
+        fieldConfigs.map((f) => [f.name, ""]),
+      ) as CoverPageFormValues),
   });
 
-  const onSubmit = (values: CoverPageFormValues) => {
-    console.log(values);
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    handleAddOrUpdate({
+      ...form.getValues(),
+      isImported: true,
+    });
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
-        {fieldConfigs.map((config) => (
-          <FormField
-            key={config.name}
-            control={form.control}
-            name={config.name}
-            render={({ field }) => (
-              <FormItem className={config.as === "textarea" ? "md:col-span-2" : undefined}>
-                <FormLabel>{config.label}</FormLabel>
-                <FormControl>
-                  {config.as === "textarea" ? (
-                    <Textarea {...field} />
-                  ) : (
-                    <Input {...field} />
-                  )}
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
+    <div
+      className="flex-1 p-6 pr-6 rounded-md"
+      style={{ backgroundColor: "oklch(23% 0 0)" }}
+    >
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={form.handleSubmit(handleAddOrUpdate)}
+          >
+            Update
+          </Button>
+          <Button variant="secondary" onClick={cancelEdit}>
+            Cancel
+          </Button>
+          <div className="relative">
+            <input
+              type="file"
+              accept=".doc,.docx,.pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="cover-page-upload"
+            />
+            <label htmlFor="cover-page-upload">
+              <Button variant="secondary" asChild>
+                <span>Upload Cover Page</span>
+              </Button>
+            </label>
+          </div>
+        </div>
+      </div>
 
-        <Button type="submit" className="md:col-span-2">
-          Submit
-        </Button>
-      </form>
-    </Form>
+      <Form {...form}>
+        <form className="grid gap-4 md:grid-cols-2">
+          {fieldConfigs.map((config) => (
+            <FormField
+              key={config.name}
+              control={form.control}
+              name={config.name}
+              render={({ field }) => (
+                <FormItem
+                  className={
+                    config.as === "textarea" ? "md:col-span-2" : undefined
+                  }
+                >
+                  <FormLabel>{config.label}</FormLabel>
+                  <FormControl>
+                    {config.as === "textarea" ? (
+                      <Textarea {...field} />
+                    ) : (
+                      <Input {...field} />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+        </form>
+      </Form>
+    </div>
   );
 }

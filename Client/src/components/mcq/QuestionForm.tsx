@@ -21,6 +21,7 @@ interface Props {
   setOptionCount: (fn: (prev: number) => number) => void;
   optionCount: number;
   questions: any[];
+  isCoverPage?: boolean;
 }
 
 export default function QuestionForm({
@@ -41,6 +42,7 @@ export default function QuestionForm({
   setOptionContents,
   version,
   questions,
+  isCoverPage = false,
 }: Props) {
   const [validationErrors, setValidationErrors] = useState({
     question: false,
@@ -122,14 +124,20 @@ export default function QuestionForm({
       options: Array(optionEditors.length).fill(false),
     };
 
-    if (!questionEditor?.getText()?.trim()) {
+    const hasText = questionEditor?.getText()?.trim();
+    const hasImage = questionEditor?.getHTML()?.includes("<img");
+
+    if (!hasText && !hasImage) {
       newErrors.question = true;
       isValid = false;
     }
 
-    if (!isAppendix) {
+    if (!isCoverPage && !isAppendix) {
       optionEditors.forEach((editor, i) => {
-        if (!editor?.getText()?.trim()) {
+        const optionHasText = editor?.getText()?.trim();
+        const optionHasImage = editor?.getHTML()?.includes("<img");
+
+        if (!optionHasText && !optionHasImage) {
           newErrors.options[i] = true;
           isValid = false;
         }
@@ -158,10 +166,10 @@ export default function QuestionForm({
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">
-          {isAppendix ? "Appendix" : "Question"}
+          {isCoverPage ? "Cover Page" : isAppendix ? "Appendix" : "Question"}
         </h1>
         <div className="flex items-center gap-5">
-          {!isAppendix && (
+          {!isCoverPage && !isAppendix && (
             <div className="flex items-center text-sm text-white">
               <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
                 <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
@@ -209,7 +217,7 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}-${version}`}
+              key={`${isCoverPage ? "cover" : "question"}-${currentQuestionId}-${version}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
@@ -225,7 +233,7 @@ export default function QuestionForm({
           </div>
         </div>
 
-        {!isAppendix && (
+        {!isCoverPage && !isAppendix && (
           <div className="mt-6 w-full">
             <h2 className="text-lg font-semibold mb-4">Options</h2>
             <div className="flex flex-col gap-4">

@@ -19,15 +19,34 @@ const PdfSlideOver = dynamic(
 
 interface Question {
   id: number;
-  content: string;
-  options: string[];
-  marks: number;
+  content?: string;
+  options?: string[];
+  marks?: number;
   displayText?: string;
-  isAppendix: boolean;
+  isAppendix?: boolean;
+  isImported?: boolean;
+}
+
+interface AppendixContent {
+  appendixText?: string;
+  imageUri?: string;
+  __type: "AppendixText" | "ImageURI";
 }
 
 interface Props {
-  coverPage: Question;
+  coverPage: {
+    id: number;
+    semester: string;
+    campus: string;
+    department: string;
+    course_code: string;
+    course_name: string;
+    exam_title: string;
+    duration: string;
+    version_number: string;
+    note_content: string;
+    isImported?: boolean;
+  };
   questions: Question[];
   onEdit: (q: Question) => void;
   onDelete: (id: number) => void;
@@ -44,29 +63,86 @@ function convertHtmlToPlainText(html: string) {
   return temp.textContent || temp.innerText || "";
 }
 
-async function handlePreview(questions: Question[]) {
+async function handlePreview(questions: Question[], coverPage: any) {
   const payload = {
-    content: questions.map((q, idx) => {
-      const questionText = convertHtmlToPlainText(q.content);
-      const imgSrcMatch = q.content.match(/<img[^>]+src="([^">]+)"/);
-      const imageUri = imgSrcMatch?.[1] || "";
-
-      return {
-        question: {
-          marks: q.marks || 1,
-          id: idx + 1,
-          feedback: {
-            correctFeedback: "Correct",
-            incorrectFeedback: "Incorrect",
-          },
-          content: [
-            { questionText, __type: "QuestionText" },
-            ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
-          ],
-          options: q.options.map((optHtml) => convertHtmlToPlainText(optHtml)),
+    content: [
+      {
+        coverpage: {
+          isUploaded: coverPage.isImported,
+          content: coverPage.isImported
+            ? { XML: coverPage.content || "" }
+            : {
+                semester: coverPage.semester,
+                campus: coverPage.campus,
+                department: coverPage.department,
+                course_code: coverPage.course_code,
+                course_name: coverPage.course_name,
+                exam_title: coverPage.exam_title,
+                duration: coverPage.duration,
+                note_content: coverPage.note_content,
+                version_number: coverPage.version_number,
+              },
         },
-      };
-    }),
+      },
+      ...questions.map((q, idx) => {
+        if (q.isAppendix) {
+          const temp = document.createElement("div");
+          temp.innerHTML = q.content || "";
+
+          const content: AppendixContent[] = [];
+          temp.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+              content.push({
+                appendixText: node.textContent.trim(),
+                __type: "AppendixText",
+              });
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              if (element.tagName === "P" && element.textContent?.trim()) {
+                content.push({
+                  appendixText: element.textContent.trim(),
+                  __type: "AppendixText",
+                });
+              } else if (element.tagName === "IMG") {
+                content.push({
+                  imageUri: element.getAttribute("src") || "",
+                  __type: "ImageURI",
+                });
+              }
+            }
+          });
+
+          return {
+            appendix: {
+              isUploaded: q.isImported || false,
+              content: content,
+            },
+          };
+        } else {
+          const questionText = convertHtmlToPlainText(q.content || "");
+          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+          const imageUri = imgSrcMatch?.[1] || "";
+
+          return {
+            question: {
+              marks: q.marks || 1,
+              id: idx + 1,
+              feedback: {
+                correctFeedback: "Correct",
+                incorrectFeedback: "Incorrect",
+              },
+              content: [
+                { questionText, __type: "QuestionText" },
+                ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+              ],
+              options:
+                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
+                [],
+            },
+          };
+        }
+      }),
+    ],
   };
 
   try {
@@ -96,34 +172,91 @@ async function handlePreview(questions: Question[]) {
 
 async function handlePreview2(
   questions: Question[],
+  coverPage: any,
   setPreviewUrl: (url: string | null) => void,
 ) {
   const payload = {
-    exam: {
-      title: "Preview Exam",
-      content: questions.map((q, idx) => ({
-        question: {
-          id: idx + 1,
-          marks: q.marks ?? 1,
-          feedback: {
-            correctFeedback: "Correct",
-            incorrectFeedback: "Incorrect",
-          },
-          content: [
-            {
-              questionText: convertHtmlToPlainText(q.content),
-              __type: "QuestionText",
-            },
-            ...(function () {
-              const m = q.content.match(/<img[^>]+src="([^">]+)"/);
-              return m ? [{ imageUri: m[1], __type: "ImageURI" }] : [];
-            })(),
-          ],
-          options: q.options.map((opt) => convertHtmlToPlainText(opt)),
+    content: [
+      {
+        coverpage: {
+          isUploaded: coverPage.isImported,
+          content: coverPage.isImported
+            ? { XML: coverPage.content || "" }
+            : {
+                semester: coverPage.semester,
+                campus: coverPage.campus,
+                department: coverPage.department,
+                course_code: coverPage.course_code,
+                course_name: coverPage.course_name,
+                exam_title: coverPage.exam_title,
+                duration: coverPage.duration,
+                note_content: coverPage.note_content,
+                version_number: coverPage.version_number,
+              },
         },
-      })),
-    },
+      },
+      ...questions.map((q, idx) => {
+        if (q.isAppendix) {
+          const temp = document.createElement("div");
+          temp.innerHTML = q.content || "";
+
+          const content: AppendixContent[] = [];
+          temp.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+              content.push({
+                appendixText: node.textContent.trim(),
+                __type: "AppendixText",
+              });
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as HTMLElement;
+              if (element.tagName === "P" && element.textContent?.trim()) {
+                content.push({
+                  appendixText: element.textContent.trim(),
+                  __type: "AppendixText",
+                });
+              } else if (element.tagName === "IMG") {
+                content.push({
+                  imageUri: element.getAttribute("src") || "",
+                  __type: "ImageURI",
+                });
+              }
+            }
+          });
+
+          return {
+            appendix: {
+              isUploaded: q.isImported || false,
+              content,
+            },
+          };
+        } else {
+          const questionText = convertHtmlToPlainText(q.content || "");
+          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+          const imageUri = imgSrcMatch?.[1] || "";
+
+          return {
+            question: {
+              marks: q.marks || 1,
+              id: idx + 1,
+              feedback: {
+                correctFeedback: "Correct",
+                incorrectFeedback: "Incorrect",
+              },
+              content: [
+                { questionText, __type: "QuestionText" },
+                ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+              ],
+              options:
+                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
+                [],
+            },
+          };
+        }
+      }),
+    ],
   };
+
+  console.log(payload);
 
   try {
     const res = await fetch(
@@ -194,14 +327,12 @@ export default function QuestionList({
             } hover:bg-[oklch(19%_0_0)] transition-colors`}
             onClick={() => {
               setSelectedId(coverPage.id);
-              onEdit(coverPage);
+              onEdit(coverPage as Question);
             }}
           >
             <div className="flex items-start gap-2">
               <span className=""></span>
-              <div className="line-clamp-1">
-                {coverPage.displayText || "Cover Page"}
-              </div>
+              <div className="line-clamp-1">Cover Page</div>
             </div>
           </div>
 
@@ -295,7 +426,7 @@ export default function QuestionList({
             <Button
               variant="secondary"
               className="flex-1"
-              onClick={() => handlePreview(questions)}
+              onClick={() => handlePreview(questions, coverPage)}
             >
               Generate
             </Button>

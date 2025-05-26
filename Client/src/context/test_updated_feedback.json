@@ -1,0 +1,161 @@
+[
+  {
+    "stats": {
+      "summary": {
+        "lowestScore": 50,
+        "lowerQuartile": 50,
+        "median": 50,
+        "upperQuartile": 50,
+        "highestScore": 50,
+        "examMarks": 2,
+        "studentScores": [
+          50.00,
+          50.00
+        ],
+        "lowestScoringQuestions": [
+          1,
+          2
+        ]
+      },
+      "students": [
+        {
+          "auid": "A123",
+          "lastName": "Doe",
+          "firstName": "John",
+          "versionNumber": "1",
+          "totalCorrect": 1,
+          "totalAnswered": 2,
+          "mark": 1,
+          "answers": [
+            {
+              "questionId": 1,
+              "optionSelected": 0,
+              "isCorrect": true,
+              "mark": 1,
+              "feedback": "Good"
+            },
+            {
+              "questionId": 2,
+              "optionSelected": 1,
+              "isCorrect": false,
+              "mark": 0,
+              "feedback": "That's not good!"
+            }
+          ]
+        },
+        {
+          "auid": "B456",
+          "lastName": "Smith",
+          "firstName": "Jane",
+          "versionNumber": "1",
+          "totalCorrect": 1,
+          "totalAnswered": 2,
+          "mark": 1,
+          "answers": [
+            {
+              "questionId": 1,
+              "optionSelected": 1,
+              "isCorrect": false,
+              "mark": 0,
+              "feedback": "Great"
+            },
+            {
+              "questionId": 2,
+              "optionSelected": 0,
+              "isCorrect": true,
+              "mark": 1,
+              "feedback": "Review"
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": 1,
+          "totalAnswers": 2,
+          "totalCorrectAnswers": 1,
+          "percentageCorrect": 50,
+          "optionBreakdown": [
+            {
+              "optionNumber": 0,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": true
+            },
+            {
+              "optionNumber": 1,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 2,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 3,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "questionId": 2,
+          "totalAnswers": 2,
+          "totalCorrectAnswers": 1,
+          "percentageCorrect": 50,
+          "optionBreakdown": [
+            {
+              "optionNumber": 0,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": true
+            },
+            {
+              "optionNumber": 1,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 2,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "questions": [
+      {
+        "id": 1,
+        "marks": 1,
+        "feedback": {},
+        "content": "What is 1+1?",
+        "options": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "id": 2,
+        "marks": 1,
+        "feedback": {},
+        "content": "What is 2+2?",
+        "options": [
+          "4",
+          "5",
+          "6"
+        ]
+      }
+    ]
+  }
+]

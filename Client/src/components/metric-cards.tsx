@@ -1,38 +1,30 @@
 "use client";
 
+import React from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-
-export interface Summary {
-  lowestScore: number;
-  lowerQuartile: number;
-  median: number;
-  upperQuartile: number;
-  highestScore: number;
-}
-
-const summaryData: Summary = {
-  lowestScore: 2,
-  lowerQuartile: 35,
-  median: 60,
-  upperQuartile: 75,
-  highestScore: 95,
-};
-
-const metrics = [
-  { label: "Lowest Score (%)", value: summaryData.lowestScore },
-  { label: "Lower Quartile (%)", value: summaryData.lowerQuartile },
-  { label: "Median (%)", value: summaryData.median },
-  { label: "Upper Quartile (%)", value: summaryData.upperQuartile },
-  { label: "Highest score (%)", value: summaryData.highestScore },
-];
+} from "@/src/components/ui/card";
+import { useExam } from "@/src/context/ExamContext";
 
 export function MetricCards() {
+  const { summary } = useExam();
+
+  if (!summary) {
+    return null;
+  }
+
+  const metrics = [
+    { label: "Lowest Score (%)", value: summary.lowestScore },
+    { label: "Lower Quartile (%)", value: summary.lowerQuartile },
+    { label: "Median (%)", value: summary.median },
+    { label: "Upper Quartile (%)", value: summary.upperQuartile ?? 0 },
+    { label: "Highest Score (%)", value: summary.highestScore },
+  ];
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {metrics.map((c) => (

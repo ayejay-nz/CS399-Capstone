@@ -5,9 +5,8 @@ import {
   useReactTable,
   ColumnDef,
   getCoreRowModel,
-  RowSelectionState,
-  flexRender,
   getFilteredRowModel,
+  flexRender,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -20,647 +19,31 @@ import {
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
+import type {
+  StudentBreakdown,
+  Answer,
+} from "@/src/dataTypes/examBreakdown";
 
-// dummy data, replace with real fetch later
-export type Student = {
-  auid: string;
-  name: string;
-  version: number;
-  total: number;
-  answers: {
-    question: string;
-    marks: 0 | 1;
-    option: "A" | "B" | "C" | "D" | "E";
-    feedback: "Well Done!" | "Incorrect.";
-  }[];
-};
+interface IndividualPerformanceTabProps {
+  students: StudentBreakdown[];
+  examMarks: number;
+  onFeedbackChange: (
+    questionId: number,
+    auid: string,
+    customFeedback: string
+  ) => Promise<void>;
+}
 
-const students: Student[] = [
-  {
-    auid: "10010234",
-    name: "Alice Smith",
-    version: 2,
-    total: 10,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const isCorrect = q % 2 === 1; // 10 correct (odd IDs)
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010235",
-    name: "Bob Johnson",
-    version: 1,
-    total: 12,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const isCorrect = [1, 2, 5, 6, 7, 8, 12, 13, 16, 17, 20, 19].includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010236",
-    name: "Carol Lee",
-    version: 1,
-    total: 8,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [2, 4, 6, 7, 8, 12, 14, 18];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010237",
-    name: "David Kim",
-    version: 3,
-    total: 15,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const incorrectIds = [2, 5, 9, 13, 20]; // 5 wrong
-      const isCorrect = !incorrectIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010238",
-    name: "Eva González",
-    version: 4,
-    total: 5,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [3, 7, 12, 16, 19];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010239",
-    name: "Frank Zhang",
-    version: 4,
-    total: 20,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctOpt = correctMap[q];
-      return {
-        question: String(q),
-        marks: 1,
-        option: correctOpt,
-        feedback: "Well Done!",
-      };
-    }),
-  },
-
-  {
-    auid: "10010240",
-    name: "Grace Patel",
-    version: 1,
-    total: 0,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: 0,
-        option: wrongOpt,
-        feedback: "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010241",
-    name: "Hiro Tanaka",
-    version: 3,
-    total: 14,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const incorrectIds = [4, 9, 13, 18, 20, 11];
-      const isCorrect = !incorrectIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-
-  {
-    auid: "10010242",
-    name: "Isabel Rossi",
-    version: 1,
-    total: 7,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [3, 7, 12, 15, 16, 17, 19];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-  {
-    auid: "10010243",
-    name: "John Doe",
-    version: 2,
-    total: 10,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-  {
-    auid: "10010244",
-    name: "Lina Martinez",
-    version: 3,
-    total: 8,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [2, 4, 6, 8, 10, 12, 14, 16];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-  {
-    auid: "10010245",
-    name: "Michael Brown",
-    version: 4,
-    total: 15,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const incorrectIds = [1, 2, 3, 4, 5];
-      const isCorrect = !incorrectIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-  {
-    auid: "10010246",
-    name: "Zoe Singh",
-    version: 1,
-    total: 2,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [1, 20];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-  {
-    auid: "10010247",
-    name: "Lucas Williams",
-    version: 4,
-    total: 4,
-    answers: Array.from({ length: 20 }, (_, i) => {
-      const q = i + 1;
-      const correctMap: Record<number, keyof Student["answers"][0]> = {
-        1: "B",
-        2: "B",
-        3: "A",
-        4: "E",
-        5: "A",
-        6: "A",
-        7: "C",
-        8: "B",
-        9: "D",
-        10: "B",
-        11: "A",
-        12: "C",
-        13: "A",
-        14: "A",
-        15: "B",
-        16: "B",
-        17: "A",
-        18: "A",
-        19: "B",
-        20: "A",
-      };
-      const correctIds = [5, 10, 15, 20];
-      const isCorrect = correctIds.includes(q);
-      const correctOpt = correctMap[q];
-      const wrongOpt = (["A", "B", "C", "D", "E"] as const).find(
-        (o) => o !== correctOpt,
-      )!;
-      return {
-        question: String(q),
-        marks: isCorrect ? 1 : 0,
-        option: isCorrect ? correctOpt : wrongOpt,
-        feedback: isCorrect ? "Well Done!" : "Incorrect.",
-      };
-    }),
-  },
-];
-
-const studentColumns: ColumnDef<Student>[] = [
-  { accessorKey: "auid", header: "AUID" },
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "version", header: "Version" },
-  { accessorKey: "total", header: "Total" },
-];
-
-type Answer = Student["answers"][0];
-const answerColumns: ColumnDef<Answer>[] = [
-  { accessorKey: "question", header: "Question" },
-  { accessorKey: "marks", header: "Marks" },
-  { accessorKey: "option", header: "Option" },
-  { accessorKey: "feedback", header: "Feedback" },
-];
-
-export function IndividualPerformanceTab() {
+export function IndividualPerformanceTab({
+  students,
+  examMarks,
+  onFeedbackChange,
+}: IndividualPerformanceTabProps) {
   const [columnFilters, setColumnFilters] = React.useState<any[]>([]);
   const [percentageView, setPercentageView] = React.useState(true);
+  const [selectedRowId, setSelectedRowId] = React.useState<string | null>(null);
 
-  const QUESTION_COUNT = students[0]?.answers.length ?? 20;
-
-  const columns = React.useMemo<ColumnDef<Student>[]>(
+  const columns = React.useMemo<ColumnDef<StudentBreakdown>[]>(
     () => [
       {
         accessorKey: "auid",
@@ -668,41 +51,53 @@ export function IndividualPerformanceTab() {
         cell: ({ getValue }) => <div className="w-24">{getValue<string>()}</div>,
       },
       {
-        accessorKey: "name",
+        id: "name",
         header: "Name",
+        cell: ({ row }) => (
+          <div>{`${row.original.firstName} ${row.original.lastName}`}</div>
+        ),
       },
       {
-        accessorKey: "version",
+        accessorKey: "versionNumber",
         header: "Version",
-        cell: ({ getValue }) => <div className="w-20 text-center">{getValue<number>()}</div>,
+        cell: ({ getValue }) => (
+          <div className="w-20 text-center">{getValue<string>()}</div>
+        ),
       },
       {
-        id: "total",
-        header: percentageView ? "% Score" : "Total",
+        id: "score",
+        header: percentageView ? "% Score" : "Score",
         cell: ({ row }) => {
-          const t = row.original.total;
-          return percentageView
-            ? <div className="w-20 text-center">{Math.round((t / QUESTION_COUNT) * 100)}%</div>
-            : <div className="w-20 text-center">{t}</div>;
+          const marks = row.original.mark;
+          return percentageView ? (
+            <div className="w-20 text-center">{Math.round((marks / examMarks) * 100)}%</div>
+          ) : (
+            <div className="w-20 text-center">{marks}</div>
+          );
         },
       },
     ],
-    [percentageView],
+    [percentageView, examMarks]
   );
 
   const table = useReactTable({
     data: students,
     columns,
+    getRowId: (row) => row.auid,
     state: { columnFilters },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const [selectedRowId, setSelectedRowId] = React.useState<string | null>(null);
-  const selectedStudent = selectedRowId
-    ? table.getRowModel().rows.find(r => r.id === selectedRowId)?.original
-    : null;
+  const selectedStudent = React.useMemo(
+    () =>
+      selectedRowId
+        ? students.find((s) => s.auid === selectedRowId) || null
+        : null,
+    [selectedRowId, students]
+  );
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -711,7 +106,7 @@ export function IndividualPerformanceTab() {
           <Input
             placeholder="Search by name..."
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={e => table.getColumn("name")?.setFilterValue(e.target.value)}
+            onChange={(e) => table.getColumn("name")?.setFilterValue(e.target.value)}
             className="w-full md:w-2/3 border border-[#27272A] focus:ring-0 text-white"
           />
           <div className="flex items-center space-x-2">
@@ -748,22 +143,12 @@ export function IndividualPerformanceTab() {
                   <TableRow
                     key={row.id}
                     onClick={() => setSelectedRowId(row.id)}
-                    className={`
-                        border-b border-[#27272A]
-                        cursor-pointer
-                        ${
-                          isSelected
-                            ? "bg-[#27272A] text-white"
-                            : "hover:bg-gray-800"
-                        }
-                      `}
-                  >
+                    className={`border-b border-[#27272A] cursor-pointer ${
+                      isSelected ? "bg-[#27272A] text-white" : "hover:bg-gray-800"
+                    }`}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -779,20 +164,44 @@ export function IndividualPerformanceTab() {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#27272A]">
-                {["Question","Marks","Option","Feedback"].map(header => (
-                  <TableHead key={header} className="text-white">{header}</TableHead>
+                {["Question","Marks","Option","Feedback"].map((h) => (
+                  <TableHead key={h} className="text-white">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {selectedStudent.answers.map((ans, i) => (
-                <TableRow key={i} className="border-b border-[#27272A]">
-                  <TableCell>{ans.question}</TableCell>
-                  <TableCell className="text-center">{ans.marks}</TableCell>
-                  <TableCell>{ans.option}</TableCell>
-                  <TableCell>{ans.feedback}</TableCell>
-                </TableRow>
-              ))}
+              {selectedStudent.answers.map((ans: Answer) => {
+                const letter = ans.optionSelected != null
+                  ? String.fromCharCode(65 + ans.optionSelected)
+                  : "";
+                return (
+                  <TableRow key={ans.questionId} className="border-b border-[#27272A]">
+                    <TableCell>{ans.questionId}</TableCell>
+                    <TableCell className="text-center">{ans.mark}</TableCell>
+                    <TableCell>{letter}</TableCell>
+                    <TableCell>
+                      <Input
+                        key={ans.feedback ?? ""}
+                        defaultValue={ans.feedback ?? ""}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const val = (e.target as HTMLInputElement).value;
+                            onFeedbackChange(
+                              ans.questionId,
+                              selectedStudent.auid,
+                              val
+                            );
+                            // blur to remount with new feedback or revert on cancel
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                       className="w-full border border-[#27272A] text-white"
+                     />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         ) : (

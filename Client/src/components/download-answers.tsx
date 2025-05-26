@@ -3,59 +3,34 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
-import questions from "../app/mark-mcq/dashboard/data";
 
 export function DownloadAnswers() {
-  function formatDownloadText() {
-    const courseCode = "COMPSCI105";
-    const studentCount = 81;
-    let txt = `Course: ${courseCode}\n`;
-    txt += `Students Count: ${studentCount}\n\n`;
 
-    const col1 = 12;
-    const col2 = 20;
-    const col3 = 12;
+  // TODO: Aidan update this for downloading the .txt and excel file in zip (this would be tied to a session)
+  async function handleClick() {
+    try {
+      const res = await fetch("localhost", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/zip",
+        },
+      });
+      if (!res.ok) throw new Error("Download failed");
 
-    for (const q of questions) {
-      const total = Object.values(q.answerCounts).reduce((a, b) => a + b, 0);
-      txt += `Question Number : ${q.id}\n`;
-      txt += `Question : [${q.marks} mark${q.marks > 1 ? "s" : ""}] ${q.text}\n\n`;
+      const blob = await res.blob();
 
-      txt +=
-        "Answer".padStart(col1) +
-        " " +
-        "Number Of Answers".padStart(col2) +
-        " " +
-        "Percentage".padStart(col3) +
-        "\n";
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "stats_information.zip";
+      document.body.appendChild(a);
+      a.click();
 
-      for (const [opt, count] of Object.entries(q.answerCounts)) {
-        const pct = total ? ((count / total) * 100).toFixed(2) : "0.00";
-        txt +=
-          `${opt})`.padStart(col1) +
-          " " +
-          `${count}`.padStart(col2) +
-          " " +
-          `${pct}`.padStart(col3) +
-          "\n";
-      }
-
-      txt += `Total (without invalid answer):  ${total}\n`;
-      txt += `${"=".repeat(100)}\n\n`;
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error downloading answers:", err);
     }
-
-    return txt;
-  }
-
-  function handleClick() {
-    const text = formatDownloadText();
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "student_answers.txt";
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   return (

@@ -1,0 +1,555 @@
+{
+  "content": [
+    {
+      "question": {
+        "marks": 1,
+        "id": 1,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "What decimal number is equivalent to the binary number 111011?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": ["59", "118", "27", "28", "55"]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 2,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which of the following prefixes is the largest?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": ["Gibi", "Mebi", "Giga", "Mega", "Kibi"]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 3,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "A dual-core CPU has an internal clock speed that is twice as fast as a single-core CPU",
+          "RAM is more expensive (per MB) than HDD storage",
+          "SATA and IDE are both standards that define how to transfer information to and from mass storage devices",
+          "Both a mouse and a keyboard can be connected to a system box using USB",
+          "PCI-E and AGP are both standards for expansion slots on a motherboard"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 4,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is true?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "A RAID can improve the speed of information transfer from hard drives",
+          "Moore's Law states that the number of chips you can buy for a given price doubles every 18 months",
+          "The speed of a hard drive is measured in GHz",
+          "A modem is an example of an input device",
+          "A device that is contained within the system box is known as a peripheral device"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 5,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Software that you can download for free, but have to pay to continue to use after a trial period is what kind of software?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Proprietary software",
+          "Freeware",
+          "Free Software",
+          "Open-source software",
+          "Public domain software"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 6,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Applications have graphical user interfaces, while system software has command line interfaces",
+          "Command line interfaces are usually more powerful then graphical user interfaces, but they are more difficult to use",
+          "A desktop computer can run an operating system without any applications, but cannot run an application without an operating system",
+          "Document file extensions are used by the Windows operating system to decide which application will open the document",
+          "Programs are loaded from a hard drive into the RAM before they can be executed by the CPU"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 7,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "What is the ASCII code for the word 'BEAD'?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "66 69 65 68",
+          "67 71 66 68",
+          "66 70 65 67",
+          "68 71 66 67",
+          "68 72 67 70"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 8,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is true?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Postscript is a language used to control laser printers",
+          "WYSIWYG is a computer language used by word processors",
+          "ASCII is a standard that describes the encoding for 65536 different characters",
+          "Text editors all use a command line interface, while Microsoft Word uses a graphical user interface",
+          "EndNote can be used to apply consistent formatting to all the headings in a document"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 9,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "How much memory is required to represent an image that is 8 pixels high and 3 pixels wide and uses 8 colours.",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": ["72 bits", "192 bits", "24 bits", "9 bits", "64 bits"]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 10,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "JPEG is good for both photos and diagrams while PNG is only good for diagrams",
+          "Images stored using SVG can be enlarged without any visible loss in quality",
+          "PNG can be used for photos but is best for graphics and diagrams",
+          "Storing an image as a JPEG results in a lower quality image than the original",
+          "A GIF image has a maximum of 256 different colours"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 11,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Complete the following sentence.  The Internet used a decentralised, packet-switching network structure because ...",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "it would still work when the network was unreliable",
+          "it was cheaper to build than a circuit switching network",
+          "it was faster than a circuit switching network",
+          "it could be used for voice, text and images",
+          "it was more accessible by people in the public"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 12,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          { "questionText": "What does a DNS do?", "__type": "QuestionText" }
+        ],
+        "options": [
+          "Converts domain names into IP addresses",
+          "Improves the speed of web page access by storing a copy of the page",
+          "Prevents IP addresses being used to access your network",
+          "Keeps a log of the pages accessed by a given IP address",
+          "Prevents unauthorized access to your network"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 13,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "(a)\tSMTP is used to transfer mail from a mail server to a local machine",
+          "(b)\tIMAP keeps mail on the server so it can be accessed from any location",
+          "(c)\tPOP3 moves the mail from the server to the local computer",
+          "(d)\tEmail might not be sent by the person listed in the \"From\" field",
+          "(e)\tAny type of file can be sent as an email attachment"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 14,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following means of communication is synchronous?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Discussion via chat (instant messaging)",
+          "Discussion page on a wiki",
+          "Discussion thread on a forum",
+          "Discussion via email",
+          "Series of blog posts"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 15,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements about TCP/IP is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "TCP corrects errors that are caused by digital to analog conversion",
+          "TCP/IP is a pair of protocols that are used to transfer packets from one machine to another using the Internet",
+          "TCP stands for Transmission Control Protocol",
+          "IP defines network addresses and is used for routing packets",
+          "There are a finite number of IP addresses available"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 16,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following hardware components can't be used to create a network?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "AGP port",
+          "Modem",
+          "Wireless 4-port broadband modem",
+          "Router",
+          "Ethernet cable"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 17,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Only the administrators of the wiki can see who has changed the content of a page",
+          "Anyone can contribute to a wiki, so anyone can vandalize a wiki",
+          "Wikipedia is the world's largest wiki",
+          "Ward Cunningham created the first wiki, called WikiWikiWeb,  in 1995",
+          "Wikis are designed to allow people to collaborate and work together to create documents"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 18,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "The general knowledge problem has been solved as computing power has increased",
+          "Humans use computer expert systems to help make medical diagnoses",
+          "Computers can perform tasks that appear to require intelligence, such as recognising voices, faces and other objects",
+          "Computers are capable of driving cars from one place to another",
+          "Autonomous agents are designed to operate independently in a defined environment"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 19,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Alan Turing and John Searle both wrote about artificial intelligence.  What is the main point of difference between them?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Turing believed that we should only look at behaviour while Searle believed that we should consider the process used to make decisions",
+          "Turing believed in weak AI while Searle believed in strong AI",
+          "Turing believed that AI could replace humans while Searle believed that AI could not replace humans",
+          "Turing believed that computers could have conversations in English, while Searle believed that computers were more powerful and could also translate",
+          "Turing believed that computers were already intelligent while Searle believed that the general knowledge problem prevented computers from being intelligent"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 20,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "What is Gouraud shading?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "A technique where the colours used at the vertices of a polygon are interpolated across the face of the polygon to give a smooth shading appearance",
+          "A technique where each face of a polygon is shaded a uniform colour",
+          "A technique where a photograph is mapped onto a polygon shape",
+          "A technique where light rays that intersect with an object are shaded a darker colour if there are objects between the point of intersection and the light source",
+          "A technique used to correctly shade translucent objects which are difficult to accurately reproduce using computer graphics"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 21,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          { "questionText": "What is Machinima?", "__type": "QuestionText" }
+        ],
+        "options": [
+          "An animated story created using real-time 3D rendering engines",
+          "A massive multiplayer online game",
+          "An attempt to accurately model the real world using computer graphics",
+          "Merging of computer graphics with real world visuals (such as a heads-up display in a modern combat jet)",
+          "A picture generated using photorealistic ray tracing software"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 22,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following does NOT have the events in the correct chronological order?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Altair 8800 created\nVISICALC released\nApple founded\nAdobe founded\nWindows XP released",
+          "IBM founded\nIntel founded\nMicrosoft founded\nLOTUS 1-2-3 released\nWindows 2000 released",
+          "IBM founded\nAltair 8800 created\nVISICALC released\nIBM PC created\nMacintosh created",
+          "Intel founded\nAltair 8800 created\nIBM PC created\nAdobe founded\nWindows XP released",
+          "Intel founded\nMicrosoft founded\nApple founded\nIBM PC created\nWindows XP released"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 23,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Why did IBM think that other companies wouldn't copy their PC?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "IBM could make the PC cheaper than their competitors",
+          "Other companies would have to buy the parts from IBM",
+          "The software would only run on the IBM PC, not a copy",
+          "Apple was a small company and IBM was a big company",
+          "Intel would only sell the CPU to IBM, not to other companies"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 24,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is false?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "Phishing is legal in New Zealand",
+          "Sending SPAM is illegal in New Zealand",
+          "It is legal in New Zealand for individuals to take music they own on CD and store it on an MP3 player",
+          "Web sites hosted overseas may contain images that are legal in the country where the server is located, but illegal in New Zealand",
+          "If material is age restricted (e.g. R16), then it is illegal for a parent to allow their child access to that material"
+        ]
+      }
+    },
+    {
+      "question": {
+        "marks": 1,
+        "id": 25,
+        "feedback": {
+          "correctFeedback": "Correct",
+          "incorrectFeedback": "Incorrect"
+        },
+        "content": [
+          {
+            "questionText": "Which one of the following statements is true?",
+            "__type": "QuestionText"
+          }
+        ],
+        "options": [
+          "A worm is a program that makes copies of itself and replicates through a network",
+          "A virus can damage the motherboard of a computer",
+          "A logic bomb is an error in a program that is accidentally left in by a programmer",
+          "A virus cannot be transferred through email attachments",
+          "A trojan is a kind of worm that hides by disguising itself as another program"
+        ]
+      }
+    }
+  ]
+}
