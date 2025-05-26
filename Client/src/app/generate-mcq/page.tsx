@@ -179,7 +179,7 @@ export default function GenerateMCQPage() {
       formData.append("examSourceFile", file);
 
       const res = await fetch(
-        //to be completed
+        // Complete below
         "http://localhost:8000/api/",
         {
           method: "POST",
