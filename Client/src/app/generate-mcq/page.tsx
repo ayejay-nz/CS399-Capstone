@@ -145,10 +145,27 @@ export default function GenerateMCQPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setCoverPage((prev) => ({
-      ...prev,
-      isImported: true,
-    }));
+    try {
+      const formData = new FormData();
+      formData.append("examSourceFile", file);
+      // Complete below
+      const res = await fetch("http://localhost:8000/api/", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("File upload failed");
+      }
+
+      setCoverPage((prev) => ({
+        ...prev,
+        isImported: true,
+      }));
+    } catch (err) {
+      console.error("Error uploading cover page:", err);
+      alert("Failed to upload cover page.");
+    }
   };
 
   const handleUploadAppendix = async (
