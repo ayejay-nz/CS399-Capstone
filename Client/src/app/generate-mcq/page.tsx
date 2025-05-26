@@ -3,12 +3,13 @@ import { useState } from "react";
 import { useMcq } from "@/src/features/mcq/useMcq";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
-import Toolbar from "@/src/components/mcq/Toolbar";
 import QuestionForm from "@/src/components/mcq/QuestionForm";
 import AppendixForm from "@/src/components/mcq/AppendixForm";
 import QuestionList from "@/src/components/mcq/QuestionList";
 import CoverPageForm from "@/src/components/mcq/CoverPageForm";
-
+import CustomCover from "@/src/components/mcq/CustomCover";
+import CustomAppendix from "@/src/components/mcq/CustomAppendix";
+import Toolbar from "@/src/components/mcq/Toolbar";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -119,8 +120,70 @@ export default function GenerateMCQPage() {
     mcq.setOptionContents(Array(5).fill(""));
   };
 
+  const handleResetCoverPage = () => {
+    setCoverPage((prev) => ({
+      ...prev,
+      isImported: false,
+    }));
+  };
+
+  const handleResetAppendix = () => {
+    if (mcq.currentQuestionId === null) return;
+
+    mcq.setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === mcq.currentQuestionId && q.isAppendix
+          ? { ...q, isImported: false }
+          : q,
+      ),
+    );
+  };
+
+  const handleUploadCoverPage = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setCoverPage((prev) => ({
+      ...prev,
+      isImported: true,
+    }));
+  };
+
+  const handleUploadAppendix = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (mcq.currentQuestionId !== null) {
+      mcq.setQuestions((prev) =>
+        prev.map((q) =>
+          q.id === mcq.currentQuestionId && q.isAppendix
+            ? { ...q, isImported: true }
+            : q,
+        ),
+      );
+    }
+  };
+
   const renderForm = () => {
     if (mcq.currentQuestionId === -1) {
+      if (coverPage.isImported) {
+        return (
+          <CustomCover
+            onReset={handleResetCoverPage}
+            onUpload={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = ".doc,.docx,.pdf";
+              input.onchange = (e) => handleUploadCoverPage(e as any);
+              input.click();
+            }}
+          />
+        );
+      }
       return (
         <CoverPageForm
           handleAddOrUpdate={handleCoverPageUpdate}
@@ -150,6 +213,20 @@ export default function GenerateMCQPage() {
     const isAppendix = currentQuestion?.isAppendix;
 
     if (isAppendix) {
+      if (currentQuestion?.isImported) {
+        return (
+          <CustomAppendix
+            onReset={handleResetAppendix}
+            onUpload={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = ".doc,.docx,.pdf";
+              input.onchange = (e) => handleUploadAppendix(e as any);
+              input.click();
+            }}
+          />
+        );
+      }
       return (
         <AppendixForm
           questionEditor={mcq.questionEditor}

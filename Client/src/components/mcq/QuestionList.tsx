@@ -207,10 +207,6 @@ export default function QuestionList({
                 : "bg-[oklch(21%_0_0)]"
             } hover:bg-[oklch(19%_0_0)] transition-colors`}
             onClick={() => {
-              if (coverPage.isImported) {
-                alert("This cover page was imported. Please edit it in Word.");
-                return;
-              }
               setSelectedId(coverPage.id);
               onEdit(coverPage as Question);
             }}
@@ -244,12 +240,6 @@ export default function QuestionList({
                             snapshot.isDragging ? "opacity-80" : ""
                           }`}
                           onClick={() => {
-                            if (q.isImported && (q.isAppendix || q.id === -1)) {
-                              alert(
-                                "This item was imported. Please edit it in Word.",
-                              );
-                              return;
-                            }
                             setSelectedId(q.id);
                             onEdit(q);
                           }}

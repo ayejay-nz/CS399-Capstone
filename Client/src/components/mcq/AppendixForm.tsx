@@ -40,30 +40,7 @@ export default function AppendixForm({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      // Temporary endpoint
-      const response = await fetch(
-        "http://localhost:8000/api/v1/exam-source/upload-appendix",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-
-      console.log("Upload successful:", data);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Failed to upload appendix");
-    }
+    handleAddOrUpdate();
   };
 
   return (

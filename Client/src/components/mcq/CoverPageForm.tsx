@@ -25,6 +25,7 @@ const coverPageSchema = z.object({
   duration: z.string().nonempty(),
   version_number: z.string().nonempty(),
   note_content: z.string().nonempty(),
+  isImported: z.boolean(),
 });
 
 type CoverPageFormValues = z.infer<typeof coverPageSchema>;
@@ -72,28 +73,10 @@ export default function CoverPageForm({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/exam-source/upload-cover-page",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-      console.log("Upload successful:", data);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      alert("Failed to upload cover page");
-    }
+    handleAddOrUpdate({
+      ...form.getValues(),
+      isImported: true,
+    });
   };
 
   return (
