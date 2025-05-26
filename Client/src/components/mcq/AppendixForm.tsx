@@ -34,6 +34,38 @@ export default function AppendixForm({
     }
   };
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // Temporary endpoint
+      const response = await fetch(
+        "http://localhost:8000/api/v1/exam-source/upload-appendix",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+
+      console.log("Upload successful:", data);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload appendix");
+    }
+  };
+
   return (
     <div
       className="flex-1 p-6 pr-6 rounded-md"
@@ -48,6 +80,20 @@ export default function AppendixForm({
           <Button variant="secondary" onClick={cancelEdit}>
             Cancel
           </Button>
+          <div className="relative">
+            <input
+              type="file"
+              accept=".doc,.docx,.pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="appendix-upload"
+            />
+            <label htmlFor="appendix-upload">
+              <Button variant="secondary" asChild>
+                <span>Upload Appendix</span>
+              </Button>
+            </label>
+          </div>
         </div>
       </div>
 

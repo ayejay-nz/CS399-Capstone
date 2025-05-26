@@ -66,6 +66,36 @@ export default function CoverPageForm({
       ) as CoverPageFormValues),
   });
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/v1/exam-source/upload-cover-page",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      console.log("Upload successful:", data);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload cover page");
+    }
+  };
+
   return (
     <div
       className="flex-1 p-6 pr-6 rounded-md"
@@ -83,6 +113,20 @@ export default function CoverPageForm({
           <Button variant="secondary" onClick={cancelEdit}>
             Cancel
           </Button>
+          <div className="relative">
+            <input
+              type="file"
+              accept=".doc,.docx,.pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="cover-page-upload"
+            />
+            <label htmlFor="cover-page-upload">
+              <Button variant="secondary" asChild>
+                <span>Upload Cover Page</span>
+              </Button>
+            </label>
+          </div>
         </div>
       </div>
 
