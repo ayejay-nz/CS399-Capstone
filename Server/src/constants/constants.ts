@@ -94,3 +94,7 @@ export const API_SUCCESS_MESSAGE = {
 };
 
 export const DEFAULT_EXAM_VERSIONS = 4;
+
+// Default value to assign when a student has not answers a question during marking
+// Answer key will never contain this value
+export const NO_ANSWER = -1;

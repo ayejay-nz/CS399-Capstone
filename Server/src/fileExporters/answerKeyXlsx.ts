@@ -4,6 +4,7 @@ import {
     VersionSolution,
     QuestionSolution,
     AnswerKeyQuestion,
+    Metadata,
 } from '../dataTypes/answerKey';
 
 function answersToString(answers: number[]): string {
@@ -84,14 +85,30 @@ function renderSheet1(wb: Workbook, versions: VersionSolution[]): Worksheet {
     return sheet1;
 }
 
+function renderMetadata(wb: Workbook, meta: Metadata): Worksheet {
+    // Add hidden sheet for tracking metadata
+    const metadataSheet = wb.addWorksheet('__meta__');
+    metadataSheet.state = 'veryHidden';
+
+    // Add metadata to sheet
+    const metadata: Record<string, string> = { ...meta };
+    metadataSheet.addRow(['Key', 'Value']);
+    for (const [k, v] of Object.entries(metadata)) {
+        metadataSheet.addRow([k, String(v)]);
+    }
+
+    return metadataSheet;
+}
+
 export async function exportAnswerKeyXlsx(answerKey: AnswerKey): Promise<Buffer> {
     const workbook = new Workbook();
 
     renderSourceSheet(workbook, answerKey.source);
     renderVersionSheets(workbook, answerKey.versionSolutions);
     renderSheet1(workbook, answerKey.versionSolutions);
+    renderMetadata(workbook, answerKey.metadata);
 
-    const buffer: any = workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare as type any
+    const buffer: any = await workbook.xlsx.writeBuffer(); // Bug with exceljs -- have to declare as type any
 
     return buffer;
 }
