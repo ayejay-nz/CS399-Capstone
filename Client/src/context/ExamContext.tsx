@@ -10,6 +10,9 @@ import type {
 } from "../dataTypes/examBreakdown";
 
 import testPayload from "./test.json";
+import testPayloadUpdatedFeedback from "./test_updated_feedback.json";
+import testPayloadUpdatedAnswer from "./test_updated_answer.json";
+
 
 
 interface ExamCtx {
@@ -54,11 +57,18 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
 
     const enriched = statsPayload.questions.map((qb) => {
       const meta = keyById[qb.questionId];
+
+      // correctAnswers indices from optionBreakdown
+      const correctAnswerIndices = qb.optionBreakdown
+        .filter((opt) => opt.isCorrect)
+        .map((opt) => opt.optionNumber);
+
       return {
         ...qb,
         questionText: meta.content,
         marks:        meta.marks,
         options:      meta.options,
+        correctAnswers: correctAnswerIndices,
       };
     });
 
@@ -102,6 +112,16 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     // ];
     // handleResponse(payload);
     console.log('Payload to send:', JSON.stringify(change));
+
+    // TODO: remove just for testing
+    if (change.type == "feedback") {
+      console.log("Updating feedback!");
+      handleResponse(testPayloadUpdatedFeedback);
+    }
+
+    if (change.type == "correctness") {
+      handleResponse(testPayloadUpdatedAnswer);
+    }
   };
 
   const updateQuestion = (

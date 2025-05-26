@@ -4,16 +4,15 @@
       "summary": {
         "lowestScore": 50,
         "lowerQuartile": 50,
-        "median": 50,
-        "upperQuartile": 50,
-        "highestScore": 50,
+        "median": 75,
+        "upperQuartile": 100,
+        "highestScore": 100,
         "examMarks": 2,
         "studentScores": [
           50.00,
-          50.00
+          100.00
         ],
         "lowestScoringQuestions": [
-          1,
           2
         ]
       },
@@ -48,15 +47,15 @@
           "lastName": "Smith",
           "firstName": "Jane",
           "versionNumber": "1",
-          "totalCorrect": 1,
+          "totalCorrect": 2,
           "totalAnswered": 2,
-          "mark": 1,
+          "mark": 2,
           "answers": [
             {
               "questionId": 1,
               "optionSelected": 1,
-              "isCorrect": false,
-              "mark": 0,
+              "isCorrect": true,
+              "mark": 1,
               "feedback": "Great"
             },
             {
@@ -73,8 +72,8 @@
         {
           "questionId": 1,
           "totalAnswers": 2,
-          "totalCorrectAnswers": 1,
-          "percentageCorrect": 50,
+          "totalCorrectAnswers": 2,
+          "percentageCorrect": 100,
           "optionBreakdown": [
             {
               "optionNumber": 0,
@@ -86,19 +85,19 @@
               "optionNumber": 1,
               "timesPicked": 1,
               "pickPercentage": 50,
-              "isCorrect": false
+              "isCorrect": true
             },
             {
               "optionNumber": 2,
               "timesPicked": 0,
               "pickPercentage": 0,
-              "isCorrect": false
+              "isCorrect": true
             },
             {
               "optionNumber": 3,
               "timesPicked": 0,
               "pickPercentage": 0,
-              "isCorrect": false
+              "isCorrect": true
             }
           ]
         },
