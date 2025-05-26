@@ -82,6 +82,8 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+
+  // TODO: Aidan uncomment below make sure this is the JSON endpoint to fetch from
   // const fetchExam = async () => {
   //   const res = await fetch("http://localhost:8000/api/exam-breakdown");
   //   if (!res.ok) throw new Error("Failed to fetch exam");
