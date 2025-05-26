@@ -57,31 +57,85 @@ function convertHtmlToPlainText(html: string) {
   return temp.textContent || temp.innerText || "";
 }
 
-async function handlePreview(questions: Question[]) {
-  const payload = {
-    content: questions.map((q, idx) => {
-      const questionText = convertHtmlToPlainText(q.content || "");
-      const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
-      const imageUri = imgSrcMatch?.[1] || "";
+async function handlePreview(questions: Question[], coverPage: any) {
+  console.log(
+    questions.map((q) => ({
+      id: q.id,
+      isAppendix: q.isAppendix,
+      content: q.content,
+      displayText: q.displayText,
+    })),
+  );
 
-      return {
-        question: {
-          marks: q.marks || 1,
-          id: idx + 1,
-          feedback: {
-            correctFeedback: "Correct",
-            incorrectFeedback: "Incorrect",
-          },
-          content: [
-            { questionText, __type: "QuestionText" },
-            ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
-          ],
-          options:
-            q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) || [],
+  const payload = {
+    content: [
+      {
+        coverpage: {
+          isUploaded: coverPage.isImported,
+          content: coverPage.isImported
+            ? { XML: coverPage.content || "" }
+            : {
+                semester: coverPage.semester,
+                campus: coverPage.campus,
+                department: coverPage.department,
+                course_code: coverPage.course_code,
+                course_name: coverPage.course_name,
+                exam_title: coverPage.exam_title,
+                duration: coverPage.duration,
+                note_content: coverPage.note_content,
+                version_number: coverPage.version_number,
+              },
         },
-      };
-    }),
+      },
+      ...questions.map((q, idx) => {
+        if (q.isAppendix) {
+          return {
+            appendix: {
+              isUploaded: q.isImported || false,
+              content: q.isImported
+                ? { XML: q.content || "" }
+                : { content: q.content || "" },
+            },
+          };
+        } else {
+          const questionText = convertHtmlToPlainText(q.content || "");
+          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+          const imageUri = imgSrcMatch?.[1] || "";
+
+          return {
+            question: {
+              marks: q.marks || 1,
+              id: idx + 1,
+              feedback: {
+                correctFeedback: "Correct",
+                incorrectFeedback: "Incorrect",
+              },
+              content: [
+                { questionText, __type: "QuestionText" },
+                ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+              ],
+              options:
+                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
+                [],
+            },
+          };
+        }
+      }),
+    ],
   };
+
+  console.log(payload);
+
+  const jsonString = JSON.stringify(payload, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "test-payload.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
   try {
     const res = await fetch(
@@ -307,7 +361,7 @@ export default function QuestionList({
             <Button
               variant="secondary"
               className="flex-1"
-              onClick={() => handlePreview(questions)}
+              onClick={() => handlePreview(questions, coverPage)}
             >
               Generate
             </Button>
