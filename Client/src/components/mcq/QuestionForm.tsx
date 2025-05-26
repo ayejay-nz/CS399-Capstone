@@ -18,6 +18,9 @@ interface Props {
   optionContents: string[];
   setOptionContents: (fn: (prev: string[]) => string[]) => void;
   version: number;
+  setOptionCount: (fn: (prev: number) => number) => void;
+  optionCount: number;
+  questions: any[];
 }
 
 export default function QuestionForm({
@@ -37,11 +40,15 @@ export default function QuestionForm({
   optionContents,
   setOptionContents,
   version,
+  questions,
 }: Props) {
   const [validationErrors, setValidationErrors] = useState({
     question: false,
     options: Array(optionCount).fill(false),
   });
+
+  const currentQuestion = questions.find((q) => q.id === currentQuestionId);
+  const isAppendix = currentQuestion?.isAppendix;
 
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -53,7 +60,7 @@ export default function QuestionForm({
       );
       setOptionIds(newIds);
     }
-  }, [optionEditors.length]);
+  }, [optionEditors.length, optionIds.length, setOptionIds]);
 
   useEffect(() => {
     setValidationErrors({
@@ -89,13 +96,6 @@ export default function QuestionForm({
       ];
       return newEditors;
     });
-    useEffect(() => {
-      return () => {
-        setQuestionEditor(null);
-        setOptionEditors([]);
-      };
-    }, [version]);
-
     setOptionContents((prev) => {
       const newContents = [...prev];
       [newContents[0], newContents[clickedIndex]] = [
@@ -127,12 +127,14 @@ export default function QuestionForm({
       isValid = false;
     }
 
-    optionEditors.forEach((editor, i) => {
-      if (!editor?.getText()?.trim()) {
-        newErrors.options[i] = true;
-        isValid = false;
-      }
-    });
+    if (!isAppendix) {
+      optionEditors.forEach((editor, i) => {
+        if (!editor?.getText()?.trim()) {
+          newErrors.options[i] = true;
+          isValid = false;
+        }
+      });
+    }
 
     setValidationErrors(newErrors);
     return isValid;
@@ -155,40 +157,48 @@ export default function QuestionForm({
       style={{ backgroundColor: "oklch(23% 0 0)" }}
     >
       <div className="flex justify-between items-center mb-4">
-        <h1 className="ml-6 text-2xl font-bold">Questions</h1>
+        <h1 className="ml-6 text-2xl font-bold">
+          {isAppendix ? "Appendix" : "Question"}
+        </h1>
         <div className="flex items-center gap-5">
-          <div className="flex items-center text-sm text-white">
-            <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
-              <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
-                Mark(s)
-              </span>
-              <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
-                {marks}
-              </span>
-              <div className="flex flex-col divide-y divide-gray-500">
-                <button
-                  className="px-2 h-full hover:bg-gray-700 leading-none"
-                  onClick={() => adjustMarks(1)}
-                >
-                  ↑
-                </button>
-                <button
-                  className="px-2 h-full hover:bg-gray-700 leading-none disabled:opacity-50"
-                  onClick={() => adjustMarks(-1)}
-                  disabled={marks <= 1}
-                >
-                  ↓
-                </button>
+          {!isAppendix && (
+            <div className="flex items-center text-sm text-white">
+              <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
+                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+                  Mark(s)
+                </span>
+                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+                  {marks}
+                </span>
+                <div className="flex flex-col divide-y divide-gray-500">
+                  <button
+                    className="px-2 h-full hover:bg-gray-700 leading-none"
+                    onClick={() => adjustMarks(1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="px-2 h-full hover:bg-gray-700 leading-none disabled:opacity-50"
+                    onClick={() => adjustMarks(-1)}
+                    disabled={marks <= 1}
+                  >
+                    ↓
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="flex items-center gap-2">
             <Button variant="secondary" onClick={handleSubmit}>
-              {currentQuestionId ? "update" : "add question"}
+              {currentQuestionId
+                ? "Update"
+                : isAppendix
+                  ? "Add appendix"
+                  : "Add question"}
             </Button>
             {currentQuestionId && (
               <Button variant="secondary" onClick={handleCancel}>
-                cancel
+                Cancel
               </Button>
             )}
           </div>
@@ -199,98 +209,112 @@ export default function QuestionForm({
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
             <Tiptap
-              key={`question-${currentQuestionId}`}
+              key={`question-${currentQuestionId}-${version}`}
               setEditor={setQuestionEditor}
               allowImageUpload
               isQuestionEditor={true}
+              isAppendix={isAppendix}
               error={validationErrors.question}
+              onUpdate={(_, text) => {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  question: !text,
+                }));
+              }}
             />
           </div>
         </div>
 
-        <div className="mt-6 w-full">
-          <h2 className="text-lg font-semibold mb-4">Options</h2>
-          <div className="flex flex-col gap-4">
-            {optionEditors.map((editor, i) => {
-              const optionId = optionIds[i] || generateOptionId();
-              return (
-                <div
-                  key={`${optionId}-stable`}
-                  className="flex items-center gap-2 mr-30"
-                >
-                  <input
-                    type="checkbox"
-                    checked={i === 0}
-                    onChange={() => handleCheckboxChange(i)}
-                    className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <div className="flex-1 w-full relative">
-                    <Tiptap
-                      key={`${optionId}-editor`}
-                      setEditor={(editor) => {
-                        setOptionEditors((prev) => {
-                          const updated = [...prev];
-                          updated[i] = editor;
-                          return updated;
-                        });
-                      }}
-                      content={optionContents[i]}
-                      onUpdate={(content) => {
-                        setOptionContents((prev) => {
-                          const updated = [...prev];
-                          updated[i] = content;
-                          return updated;
-                        });
-                      }}
-                      error={validationErrors.options[i]}
+        {!isAppendix && (
+          <div className="mt-6 w-full">
+            <h2 className="text-lg font-semibold mb-4">Options</h2>
+            <div className="flex flex-col gap-4">
+              {optionEditors.map((editor, i) => {
+                const optionId = optionIds[i] || generateOptionId();
+                return (
+                  <div
+                    key={`${optionId}-stable-${version}`}
+                    className="flex items-center gap-2 mr-30"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={i === 0}
+                      onChange={() => handleCheckboxChange(i)}
+                      className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
                     />
-                    <button
-                      onClick={() => handleDeleteOption(i)}
-                      className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
-                      disabled={optionCount <= 2}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 14 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="text-gray-400 hover:text-white transition-colors"
+                    <div className="flex-1 w-full relative">
+                      <Tiptap
+                        key={`${optionId}-editor-${version}`}
+                        setEditor={(editor) => {
+                          setOptionEditors((prev) => {
+                            const updated = [...prev];
+                            updated[i] = editor;
+                            return updated;
+                          });
+                        }}
+                        content={optionContents[i]}
+                        onUpdate={(html, text) => {
+                          setOptionContents((prev) => {
+                            const newContents = [...prev];
+                            newContents[i] = html;
+                            return newContents;
+                          });
+                          setValidationErrors((prev) => {
+                            const newOptions = [...prev.options];
+                            newOptions[i] = !text;
+                            return { ...prev, options: newOptions };
+                          });
+                        }}
+                        error={validationErrors.options[i]}
+                      />
+                      <button
+                        onClick={() => handleDeleteOption(i)}
+                        className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
+                        disabled={optionCount <= 2}
                       >
-                        <path
-                          d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 14 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          <path
+                            d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-            <div>
-              <Button
-                variant="secondary"
-                className="ml-10"
-                onClick={() => {
-                  const newId = generateOptionId();
-                  setOptionCount((prev) => prev + 1);
-                  setOptionEditors((prev) => [...prev, null]);
-                  setOptionIds((prev) => [...prev, newId]);
-                  setOptionContents((prev) => [...prev, ""]);
-                  setValidationErrors((prev) => ({
-                    ...prev,
-                    options: [...prev.options, false],
-                  }));
-                }}
-                disabled={optionCount >= 5}
-              >
-                + Add Option
-              </Button>
+                );
+              })}
+              <div>
+                <Button
+                  variant="secondary"
+                  className="ml-10"
+                  onClick={() => {
+                    const newId = generateOptionId();
+                    setOptionCount((prev) => prev + 1);
+                    setOptionEditors((prev) => [...prev, null]);
+                    setOptionIds((prev) => [...prev, newId]);
+                    setOptionContents((prev) => [...prev, ""]);
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      options: [...prev.options, false],
+                    }));
+                  }}
+                  disabled={optionCount >= 5}
+                >
+                  + Add Option
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

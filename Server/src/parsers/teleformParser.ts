@@ -17,10 +17,14 @@ export function teleformParser(data: Buffer | string): TeleformData {
         const trimmed = line.trim();
         if (!trimmed) continue;
 
-        const [auid = '', lastName = '', firstName = '', courseAndVersion = '', answerString = ''] =
-            trimmed.split(/\s+/);
+        const auid = trimmed.slice(0, 11).trim();
+        const lastName = trimmed.slice(12, 25).trim() || undefined;
+        const firstName = trimmed.slice(25, 32).trim() || undefined;
+        const middleInitial = trimmed.slice(32, 33).trim() || undefined;
+        const courseAndVersion = trimmed.slice(33, 44).trim() || undefined;
+        const answerString = trimmed.slice(45).trim();
 
-        if (!lastName || !firstName || !courseAndVersion || answerString.length === 0) {
+        if (!lastName || !firstName || !courseAndVersion) {
             throw new ParserError(
                 API_ERROR_CODE.TELEFORM_PARSE_FAILED,
                 'Invalid lines: missing fields',
@@ -28,16 +32,17 @@ export function teleformParser(data: Buffer | string): TeleformData {
         }
 
         const courseNumber = courseAndVersion.slice(0, 3);
-        const versionNumber = courseAndVersion.slice(-1);
+        const versionNumber = courseAndVersion.slice(-1).padStart(8, '0');
 
-        const answers: number[] = [];
+        const answers: (number | null)[] = [];
         for (let i = 0; i + 1 < answerString.length; i += 2) {
-            answers.push(parseInt(answerString.slice(i, i + 2), 10));
+            answers.push(parseInt(answerString.slice(i, i + 2), 10) || null);
         }
 
         studentAnswers.push({
             auid,
             lastName,
+            middleInitial,
             firstName,
             courseNumber,
             versionNumber,

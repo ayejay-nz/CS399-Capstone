@@ -48,9 +48,10 @@ router.post(
                     );
             }
 
-            const response: ApiSuccessResponse = {
+            const response: ApiSuccessResponse<TeleformData> = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
+                data: parseResult,
             };
             res.status(response.status).json(response);
         } catch (error) {

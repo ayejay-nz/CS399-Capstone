@@ -76,3 +76,22 @@ export const uploadAssetFile = multer({
     limits: { fileSize: config.upload.maxAssetFileSize },
     fileFilter: assetFileFilter,
 }).single('assetFile');
+
+export const uploadMarkingFiles = multer({
+    storage: memoryStorage,
+    limits: {
+        fileSize: Math.max(
+            config.upload.maxAnswerKeyFileSize,
+            config.upload.maxTeleformDataFileSize,
+        ),
+    },
+    fileFilter(req, file, cb) {
+        if (file.fieldname === 'answerKeyFile') return answerKeyFileFilter(req, file, cb);
+        if (file.fieldname === 'teleformDataFile') return teleformDataFileFilter(req, file, cb);
+
+        cb(unsupportedFileTypeApiError(['.xlsx (answerKeyFile)', '.txt (teleformDataFile)']));
+    },
+}).fields([
+    { name: 'answerKeyFile', maxCount: 1 },
+    { name: 'teleformDataFile', maxCount: 1 },
+]);

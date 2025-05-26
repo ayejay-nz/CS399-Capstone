@@ -15,7 +15,7 @@ describe('parseTeleformData()', () => {
             lastName: 'NGWERUME',
             firstName: 'MUGOVEV',
             courseNumber: '111',
-            versionNumber: '2',
+            versionNumber: '00000002',
             answers: [4, 8, 2, 2, 4, 1, 1, 16, 16, 4],
         };
 
@@ -35,7 +35,8 @@ describe('parseTeleformData()', () => {
             lastName: 'NGWERUME',
             firstName: 'MUGOVEV',
             courseNumber: '111',
-            versionNumber: '2',
+            middleInitial: undefined,
+            versionNumber: '00000002',
             answers: [4, 8, 2, 2, 4, 1, 1, 16, 16, 4],
         };
 
@@ -65,7 +66,7 @@ describe('parseTeleformData()', () => {
             lastName: 'DDMELLO',
             firstName: 'MERVIN',
             courseNumber: '111',
-            versionNumber: '2',
+            versionNumber: '00000002',
         });
         expect(result.studentAnswers[1]!.answers).toEqual(
             [4, 8, 16, 16, 16, 1, 1, 1, 16, 8].slice(
@@ -77,7 +78,7 @@ describe('parseTeleformData()', () => {
 
     it('throws if a line is missing mandatory fields', () => {
         // missing answers part
-        const raw = `01123456712 NGWERUME MUGOVEV 11100000002`;
+        const raw = `01123456712              MUGOVEV 11100000002 04080202040101161604`;
         expect(() => teleformParser(raw)).toThrow(ParserError);
         expect(() => teleformParser(raw)).toThrow('Invalid lines: missing fields');
     });
