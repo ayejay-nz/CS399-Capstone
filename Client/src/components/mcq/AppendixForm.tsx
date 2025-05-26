@@ -43,13 +43,11 @@ export default function AppendixForm({
         <h1 className="ml-6 text-2xl font-bold">Appendix</h1>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={handleSubmit}>
-            {currentQuestionId === -2 ? "update" : "add appendix"}
+            Update
           </Button>
-          {currentQuestionId === -2 && (
-            <Button variant="secondary" onClick={cancelEdit}>
-              cancel
-            </Button>
-          )}
+          <Button variant="secondary" onClick={cancelEdit}>
+            Cancel
+          </Button>
         </div>
       </div>
 
@@ -63,7 +61,7 @@ export default function AppendixForm({
               isQuestionEditor={true}
               error={validationError}
               content={content}
-              onUpdate={(_, text) => {
+              onUpdate={(html: string, text: string) => {
                 setValidationError(!text);
               }}
             />
