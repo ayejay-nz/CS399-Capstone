@@ -35,6 +35,8 @@ import type {
   AnswerKeyQuestion,
 } from "@/src/dataTypes/examBreakdown";
 
+const allLabels = ["A", "B", "C", "D", "E"] as const;
+
 type QuestionPerf = {
   questionId: number;
   questionText: string;

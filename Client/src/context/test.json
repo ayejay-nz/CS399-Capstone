@@ -8,8 +8,14 @@
         "upperQuartile": 90,
         "highestScore": 100,
         "examMarks": 2,
-        "studentScores": [0.5, 1.0],
-        "lowestScoringQuestions": [1, 2]
+        "studentScores": [
+          0.5,
+          1.0
+        ],
+        "lowestScoringQuestions": [
+          1,
+          2
+        ]
       },
       "students": [
         {
@@ -21,8 +27,20 @@
           "totalAnswered": 2,
           "mark": 1,
           "answers": [
-            { "questionId": 1, "optionSelected": 2, "isCorrect": true,  "mark": 1, "feedback": "Good" },
-            { "questionId": 2, "optionSelected": 0, "isCorrect": false, "mark": 0, "feedback": "Review" }
+            {
+              "questionId": 1,
+              "optionSelected": 0,
+              "isCorrect": true,
+              "mark": 1,
+              "feedback": "Good"
+            },
+            {
+              "questionId": 2,
+              "optionSelected": 0,
+              "isCorrect": true,
+              "mark": 1,
+              "feedback": "Nice"
+            }
           ]
         },
         {
@@ -30,12 +48,24 @@
           "lastName": "Smith",
           "firstName": "Jane",
           "versionNumber": "1",
-          "totalCorrect": 2,
+          "totalCorrect": 1,
           "totalAnswered": 2,
-          "mark": 2,
+          "mark": 1,
           "answers": [
-            { "questionId": 1, "optionSelected": 2, "isCorrect": true,  "mark": 1, "feedback": "Great" },
-            { "questionId": 2, "optionSelected": 1, "isCorrect": true,  "mark": 1, "feedback": "Nice" }
+            {
+              "questionId": 1,
+              "optionSelected": 0,
+              "isCorrect": true,
+              "mark": 1,
+              "feedback": "Great"
+            },
+            {
+              "questionId": 2,
+              "optionSelected": 1,
+              "isCorrect": false,
+              "mark": 0,
+              "feedback": "Review"
+            }
           ]
         }
       ],
@@ -45,11 +75,34 @@
           "totalAnswers": 2,
           "totalCorrectAnswers": 2,
           "percentageCorrect": 100,
+          "correctAnswers": [
+            0
+          ],
           "optionBreakdown": [
-            { "optionNumber": 0, "timesPicked": 0, "pickPercentage": 0,   "isCorrect": false },
-            { "optionNumber": 1, "timesPicked": 0, "pickPercentage": 0,   "isCorrect": false },
-            { "optionNumber": 2, "timesPicked": 2, "pickPercentage": 100, "isCorrect": true  },
-            { "optionNumber": 3, "timesPicked": 0, "pickPercentage": 0,   "isCorrect": false }
+            {
+              "optionNumber": 0,
+              "timesPicked": 2,
+              "pickPercentage": 100,
+              "isCorrect": true
+            },
+            {
+              "optionNumber": 1,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 2,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 3,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            }
           ]
         },
         {
@@ -57,10 +110,28 @@
           "totalAnswers": 2,
           "totalCorrectAnswers": 1,
           "percentageCorrect": 50,
+          "correctAnswers": [
+            0
+          ],
           "optionBreakdown": [
-            { "optionNumber": 0, "timesPicked": 1, "pickPercentage": 50, "isCorrect": false },
-            { "optionNumber": 1, "timesPicked": 1, "pickPercentage": 50, "isCorrect": true  },
-            { "optionNumber": 2, "timesPicked": 0, "pickPercentage": 0,  "isCorrect": false }
+            {
+              "optionNumber": 0,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": true
+            },
+            {
+              "optionNumber": 1,
+              "timesPicked": 1,
+              "pickPercentage": 50,
+              "isCorrect": false
+            },
+            {
+              "optionNumber": 2,
+              "timesPicked": 0,
+              "pickPercentage": 0,
+              "isCorrect": false
+            }
           ]
         }
       ]
@@ -73,14 +144,23 @@
         "marks": 1,
         "feedback": {},
         "content": "What is 1+1?",
-        "options": ["0", "1", "2", "3"]
+        "options": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
       },
       {
         "id": 2,
         "marks": 1,
         "feedback": {},
         "content": "What is 2+2?",
-        "options": ["3", "4", "5"]
+        "options": [
+          "4",
+          "5",
+          "6"
+        ]
       }
     ]
   }

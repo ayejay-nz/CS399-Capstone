@@ -119,7 +119,7 @@ export default function Dashboard() {
                     answerKey={answerKey ?? []}
                     onCorrectnessChange={updateQuestion}
                     onFeedbackChange={updateFeedback}
-                  />
+                />
               </TabsContent>
               <TabsContent value="individual-performance">
                 <IndividualPerformanceTab
