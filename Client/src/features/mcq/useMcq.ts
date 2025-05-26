@@ -188,5 +188,6 @@ export function useMcq() {
     optionContents,
     setOptionContents,
     version,
+    setVersion,
   };
 }

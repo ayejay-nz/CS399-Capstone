@@ -335,9 +335,20 @@ export default function GenerateMCQPage() {
               mcq.setQuestions([]);
               mcq.setCurrentQuestionId(null);
               mcq.questionEditor?.commands.setContent("");
-              mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
+              mcq.setOptionEditors(Array(5).fill(null));
+              mcq.setOptionContents(Array(5).fill(""));
+              mcq.setOptionCount(5);
+              mcq.setOptionIds(
+                Array(5)
+                  .fill(null)
+                  .map(
+                    () =>
+                      `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  ),
+              );
               mcq.setMarks(1);
               setSelectedId(null);
+              mcq.setVersion((prev) => prev + 1);
             }}
             onReorder={(updated) => mcq.setQuestions(updated)}
             selectedId={selectedId}
