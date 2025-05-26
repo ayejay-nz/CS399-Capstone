@@ -124,14 +124,20 @@ export default function QuestionForm({
       options: Array(optionEditors.length).fill(false),
     };
 
-    if (!questionEditor?.getText()?.trim()) {
+    const hasText = questionEditor?.getText()?.trim();
+    const hasImage = questionEditor?.getHTML()?.includes("<img");
+
+    if (!hasText && !hasImage) {
       newErrors.question = true;
       isValid = false;
     }
 
     if (!isCoverPage && !isAppendix) {
       optionEditors.forEach((editor, i) => {
-        if (!editor?.getText()?.trim()) {
+        const optionHasText = editor?.getText()?.trim();
+        const optionHasImage = editor?.getHTML()?.includes("<img");
+
+        if (!optionHasText && !optionHasImage) {
           newErrors.options[i] = true;
           isValid = false;
         }
