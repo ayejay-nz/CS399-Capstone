@@ -10,6 +10,7 @@ interface Props {
   handleAddOrUpdate: () => void;
   cancelEdit: () => void;
   content?: string;
+  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function AppendixForm({
@@ -19,6 +20,7 @@ export default function AppendixForm({
   handleAddOrUpdate,
   cancelEdit,
   content = "",
+  onUploadFile,
 }: Props) {
   const [validationError, setValidationError] = useState(false);
 
@@ -40,7 +42,9 @@ export default function AppendixForm({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    handleAddOrUpdate();
+    if (onUploadFile) {
+      onUploadFile(event);
+    }
   };
 
   return (

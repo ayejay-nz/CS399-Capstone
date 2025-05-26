@@ -239,6 +239,7 @@ export default function GenerateMCQPage() {
             setSelectedId(null);
           }}
           content={currentQuestion?.content}
+          onUploadFile={handleUploadAppendix}
         />
       );
     }
