@@ -39,7 +39,7 @@ export default function MarkMCQ() {
         throw new Error(message);
       }
 
-      await refresh();
+      // await refresh();
 
       router.push("/mark-mcq/dashboard");
     } catch (err) {

@@ -83,24 +83,23 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   };
 
 
-  // TODO: Aidan uncomment below make sure this is the JSON endpoint to fetch from
-  // const fetchExam = async () => {
-  //   const res = await fetch("http://localhost:8000/api/exam-breakdown");
-  //   if (!res.ok) throw new Error("Failed to fetch exam");
-  //   const payload = (await res.json()) as [
-  //     { stats: ExamBreakdown },
-  //     { questions: AnswerKeyQuestion[] }
-  //   ];
-  //   handleResponse(payload);
-  // };
-
-  // useEffect(() => {
-  //   void fetchExam();
-  // }, []);
+  const fetchExam = async () => {
+    const res = await fetch("http://localhost:8000/api/exam-breakdown");
+    if (!res.ok) throw new Error("Failed to fetch exam");
+    const payload = (await res.json()) as [
+      { stats: ExamBreakdown },
+      { questions: AnswerKeyQuestion[] }
+    ];
+    handleResponse(payload);
+  };
 
   useEffect(() => {
-    handleResponse(testPayload);
+    void fetchExam();
   }, []);
+
+  // useEffect(() => {
+  //   handleResponse(testPayload);
+  // }, []);
 
   const update = async (change: object) => {
     // const res = await fetch(
@@ -123,14 +122,14 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     console.log('Payload to send:', JSON.stringify(change));
 
     // TODO: remove just for testing
-    if (change.type == "feedback") {
-      console.log("Updating feedback!");
-      handleResponse(testPayloadUpdatedFeedback);
-    }
+    // if (change.type == "feedback") {
+    //   console.log("Updating feedback!");
+    //   handleResponse(testPayloadUpdatedFeedback);
+    // }
 
-    if (change.type == "correctness") {
-      handleResponse(testPayloadUpdatedAnswer);
-    }
+    // if (change.type == "correctness") {
+    //   handleResponse(testPayloadUpdatedAnswer);
+    // }
   };
 
   const updateQuestion = (questionId: number, updatedFields: any) =>
