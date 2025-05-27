@@ -7,10 +7,12 @@ import { Button } from "../../components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
+import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
+import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
 
 export default function MarkMCQ() {
 
-  const { refresh } = useExam();
+  const { setExamData } = useExam();
   const [answerKeyFile, setAnswerKeyFile] = useState<File | null>(null);
   const [teleformDataFile, setTeleformDataFile] = useState<File | null>(null);
   const router = useRouter();
@@ -39,7 +41,16 @@ export default function MarkMCQ() {
         throw new Error(message);
       }
 
-      // await refresh();
+      // Get the exam breakdown data from the response
+      const { data: examBreakdown } = (await res.json()) as ApiSuccessResponse<ExamBreakdown>;
+      
+      // Check if we received valid data
+      if (!examBreakdown) {
+        throw new Error("No exam data received from server");
+      }
+      
+      // Set the exam data directly in the context
+      setExamData(examBreakdown);
 
       router.push("/mark-mcq/dashboard");
     } catch (err) {

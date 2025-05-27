@@ -22,15 +22,16 @@ interface ExamCtx {
   students: StudentBreakdown[] | null;
   answerKey: AnswerKeyQuestion[] | null;
   refresh: () => Promise<void>;
-  updateQuestion: (
-    questionId: number,
-    updatedFields: Partial<QuestionBreakdown>
-  ) => Promise<void>;
-  updateFeedback: (
-    questionId: number,
-    auid: string,
-    customFeedback: string
-  ) => Promise<void>;
+  setExamData: (data: ExamBreakdown) => void;
+  // updateQuestion: (
+  //   questionId: number,
+  //   correctOptions: number[]
+  // ) => Promise<void>;
+  // updateFeedback: (
+  //   questionId: number,
+  //   auid: string,
+  //   customFeedback: string
+  // ) => Promise<void>;
 }
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
@@ -82,9 +83,8 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-
   const fetchExam = async () => {
-    const res = await fetch("http://localhost:8000/api/exam-breakdown");
+    const res = await fetch("http://localhost:8000/api/v1/marking/generate-stats", {method: "POST"});
     if (!res.ok) throw new Error("Failed to fetch exam");
     const payload = (await res.json()) as [
       { stats: ExamBreakdown },
@@ -93,33 +93,64 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     handleResponse(payload);
   };
 
+  const refresh = async () => {
+    try {
+      await fetchExam();
+    } catch (error) {
+      console.error("Failed to refresh exam data:", error);
+    }
+  };
+
+  const setExamData = (data: ExamBreakdown) => {
+    // Extract answer key questions from the question breakdown data
+    const answerKeyQuestions: AnswerKeyQuestion[] = data.questions.map(q => ({
+      id: q.questionId,
+      content: q.questionText,
+      marks: q.marks,
+      options: q.options,
+      feedback: {}
+    }));
+
+    // Convert the ExamBreakdown to the expected format
+    const payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }] = [
+      { stats: data },
+      { questions: answerKeyQuestions }
+    ];
+    handleResponse(payload);
+  };
+
   useEffect(() => {
-    void fetchExam();
+    // Load test data initially for development
+    // In production, data will be set via setExamData after upload
+    handleResponse(testPayload as [
+      { stats: ExamBreakdown },
+      { questions: AnswerKeyQuestion[] }
+    ]);
   }, []);
 
   // useEffect(() => {
   //   handleResponse(testPayload);
   // }, []);
 
-  const update = async (change: object) => {
-    // const res = await fetch(
-    //   "http://localhost:8000/api/exam-breakdown/update-dashboard",
-    //   {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(change),
-    //   }
-    // );
-    // if (!res.ok) {
-    //   console.error("Failed to update exam");
-    //   return;
-    // }
-    // const payload = (await res.json()) as [
-    //   { stats: ExamBreakdown },
-    //   { questions: AnswerKeyQuestion[] }
-    // ];
-    // handleResponse(payload);
-    console.log('Payload to send:', JSON.stringify(change));
+  // const update = async (change: object) => {
+  //   const res = await fetch(
+  //     "http://localhost:8000/api/v1/marking/generate-stats",
+  //     {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(change),
+  //     }
+  //   );
+  //   if (!res.ok) {
+  //     console.error("Failed to update exam");
+  //     return;
+  //   }
+  //   const payload = (await res.json()) as [
+  //     { stats: ExamBreakdown },
+  //     { questions: AnswerKeyQuestion[] }
+  //   ];
+  //   handleResponse(payload);
+  //   console.log('Payload to send:', JSON.stringify(change));
 
     // TODO: remove just for testing
     // if (change.type == "feedback") {
@@ -130,19 +161,18 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     // if (change.type == "correctness") {
     //   handleResponse(testPayloadUpdatedAnswer);
     // }
-  };
+  // };
 
-  const updateQuestion = (questionId: number, updatedFields: any) =>
-    update({ type: "correctness", questionId, correctOptions: updatedFields.correctAnswers });
+  // const updateQuestion = (questionId: number, updatedFields: any) =>
+  //   update({ type: "correctness", questionId, correctOptions: updatedFields.correctAnswers });
 
-  const updateFeedback = (questionId: number, auid: string, customFeedback: string) =>
-    update({ type: "feedback", questionId, auid, customFeedback });
+  // const updateFeedback = (questionId: number, auid: string, customFeedback: string) =>
+  //   update({ type: "feedback", questionId, auid, customFeedback });
 
   // derive slices
   const summary       = stats?.summary   ?? null;
   const questionStats = stats?.questions ?? null;
   const students      = stats?.students  ?? null;
-
 
   const value = useMemo(() => ({
     stats,
@@ -150,8 +180,10 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     questionStats,
     students,
     answerKey,
-    updateQuestion,
-    updateFeedback,
+    // updateQuestion,
+    // updateFeedback,
+    refresh,
+    setExamData,
   }), [stats, answerKey]);
 
   return <ExamContext.Provider value={value}>{children}</ExamContext.Provider>;
