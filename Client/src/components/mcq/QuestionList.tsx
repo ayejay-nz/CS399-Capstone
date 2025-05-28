@@ -425,7 +425,9 @@ export default function QuestionList({
             <Button
               variant="secondary"
               className="flex-1"
-              onClick={() => handlePreview2(questions, setPreviewUrl)}
+              onClick={() =>
+                handlePreview2(questions, coverPage, setPreviewUrl)
+              }
             >
               Preview
             </Button>
