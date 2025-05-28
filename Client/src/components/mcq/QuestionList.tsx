@@ -10,6 +10,7 @@ import {
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 
 // Dynamically load the PdfSlideOver component
 const PdfSlideOver = dynamic(
@@ -154,7 +155,12 @@ async function handlePreview(questions: Question[], coverPage: any) {
         body: JSON.stringify(payload),
       },
     );
-    if (!res.ok) throw new Error("Download failed");
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorJson = JSON.parse(errorText);
+      toast.error(errorJson.message);
+      return;
+    }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -164,9 +170,10 @@ async function handlePreview(questions: Question[], coverPage: any) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    toast.success("Exam generated successfully");
   } catch (err) {
     console.error("Error", err);
-    alert("Failed to generate and download questions.");
+    toast.error("Failed to generate and download questions");
   }
 }
 
@@ -273,14 +280,20 @@ async function handlePreview2(
         body: JSON.stringify(payload),
       },
     );
-    if (!res.ok) throw new Error(res.statusText);
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorJson = JSON.parse(errorText);
+      toast.error(errorJson.message);
+      return;
+    }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     setPreviewUrl(url);
+    toast.success("Preview generated successfully");
   } catch (err) {
     console.error("Preview error", err);
-    alert("Failed to generate preview.");
+    toast.error("Failed to generate preview");
   }
 }
 

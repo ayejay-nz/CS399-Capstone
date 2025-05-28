@@ -9,11 +9,10 @@ import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
 import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
-import type {AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
+import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
 
 export default function MarkMCQ() {
-
-const { handleResponse } = useExam();
+  const { handleResponse } = useExam();
   const [answerKeyFile, setAnswerKeyFile] = useState<File | null>(null);
   const [teleformDataFile, setTeleformDataFile] = useState<File | null>(null);
   const router = useRouter();
@@ -30,20 +29,17 @@ const { handleResponse } = useExam();
       form.append("answerKeyFile", answerKeyFile!);
       form.append("teleformDataFile", teleformDataFile!);
 
-      const res = await fetch(
-        "http://localhost:8000/api/v1/marking/upload",
-        { method: "POST", body: form }
-      );
+      const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
+        method: "POST",
+        body: form,
+      });
 
       const test = await res.json();
       console.log("upload response:", test);
 
       // parse once
       const json = (await res.json()) as ApiSuccessResponse<
-        [
-          { stats: ExamBreakdown },
-          { questions: AnswerKeyQuestion[] }
-        ]
+        [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
       >;
 
       if (!res.ok) {

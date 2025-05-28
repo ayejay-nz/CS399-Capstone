@@ -189,8 +189,12 @@ export default function GenerateMCQPage() {
         },
       );
       if (!res.ok) {
-        throw new Error("File upload failed");
+        const errorText = await res.text();
+        const errorJson = JSON.parse(errorText);
+        toast.error(errorJson.message);
+        return;
       }
+
       const { data } = await res.json();
 
       let htmlContent = "";
@@ -217,10 +221,11 @@ export default function GenerateMCQPage() {
         );
 
         mcq.questionEditor?.commands.setContent(htmlContent);
+        toast.success("Appendix uploaded successfully");
       }
     } catch (err) {
       console.error("Error uploading appendix:", err);
-      alert("Failed to upload appendix.");
+      toast.error("Failed to upload appendix");
     }
   };
 
