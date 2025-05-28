@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 // TODO: Why are we importing from Server? We may have to split Client and Server later on
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse"; // Clean these imports up
 import { ExamData } from "../../../../Server/src/dataTypes/examData";
+import { toast } from "sonner";
 
 export function useMcq() {
   const [optionContents, setOptionContents] = useState<string[]>([]);
@@ -103,54 +104,26 @@ export function useMcq() {
   }, [editingQuestion, questionEditor]);
 
   const simulateProcessQuestions = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("examSourceFile", file);
+    const formData = new FormData();
+    formData.append("examSourceFile", file);
 
-      const res = await fetch(
-        "http://localhost:8000/api/v1/exam-source/upload-file",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+    const res = await fetch(
+      "http://localhost:8000/api/v1/exam-source/upload-file",
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Server response:", res.status, errorText);
-        try {
-          const errorJson = JSON.parse(errorText);
-          alert(`Error: ${errorJson.message || "Unknown error"}`);
-        } catch (e) {
-          alert(`Upload failed with status ${res.status}: ${errorText.substring(0, 100)}...`);
-        }
-        throw new Error(`File upload failed: ${res.status}`);
-      }
-
-      const responseJson = await res.json();
-      console.log("Full response:", responseJson);
-      
-      // Check if the response has the expected structure
-      if (!responseJson.data) {
-        throw new Error("Response missing data property");
-      }
-      
-      const parseResult = responseJson.data;
-      console.log("Parse result:", parseResult);
-      
-      if (!parseResult.content) {
-        throw new Error("Response data missing content property");
-      }
-      
-      handleProcessedQuestions(parseResult);
-    } catch (err) {
-      console.error("Error uploading and processing file:", err);
-      if (err instanceof Error) {
-        alert(`Failed to upload and process the file: ${err.message}`);
-      } else {
-        alert("Failed to upload and process the file.");
-      }
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorJson = JSON.parse(errorText);
+      toast.error(errorJson.message);
+      return;
     }
+
+    const responseJson = await res.json();
+    handleProcessedQuestions(responseJson.data);
   };
 
   const handleProcessedQuestions = (data: any) => {
@@ -159,50 +132,52 @@ export function useMcq() {
       alert("Invalid data format received from server");
       return;
     }
-    
-    const newQuestions = data.content.map(({ question, section }: any) => {
-      // Handle both question and section types
-      if (question) {
-        const questionTextObj = question.content.find(
-          (c: any) => c.__type === "QuestionText" || "questionText" in c
-        );
-        const imageUriObj = question.content.find(
-          (c: any) => c.__type === "ImageURI" || "imageUri" in c
-        );
 
-        let htmlContent = "";
-        if (questionTextObj) {
-          htmlContent += `<p>${questionTextObj.questionText}</p>`;
-        }
-        if (imageUriObj) {
-          htmlContent += `<img src="${imageUriObj.imageUri}" />`;
+    const newQuestions = data.content
+      .map(({ question, section }: any) => {
+        // Handle both question and section types
+        if (question) {
+          const questionTextObj = question.content.find(
+            (c: any) => c.__type === "QuestionText" || "questionText" in c,
+          );
+          const imageUriObj = question.content.find(
+            (c: any) => c.__type === "ImageURI" || "imageUri" in c,
+          );
+
+          let htmlContent = "";
+          if (questionTextObj) {
+            htmlContent += `<p>${questionTextObj.questionText}</p>`;
+          }
+          if (imageUriObj) {
+            htmlContent += `<img src="${imageUriObj.imageUri}" />`;
+          }
+
+          return {
+            id: Date.now() + Math.random(),
+            content: htmlContent,
+            displayText: questionTextObj?.questionText || "Question",
+            options: question.options.map((opt: string) => `<p>${opt}</p>`),
+            marks: question.marks || 1,
+            optionIds: question.options.map(generateOptionId),
+          };
+        } else if (section) {
+          // Handle section type if needed
+          // You can return a different format for sections
+          const sectionText = section.content?.[0]?.sectionText || "Section";
+          return {
+            id: Date.now() + Math.random(),
+            content: `<p>${sectionText}</p>`,
+            displayText: sectionText,
+            options: [],
+            marks: 0,
+            optionIds: [],
+            isSection: true,
+          };
         }
 
-        return {
-          id: Date.now() + Math.random(),
-          content: htmlContent,
-          displayText: questionTextObj?.questionText || "Question",
-          options: question.options.map((opt: string) => `<p>${opt}</p>`),
-          marks: question.marks || 1,
-          optionIds: question.options.map(generateOptionId),
-        };
-      } else if (section) {
-        // Handle section type if needed
-        // You can return a different format for sections
-        const sectionText = section.content?.[0]?.sectionText || "Section";
-        return {
-          id: Date.now() + Math.random(),
-          content: `<p>${sectionText}</p>`,
-          displayText: sectionText,
-          options: [],
-          marks: 0,
-          optionIds: [],
-          isSection: true,
-        };
-      }
-      
-      return null;
-    }).filter(Boolean); // Remove any null entries
+        return null;
+      })
+      .filter(Boolean); // Remove any null entries
 
     const initialOptionCount = 5;
     setQuestions(newQuestions);
