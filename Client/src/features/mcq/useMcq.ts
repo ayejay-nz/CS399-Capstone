@@ -129,7 +129,12 @@ export function useMcq() {
   const handleProcessedQuestions = (data: any) => {
     if (!data || !data.content || !Array.isArray(data.content)) {
       console.error("Invalid data format:", data);
-      alert("Invalid data format received from server");
+      toast.error("Invalid data format received from server");
+      return;
+    }
+
+    if (data.content.length === 0) {
+      toast.error("No questions found in the file.");
       return;
     }
 

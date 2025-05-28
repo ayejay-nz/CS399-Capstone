@@ -10,6 +10,7 @@ import CoverPageForm from "@/src/components/mcq/CoverPageForm";
 import CustomCover from "@/src/components/mcq/CustomCover";
 import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
+import { toast } from "sonner";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -147,24 +148,26 @@ export default function GenerateMCQPage() {
 
     try {
       const formData = new FormData();
-      formData.append("examSourceFile", file);
-      // Complete below
-      const res = await fetch("http://localhost:8000/api/", {
-        method: "POST",
-        body: formData,
-      });
+      formData.append("coverPageFile", file);
+      const res = await fetch(
+        "http://localhost:8000/api/v1/cover-page/upload-file",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       if (!res.ok) {
-        throw new Error("File upload failed");
+        const errorText = await res.text();
+        const errorJson = JSON.parse(errorText);
+        toast.error(errorJson.message);
+        return;
       }
 
-      setCoverPage((prev) => ({
-        ...prev,
-        isImported: true,
-      }));
+      toast.success("Cover page uploaded successfully");
     } catch (err) {
       console.error("Error uploading cover page:", err);
-      alert("Failed to upload cover page.");
+      toast.error("Failed to upload cover page");
     }
   };
 
@@ -179,8 +182,7 @@ export default function GenerateMCQPage() {
       formData.append("examSourceFile", file);
 
       const res = await fetch(
-        // Complete below
-        "http://localhost:8000/api/",
+        "http://localhost:8000/api/v1/appendix/upload-file",
         {
           method: "POST",
           body: formData,
@@ -194,7 +196,7 @@ export default function GenerateMCQPage() {
       let htmlContent = "";
       data.appendix.content.forEach((item: any) => {
         if (item.__type === "AppendixText") {
-          htmlContent += `<p>${item.appendixTxt}</p>`;
+          htmlContent += `<p>${item.appendixText}</p>`;
         } else if (item.__type === "ImageURI") {
           htmlContent += `<img src="${item.imageUri}" />`;
         }
