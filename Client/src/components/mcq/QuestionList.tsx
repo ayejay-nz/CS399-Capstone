@@ -176,84 +176,90 @@ async function handlePreview2(
   setPreviewUrl: (url: string | null) => void,
 ) {
   const payload = {
-    content: [
-      {
-        coverpage: {
-          isUploaded: coverPage.isImported,
-          content: coverPage.isImported
-            ? { XML: coverPage.content || "" }
-            : {
-                semester: coverPage.semester,
-                campus: coverPage.campus,
-                department: coverPage.department,
-                course_code: coverPage.course_code,
-                course_name: coverPage.course_name,
-                exam_title: coverPage.exam_title,
-                duration: coverPage.duration,
-                note_content: coverPage.note_content,
-                version_number: coverPage.version_number,
-              },
+    exam: {
+      content: [
+        {
+          coverpage: {
+            isUploaded: coverPage.isImported,
+            content: coverPage.isImported
+              ? { XML: coverPage.content || "" }
+              : {
+                  semester: coverPage.semester,
+                  campus: coverPage.campus,
+                  department: coverPage.department,
+                  course_code: coverPage.course_code,
+                  course_name: coverPage.course_name,
+                  exam_title: coverPage.exam_title,
+                  duration: coverPage.duration,
+                  note_content: coverPage.note_content,
+                  version_number: coverPage.version_number,
+                },
+          },
         },
-      },
-      ...questions.map((q, idx) => {
-        if (q.isAppendix) {
-          const temp = document.createElement("div");
-          temp.innerHTML = q.content || "";
+        ...questions.map((q, idx) => {
+          if (q.isAppendix) {
+            const temp = document.createElement("div");
+            temp.innerHTML = q.content || "";
 
-          const content: AppendixContent[] = [];
-          temp.childNodes.forEach((node) => {
-            if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-              content.push({
-                appendixText: node.textContent.trim(),
-                __type: "AppendixText",
-              });
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as HTMLElement;
-              if (element.tagName === "P" && element.textContent?.trim()) {
+            const content: AppendixContent[] = [];
+            temp.childNodes.forEach((node) => {
+              if (
+                node.nodeType === Node.TEXT_NODE &&
+                node.textContent?.trim()
+              ) {
                 content.push({
-                  appendixText: element.textContent.trim(),
+                  appendixText: node.textContent.trim(),
                   __type: "AppendixText",
                 });
-              } else if (element.tagName === "IMG") {
-                content.push({
-                  imageUri: element.getAttribute("src") || "",
-                  __type: "ImageURI",
-                });
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const element = node as HTMLElement;
+                if (element.tagName === "P" && element.textContent?.trim()) {
+                  content.push({
+                    appendixText: element.textContent.trim(),
+                    __type: "AppendixText",
+                  });
+                } else if (element.tagName === "IMG") {
+                  content.push({
+                    imageUri: element.getAttribute("src") || "",
+                    __type: "ImageURI",
+                  });
+                }
               }
-            }
-          });
+            });
 
-          return {
-            appendix: {
-              isUploaded: q.isImported || false,
-              content,
-            },
-          };
-        } else {
-          const questionText = convertHtmlToPlainText(q.content || "");
-          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
-          const imageUri = imgSrcMatch?.[1] || "";
-
-          return {
-            question: {
-              marks: q.marks || 1,
-              id: idx + 1,
-              feedback: {
-                correctFeedback: "Correct",
-                incorrectFeedback: "Incorrect",
+            return {
+              appendix: {
+                isUploaded: q.isImported || false,
+                content,
               },
-              content: [
-                { questionText, __type: "QuestionText" },
-                ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
-              ],
-              options:
-                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
-                [],
-            },
-          };
-        }
-      }),
-    ],
+            };
+          } else {
+            const questionText = convertHtmlToPlainText(q.content || "");
+            const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+            const imageUri = imgSrcMatch?.[1] || "";
+
+            return {
+              question: {
+                marks: q.marks || 1,
+                id: idx + 1,
+                feedback: {
+                  correctFeedback: "Correct",
+                  incorrectFeedback: "Incorrect",
+                },
+                content: [
+                  { questionText, __type: "QuestionText" },
+                  ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+                ],
+                options:
+                  q.options?.map((optHtml) =>
+                    convertHtmlToPlainText(optHtml),
+                  ) || [],
+              },
+            };
+          }
+        }),
+      ],
+    },
   };
 
   console.log(payload);
