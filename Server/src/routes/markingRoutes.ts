@@ -15,6 +15,9 @@ import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { ApiErrorResponse } from '../dataTypes/apiErrorResponse';
 import { uploadMarkingFiles } from '../middlewares/uploadMiddleware';
+import { optionalSession, setSessionCookie, validateSession } from '../middlewares/sessionMiddleware';
+import { SessionCreatedResponse } from '../dataTypes/session';
+import sessionManager from '../services/sessionManager';
 
 const router = express.Router();
 
@@ -36,23 +39,17 @@ router.post(
     uploadMarkingFiles,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            let answerKey: AnswerKey;
+
+            // Process answer key file
             const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
             const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
             const answerKeyOriginalName = answerKeyFileObj.originalname as string;
             const answerKeyMimeType = answerKeyFileObj.mimetype as string;
 
-            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
-            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
-            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
-            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
-
             const answerKeyForm = new FormData();
             const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
             answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
-
-            const teleformDataForm = new FormData();
-            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
-            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
 
             // Parse answer key
             const answerKeyRes = await fetch(
@@ -65,9 +62,10 @@ router.post(
 
             if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
 
-            const { data: answerKey } =
-                (await answerKeyRes.json()) as ApiSuccessResponse<AnswerKey>;
+            const { data: answerKeyResponse } =
+                (await answerKeyRes.json()) as ApiSuccessResponse<any>;
 
+            answerKey = answerKeyResponse.answerKey;            
             if (!answerKey) {
                 throw new ApiError(
                     HTTP_STATUS_CODE.BAD_REQUEST,
@@ -76,6 +74,22 @@ router.post(
                     { message: 'No answer key detected' },
                 );
             }
+
+            // Forward the session cookie to the client
+            const sessionId = answerKeyResponse.sessionId;
+            if (sessionId) {
+                setSessionCookie(res, sessionId);
+                console.log(`Set session cookie for client: ${sessionId}`);
+            }
+
+            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
+            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
+            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
+            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
+
+            const teleformDataForm = new FormData();
+            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
+            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
 
             // Parse teleform data
             const teleformDataRes = await fetch(
@@ -101,8 +115,15 @@ router.post(
                     { message: 'No teleform data detected' },
                 );
             }
-
             const examBreakdown = generateExamBreakdown(answerKey, teleformData);
+
+            // Store exam breakdown and teleform data in session
+            if (sessionId) {
+                sessionManager.addTeleformData(sessionId, teleformData, teleformDataOriginalName);
+                sessionManager.updateExamBreakdown(sessionId, examBreakdown);
+                console.log(`Stored exam breakdown and teleform data in session: ${sessionId}`);
+            }
+
             const responseData = [{ stats: examBreakdown }, { questions: answerKey.source }] as [
                 { stats: ExamBreakdown },
                 { questions: AnswerKeyQuestion[] },
@@ -121,6 +142,46 @@ router.post(
         }
     },
 );
+
+/**
+ * Generate stats from session data
+ */
+router.post(
+    '/generate-stats-from-session',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+            
+            if (!session.teleformData) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noTeleformData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
+            sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
+
+            const responseData = [{ stats: examBreakdown }, { questions: session.answerKey.source }] as [
+                { stats: ExamBreakdown },
+                { questions: AnswerKeyQuestion[] },
+            ];
+
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
+                status: HTTP_STATUS_CODE.OK,
+                message: API_SUCCESS_MESSAGE.ok,
+                data: responseData,
+            };
+            res.status(response.status).json(response);
+        } catch (err) {
+            next(err);
+        }
+    }
+)
 
 router.post(
     '/generate-stats',

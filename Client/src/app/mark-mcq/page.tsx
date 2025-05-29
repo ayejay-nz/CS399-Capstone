@@ -32,6 +32,7 @@ export default function MarkMCQ() {
       const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
         method: "POST",
         body: form,
+        credentials: "include",
       });
 
       // const test = await res.json();
