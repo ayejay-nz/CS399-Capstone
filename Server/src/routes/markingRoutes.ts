@@ -143,6 +143,46 @@ router.post(
     },
 );
 
+/**
+ * Generate stats from session data
+ */
+router.post(
+    '/generate-stats-from-session',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+            
+            if (!session.teleformData) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noTeleformData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
+            sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
+
+            const responseData = [{ stats: examBreakdown }, { questions: session.answerKey.source }] as [
+                { stats: ExamBreakdown },
+                { questions: AnswerKeyQuestion[] },
+            ];
+
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
+                status: HTTP_STATUS_CODE.OK,
+                message: API_SUCCESS_MESSAGE.ok,
+                data: responseData,
+            };
+            res.status(response.status).json(response);
+        } catch (err) {
+            next(err);
+        }
+    }
+)
+
 router.post(
     '/generate-stats',
     async (
