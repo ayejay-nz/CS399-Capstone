@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "../components/layout/Navbar";
-
+import Navbar from "@/src/components/layout/Navbar";
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">

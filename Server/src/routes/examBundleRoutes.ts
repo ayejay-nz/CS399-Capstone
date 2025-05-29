@@ -14,7 +14,7 @@ const router = express.Router();
 
 // TODO: Maybe move this over to dataTypes
 interface PreviewBody {
-  exam: ExamData;
+    exam: ExamData;
 }
 
 const convertAsync = promisify(libre.convert);
@@ -49,60 +49,47 @@ router.post(
 );
 
 router.post(
-  '/preview-pdf',
-  async (
-    req: Request<{}, unknown, PreviewBody>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { exam } = req.body;
-      
-      if (!exam || !Array.isArray(exam.content)) {
-        throw new Error('Invalid exam payload');
-      }
+    '/preview-pdf',
+    async (req: Request<{}, unknown, PreviewBody>, res: Response, next: NextFunction) => {
+        try {
+            const { exam } = req.body;
 
-      const version: VersionedExam = {
-        versionNumber: 'original',
-        optionOrders: exam.content
-          .filter((b: any) => 'question' in b)
-          .map((b: any) =>
-            b.question.options.map((_: any, idx: number) => idx)
-          ),
-      };
+            if (!exam || !Array.isArray(exam.content)) {
+                throw new Error('Invalid exam payload');
+            }
 
-      // 3️⃣ Generate the styled .docx in memory
-      const versionsOutput = exportExamVersionsDocx([version], exam);
+            const version: VersionedExam = {
+                versionNumber: 'original',
+                optionOrders: exam.content
+                    .filter((b: any) => 'question' in b)
+                    .map((b: any) => b.question.options.map((_: any, idx: number) => idx)),
+            };
 
-      const doc = new Document({
-        sections: versionsOutput.map((v) => ({
-          properties: {},
-          children: v.paragraphs,
-        })),
-      });
-      
-      const docxBuffer = await Packer.toBuffer(doc);
+            // 3️⃣ Generate the styled .docx in memory
+            const versionsOutput = exportExamVersionsDocx([version], exam);
 
-      const pdfBuffer = await convertAsync(
-        docxBuffer,
-        '.pdf',
-        undefined
-      );
+            const doc = new Document({
+                sections: versionsOutput.map((v) => ({
+                    properties: {},
+                    children: v.paragraphs,
+                })),
+            });
 
-      res
-        .status(HTTP_STATUS_CODE.OK)
-        .set({
-          'Content-Type': 'application/pdf',
-          'Content-Disposition':
-            'inline; filename="exam_preview.pdf"',
-          'Content-Length': pdfBuffer.length,
-        })
-        .send(pdfBuffer);
-    } catch (err) {
-      next(err);
-    }
-  }
+            const docxBuffer = await Packer.toBuffer(doc);
+
+            const pdfBuffer = await convertAsync(docxBuffer, '.pdf', undefined);
+
+            res.status(HTTP_STATUS_CODE.OK)
+                .set({
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': 'inline; filename="exam_preview.pdf"',
+                    'Content-Length': pdfBuffer.length,
+                })
+                .send(pdfBuffer);
+        } catch (err) {
+            next(err);
+        }
+    },
 );
-
 
 export default router;

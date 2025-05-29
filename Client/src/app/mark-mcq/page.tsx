@@ -9,9 +9,14 @@ import Navbar from "@/src/components/layout/Navbar";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
+import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
+import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
+import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
+import Navbar from "@/src/components/layout/Navbar";
+import { toast } from "sonner";
 
 export default function MarkMCQ() {
-  const { refresh } = useExam();
+  const { handleResponse } = useExam();
   const [answerKeyFile, setAnswerKeyFile] = useState<File | null>(null);
   const [teleformDataFile, setTeleformDataFile] = useState<File | null>(null);
   const router = useRouter();
@@ -19,33 +24,61 @@ export default function MarkMCQ() {
 
   async function handleMarkingUpload() {
     if (!ready) {
-      alert("Please upload both files first.");
+      toast.error("Please upload both files first.");
       return;
     }
 
     try {
       const form = new FormData();
-      form.append("answerKeyFile", answerKeyFile);
-      form.append("teleformDataFile", teleformDataFile);
+      form.append("answerKeyFile", answerKeyFile!);
+      form.append("teleformDataFile", teleformDataFile!);
 
       const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
         method: "POST",
         body: form,
       });
 
-      if (!res.ok) {
-        const { message } = await res
-          .json()
-          .catch(() => ({ message: "Unknown error" }));
-        throw new Error(message);
+      // Always attempt to parse as JSON if the content type is JSON
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
       }
 
-      await refresh();
+      if (!res.ok) {
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
 
+      // Assume successful response always JSON and has expected structure
+      const payload = responseData.data;
+      if (!payload) {
+        toast.error("No payload from server");
+        return;
+      }
+
+      handleResponse(payload);
       router.push("/mark-mcq/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to upload and mark exam.");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(
+        "Network error or unexpected response format. Please try again.",
+      );
     }
   }
 

@@ -7,7 +7,7 @@ import {
 import { ExamData, Question } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { indexToTeleformAnswer } from '../utils/answerKey';
-import { isImageURI, isQuestion, isQuestionText, isSection, isTableURI } from '../utils/typeGuards';
+import { isImageURI, isQuestion, isQuestionText, isTableURI } from '../utils/typeGuards';
 
 // TODO -- ADD TESTS AND DOCUMENTATION
 export function examQuestionToAnswerKeyQuestion(question: Question): AnswerKeyQuestion {
@@ -50,8 +50,8 @@ export function getMarksAndIds(examData: ExamData): [number[], number[]] {
     let ids: number[] = [];
 
     examData.content.forEach((contentBlock) => {
-        if (isSection(contentBlock)) {
-            return; // Skip sections
+        if (!isQuestion(contentBlock)) {
+            return; // Skip non-questions
         }
 
         marks.push(contentBlock.question.marks);

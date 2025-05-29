@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 import type {
   ExamBreakdown,
   Summary,
@@ -8,12 +14,7 @@ import type {
   StudentBreakdown,
   AnswerKeyQuestion,
 } from "../dataTypes/examBreakdown";
-
-import testPayload from "./test.json";
-import testPayloadUpdatedFeedback from "./test_updated_feedback.json";
-import testPayloadUpdatedAnswer from "./test_updated_answer.json";
-
-
+import { toast } from "sonner";
 
 interface ExamCtx {
   stats: ExamBreakdown | null;
@@ -24,27 +25,26 @@ interface ExamCtx {
   refresh: () => Promise<void>;
   updateQuestion: (
     questionId: number,
-    updatedFields: Partial<QuestionBreakdown>
+    updatedFields: Partial<QuestionBreakdown>,
   ) => Promise<void>;
   updateFeedback: (
     questionId: number,
     auid: string,
-    customFeedback: string
+    customFeedback: string,
   ) => Promise<void>;
+  handleResponse: (
+    payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
+  ) => void;
 }
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
 
 export function ExamProvider({ children }: { children: React.ReactNode }) {
-
   const [stats, setStats] = useState<ExamBreakdown | null>(null);
   const [answerKey, setAnswerKey] = useState<AnswerKeyQuestion[] | null>(null);
 
   const handleResponse = (
-    payload: [
-      { stats: ExamBreakdown },
-      { questions: AnswerKeyQuestion[] }
-    ]
+    payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
   ) => {
     const statsPayload = payload[0].stats;
     const keyPayload = payload[1].questions;
@@ -52,10 +52,10 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     setAnswerKey(keyPayload);
 
     const keyById = Object.fromEntries(
-      keyPayload.map((q) => [q.id, q])
+      keyPayload.map((q) => [q.id, q]),
     ) as Record<number, AnswerKeyQuestion>;
 
-    const enrichedQuestions  = statsPayload.questions.map((qb) => {
+    const enrichedQuestions = statsPayload.questions.map((qb) => {
       const meta = keyById[qb.questionId];
 
       // correctAnswers indices from optionBreakdown
@@ -66,94 +66,129 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       return {
         ...qb,
         questionText: meta.content,
-        marks:        meta.marks,
-        options:      meta.options,
+        marks: meta.marks,
+        options: meta.options,
         correctAnswers: correctAnswerIndices,
       };
     });
 
-  const enrichedStudents = statsPayload.students;
-  const enrichedSummary  = statsPayload.summary;
+    const enrichedStudents = statsPayload.students;
+    const enrichedSummary = statsPayload.summary;
 
     setStats({
-      summary:   enrichedSummary,
-      students:  enrichedStudents,
+      summary: enrichedSummary,
+      students: enrichedStudents,
       questions: enrichedQuestions,
     });
   };
-
-
   // TODO: Aidan uncomment below make sure this is the JSON endpoint to fetch from
-  // const fetchExam = async () => {
-  //   const res = await fetch("http://localhost:8000/api/exam-breakdown");
-  //   if (!res.ok) throw new Error("Failed to fetch exam");
-  //   const payload = (await res.json()) as [
-  //     { stats: ExamBreakdown },
-  //     { questions: AnswerKeyQuestion[] }
-  //   ];
-  //   handleResponse(payload);
-  // };
-
-  // useEffect(() => {
-  //   void fetchExam();
-  // }, []);
+  const fetchExam = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:8000/api/v1/marking/generate-stats",
+        {
+          method: "POST",
+        },
+      );
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
+      }
+      if (!res.ok) {
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
+      const payload = (await res.json()) as [
+        { stats: ExamBreakdown },
+        { questions: AnswerKeyQuestion[] },
+      ];
+      handleResponse(payload);
+      toast.success("Exam stats generated successfully");
+    } catch (err) {
+      console.error("Error fetching exam:", err);
+      toast.error("Failed to connect to server");
+    }
+  };
 
   useEffect(() => {
-    handleResponse(testPayload);
+    void fetchExam();
   }, []);
 
   const update = async (change: object) => {
-    // const res = await fetch(
-    //   "http://localhost:8000/api/exam-breakdown/update-dashboard",
-    //   {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(change),
-    //   }
-    // );
-    // if (!res.ok) {
-    //   console.error("Failed to update exam");
-    //   return;
-    // }
-    // const payload = (await res.json()) as [
-    //   { stats: ExamBreakdown },
-    //   { questions: AnswerKeyQuestion[] }
-    // ];
-    // handleResponse(payload);
-    console.log('Payload to send:', JSON.stringify(change));
-
-    // TODO: remove just for testing
-    if (change.type == "feedback") {
-      console.log("Updating feedback!");
-      handleResponse(testPayloadUpdatedFeedback);
-    }
-
-    if (change.type == "correctness") {
-      handleResponse(testPayloadUpdatedAnswer);
+    try {
+      const res = await fetch(
+        "http://localhost:8000/api/exam-breakdown/update-dashboard",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(change),
+        },
+      );
+      if (!res.ok) {
+        const errorText = await res.text();
+        const errorJson = JSON.parse(errorText);
+        toast.error(errorJson.message);
+        return;
+      }
+      const payload = (await res.json()) as [
+        { stats: ExamBreakdown },
+        { questions: AnswerKeyQuestion[] },
+      ];
+      handleResponse(payload);
+      toast.success("Dashboard updated successfully");
+    } catch (err) {
+      console.error("Error updating dashboard:", err);
+      toast.error("Failed to connect to server");
     }
   };
 
   const updateQuestion = (questionId: number, updatedFields: any) =>
-    update({ type: "correctness", questionId, correctOptions: updatedFields.correctAnswers });
+    update({
+      type: "correctness",
+      questionId,
+      correctOptions: updatedFields.correctAnswers,
+    });
 
-  const updateFeedback = (questionId: number, auid: string, customFeedback: string) =>
-    update({ type: "feedback", questionId, auid, customFeedback });
+  const updateFeedback = (
+    questionId: number,
+    auid: string,
+    customFeedback: string,
+  ) => update({ type: "feedback", questionId, auid, customFeedback });
 
   // derive slices
-  const summary       = stats?.summary   ?? null;
+  const summary = stats?.summary ?? null;
   const questionStats = stats?.questions ?? null;
-  const students      = stats?.students  ?? null;
+  const students = stats?.students ?? null;
 
-
-  const value = useMemo(() => ({
-    stats,
-    summary,
-    questionStats,
-    students,
-    answerKey,
-    updateQuestion,
-    updateFeedback,
-  }), [stats, answerKey]);
+  const value = useMemo(
+    () => ({
+      stats,
+      summary,
+      questionStats,
+      students,
+      answerKey,
+      updateQuestion,
+      updateFeedback,
+      handleResponse,
+    }),
+    [stats, answerKey],
+  );
 
   return <ExamContext.Provider value={value}>{children}</ExamContext.Provider>;
 }

@@ -10,6 +10,7 @@ import {
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 
 // Dynamically load the PdfSlideOver component
 const PdfSlideOver = dynamic(
@@ -144,7 +145,18 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-
+  console.log(payload);
+  const jsonBlob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  const jsonUrl = URL.createObjectURL(jsonBlob);
+  const jsonLink = document.createElement("a");
+  jsonLink.href = jsonUrl;
+  jsonLink.download = "exam-payload.json";
+  document.body.appendChild(jsonLink);
+  jsonLink.click();
+  document.body.removeChild(jsonLink);
+  URL.revokeObjectURL(jsonUrl);
   try {
     const res = await fetch(
       "http://localhost:8000/api/v1/exam-source/upload-json",
@@ -154,7 +166,12 @@ async function handlePreview(questions: Question[], coverPage: any) {
         body: JSON.stringify(payload),
       },
     );
-    if (!res.ok) throw new Error("Download failed");
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorJson = JSON.parse(errorText);
+      toast.error(errorJson.message);
+      return;
+    }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -164,9 +181,10 @@ async function handlePreview(questions: Question[], coverPage: any) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    toast.success("Exam generated successfully");
   } catch (err) {
     console.error("Error", err);
-    alert("Failed to generate and download questions.");
+    toast.error("Failed to generate and download questions");
   }
 }
 
@@ -176,84 +194,90 @@ async function handlePreview2(
   setPreviewUrl: (url: string | null) => void,
 ) {
   const payload = {
-    content: [
-      {
-        coverpage: {
-          isUploaded: coverPage.isImported,
-          content: coverPage.isImported
-            ? { XML: coverPage.content || "" }
-            : {
-                semester: coverPage.semester,
-                campus: coverPage.campus,
-                department: coverPage.department,
-                course_code: coverPage.course_code,
-                course_name: coverPage.course_name,
-                exam_title: coverPage.exam_title,
-                duration: coverPage.duration,
-                note_content: coverPage.note_content,
-                version_number: coverPage.version_number,
-              },
+    exam: {
+      content: [
+        {
+          coverpage: {
+            isUploaded: coverPage.isImported,
+            content: coverPage.isImported
+              ? { XML: coverPage.content || "" }
+              : {
+                  semester: coverPage.semester,
+                  campus: coverPage.campus,
+                  department: coverPage.department,
+                  course_code: coverPage.course_code,
+                  course_name: coverPage.course_name,
+                  exam_title: coverPage.exam_title,
+                  duration: coverPage.duration,
+                  note_content: coverPage.note_content,
+                  version_number: coverPage.version_number,
+                },
+          },
         },
-      },
-      ...questions.map((q, idx) => {
-        if (q.isAppendix) {
-          const temp = document.createElement("div");
-          temp.innerHTML = q.content || "";
+        ...questions.map((q, idx) => {
+          if (q.isAppendix) {
+            const temp = document.createElement("div");
+            temp.innerHTML = q.content || "";
 
-          const content: AppendixContent[] = [];
-          temp.childNodes.forEach((node) => {
-            if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-              content.push({
-                appendixText: node.textContent.trim(),
-                __type: "AppendixText",
-              });
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as HTMLElement;
-              if (element.tagName === "P" && element.textContent?.trim()) {
+            const content: AppendixContent[] = [];
+            temp.childNodes.forEach((node) => {
+              if (
+                node.nodeType === Node.TEXT_NODE &&
+                node.textContent?.trim()
+              ) {
                 content.push({
-                  appendixText: element.textContent.trim(),
+                  appendixText: node.textContent.trim(),
                   __type: "AppendixText",
                 });
-              } else if (element.tagName === "IMG") {
-                content.push({
-                  imageUri: element.getAttribute("src") || "",
-                  __type: "ImageURI",
-                });
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const element = node as HTMLElement;
+                if (element.tagName === "P" && element.textContent?.trim()) {
+                  content.push({
+                    appendixText: element.textContent.trim(),
+                    __type: "AppendixText",
+                  });
+                } else if (element.tagName === "IMG") {
+                  content.push({
+                    imageUri: element.getAttribute("src") || "",
+                    __type: "ImageURI",
+                  });
+                }
               }
-            }
-          });
+            });
 
-          return {
-            appendix: {
-              isUploaded: q.isImported || false,
-              content,
-            },
-          };
-        } else {
-          const questionText = convertHtmlToPlainText(q.content || "");
-          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
-          const imageUri = imgSrcMatch?.[1] || "";
-
-          return {
-            question: {
-              marks: q.marks || 1,
-              id: idx + 1,
-              feedback: {
-                correctFeedback: "Correct",
-                incorrectFeedback: "Incorrect",
+            return {
+              appendix: {
+                isUploaded: q.isImported || false,
+                content,
               },
-              content: [
-                { questionText, __type: "QuestionText" },
-                ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
-              ],
-              options:
-                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
-                [],
-            },
-          };
-        }
-      }),
-    ],
+            };
+          } else {
+            const questionText = convertHtmlToPlainText(q.content || "");
+            const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+            const imageUri = imgSrcMatch?.[1] || "";
+
+            return {
+              question: {
+                marks: q.marks || 1,
+                id: idx + 1,
+                feedback: {
+                  correctFeedback: "Correct",
+                  incorrectFeedback: "Incorrect",
+                },
+                content: [
+                  { questionText, __type: "QuestionText" },
+                  ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
+                ],
+                options:
+                  q.options?.map((optHtml) =>
+                    convertHtmlToPlainText(optHtml),
+                  ) || [],
+              },
+            };
+          }
+        }),
+      ],
+    },
   };
 
   console.log(payload);
@@ -267,14 +291,20 @@ async function handlePreview2(
         body: JSON.stringify(payload),
       },
     );
-    if (!res.ok) throw new Error(res.statusText);
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorJson = JSON.parse(errorText);
+      toast.error(errorJson.message);
+      return;
+    }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     setPreviewUrl(url);
+    toast.success("Preview generated successfully");
   } catch (err) {
     console.error("Preview error", err);
-    alert("Failed to generate preview.");
+    toast.error("Failed to generate preview");
   }
 }
 
@@ -419,7 +449,9 @@ export default function QuestionList({
             <Button
               variant="secondary"
               className="flex-1"
-              onClick={() => handlePreview2(questions, setPreviewUrl)}
+              onClick={() =>
+                handlePreview2(questions, coverPage, setPreviewUrl)
+              }
             >
               Preview
             </Button>
