@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { TeleformData } from '../dataTypes/teleformData';
-import { AnswerKey } from '../dataTypes/answerKey';
+import { AnswerKey, AnswerKeyQuestion } from '../dataTypes/answerKey';
 import { generateExamBreakdown } from '../services/examMarking';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 import { ExamBreakdown } from '../dataTypes/examBreakdown';
@@ -103,11 +103,17 @@ router.post(
             }
 
             const examBreakdown = generateExamBreakdown(answerKey, teleformData);
+            const responseData = [{ stats: examBreakdown }, { questions: answerKey.source }] as [
+                { stats: ExamBreakdown },
+                { questions: AnswerKeyQuestion[] },
+            ];
 
-            const response: ApiSuccessResponse<ExamBreakdown> = {
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
-                data: examBreakdown,
+                data: responseData,
             };
             res.status(response.status).json(response);
         } catch (err) {
