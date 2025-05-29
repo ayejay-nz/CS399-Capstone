@@ -13,7 +13,7 @@ import { extractCoverpageBody, getCoverpageXml } from './coverpageDocx';
 import ApiError from '../utils/apiError';
 import { API_ERROR_CODE, API_ERROR_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
 
-function injectCoverpage(examBuffer: Buffer, coverpageBodyContent: string, coverpageHeaderXml: string): Buffer {
+export function injectCoverpage(examBuffer: Buffer, coverpageBodyContent: string, coverpageHeaderXml: string): Buffer {
     const zip = new PizZip(examBuffer);
     
     let examDocXml = zip.file('word/document.xml')!.asText();
