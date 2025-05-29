@@ -130,6 +130,37 @@ router.post(
 )
 
 /**
+ * Get current session data
+ */
+router.get(
+    '/current',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+
+            const sessionData = {
+                sessionId: session.sessionId,
+                hasAnswerKey: !!session.answerKey,
+                hasTeleformData: !!session.teleformData,
+                hasExamBreakdown: !!session.examBreakdown,
+                expiresAt: session.expiresAt,
+                metadata: session.metadata,
+            }
+
+            const response: ApiSuccessResponse<typeof sessionData> = {
+                status: HTTP_STATUS_CODE.OK,
+                message: API_SUCCESS_MESSAGE.ok,
+                data: sessionData,
+            };
+            res.status(response.status).json(response);
+        } catch (error) {
+            next(error);
+        }
+    },
+);
+
+/**
  * Get session statistics (for monitoring)
  */
 router.get(
