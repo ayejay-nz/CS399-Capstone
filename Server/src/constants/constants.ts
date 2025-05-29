@@ -55,6 +55,13 @@ export const API_ERROR_MESSAGE = {
         'Cannot set the correct answer(s). The provided change is invalid for the available options',
     invalidFeedbackUpdate: 'The provided feedback is invalid (e.g. format, length, ...)',
     updateFailed: 'Failed to save the requested changes',
+
+    // Session Errors
+    sessionNotFound: 'The session you are trying to access could not be found',
+    sessionExpired: 'The session you are trying to access has expired',
+    sessionLimitReached: 'The maximum number of sessions has been reached. Please try again later',
+    sessionMemoryLimitReached: 'The maximum memory usage has been reached. Please try again later',
+    invalidSessionId: 'Invalid session identifier provided',
 };
 
 export const API_ERROR_CODE = {
@@ -87,6 +94,13 @@ export const API_ERROR_CODE = {
     INVALID_ANSWER_UPDATE: 'INVALID_ANSWER_UPDATE',
     INVALID_FEEDBACK_UPDATE: 'INVALID_FEEDBACK_UPDATE',
     UPDATE_FAILED: 'UPDATE_FAILED',
+
+    // Session Errors
+    SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
+    SESSION_EXPIRED: 'SESSION_EXPIRED',
+    SESSION_LIMIT_REACHED: 'SESSION_LIMIT_REACHED',
+    SESSION_MEMORY_LIMIT_REACHED: 'SESSION_MEMORY_LIMIT_REACHED',
+    INVALID_SESSION_ID: 'INVALID_SESSION_ID',
 };
 
 export const API_SUCCESS_MESSAGE = {
