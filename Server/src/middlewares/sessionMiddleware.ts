@@ -3,14 +3,14 @@ import sessionManager from '../services/sessionManager';
 import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { HTTP_STATUS_CODE, API_ERROR_MESSAGE, API_ERROR_CODE } from '../constants/constants';
-import { AnswerKeySession } from '../dataTypes/session';
+import { ExamMarkingSession } from '../dataTypes/session';
 
 // Extend Request interface to include session
 declare global {
     namespace Express {
         interface Request {
             sessionId?: string;
-            answerKeySession?: AnswerKeySession;
+            examMarkingSession?: ExamMarkingSession;
         }
     }
 }
@@ -74,7 +74,7 @@ export function validateSession(req: Request, res: Response, next: NextFunction)
 
     // Attach session to request
     req.sessionId = sessionId;
-    req.answerKeySession = session;
+    req.examMarkingSession = session;
 
     next();
 }
@@ -91,7 +91,7 @@ export function optionalSession(req: Request, res: Response, next: NextFunction)
         if (session) {
             sessionManager.updateSessionAccess(sessionId);
             req.sessionId = sessionId;
-            req.answerKeySession = session;
+            req.examMarkingSession = session;
         }
     }
 

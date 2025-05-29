@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { AnswerKey } from '../dataTypes/answerKey';
-import { AnswerKeySession, SessionStore } from '../dataTypes/session';
+import { ExamMarkingSession, SessionStore } from '../dataTypes/session';
 import config from '../config/config';
 import { configDotenv } from 'dotenv';
 
 class SessionManager implements SessionStore {
-    public sessions: Map<string, AnswerKeySession> = new Map();
+    public sessions: Map<string, ExamMarkingSession> = new Map();
     public cleanupInterval: NodeJS.Timeout | null = null;
 
     constructor() {
@@ -15,7 +15,7 @@ class SessionManager implements SessionStore {
     /**
      * Create a new session for an answer key
      */
-    createSession(answerKey: AnswerKey, metadata?: Partial<AnswerKeySession['metadata']>): string {
+    createSession(answerKey: AnswerKey, metadata?: Partial<ExamMarkingSession['metadata']>): string {
         // Check session limits
         if (this.sessions.size >= config.session.maxSessions) {
             this.evictOldestSession();
@@ -31,7 +31,7 @@ class SessionManager implements SessionStore {
         const now = new Date();
         const expiresAt = new Date(now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000);
 
-        const session: AnswerKeySession = {
+        const session: ExamMarkingSession = {
             sessionId,
             answerKey,
             createdAt: now,
@@ -49,7 +49,7 @@ class SessionManager implements SessionStore {
     /**
      * Retrieve a session by its ID
      */
-    getSession(sessionId: string): AnswerKeySession | null {
+    getSession(sessionId: string): ExamMarkingSession | null {
         const session = this.sessions.get(sessionId);
         if (!session) {
             return null;

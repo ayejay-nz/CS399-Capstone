@@ -17,7 +17,7 @@ router.get(
     validateSession,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const session = req.answerKeySession!;
+            const session = req.examMarkingSession!;
 
             const response: ApiSuccessResponse<typeof session.answerKey> = {
                 status: HTTP_STATUS_CODE.OK,
@@ -66,7 +66,7 @@ router.get(
     validateSession, 
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const session = req.answerKeySession!;
+            const session = req.examMarkingSession!;
 
             const statusResponse: SessionStatusResponse = {
                 sessionId: session.sessionId,

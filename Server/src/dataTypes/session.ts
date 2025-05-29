@@ -1,20 +1,26 @@
 import { AnswerKey } from './answerKey';
+import { ExamBreakdown } from './examBreakdown';
+import { TeleformData } from './teleformData';
 
-export interface AnswerKeySession {
+export interface ExamMarkingSession {
     sessionId: string;
     answerKey: AnswerKey;
+    teleformData?: TeleformData;
+    examBreakdown?: ExamBreakdown;
     createdAt: Date;
     expiresAt: Date;
     lastAccessedAt: Date;
     metadata?: {
-        originalFilename?: string;
+        answerKeyFilename?: string;
+        teleformDataFilename?: string;
         uploadedBy?: string;
-        fileSize?: number;
+        answerKeyFileSize?: number;
+        teleformDataFileSize?: number;
     };
 }
 
 export interface SessionStore {
-    sessions: Map<string, AnswerKeySession>;
+    sessions: Map<string, ExamMarkingSession>;
     cleanup(): void;
     getMemoryUsage(): number;
 }
