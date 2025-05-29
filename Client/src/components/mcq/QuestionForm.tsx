@@ -168,14 +168,14 @@ export default function QuestionForm({
         <div className="flex items-center gap-5">
           {!isCoverPage && !isAppendix && (
             <div className="flex items-center text-sm text-white">
-              <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
-                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+              <div className="flex items-stretch border border-[#27272A] rounded overflow-hidden">
+                <span className="px-3 py-0.5 flex items-center border-r border-[#27272A]">
                   Mark(s)
                 </span>
-                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+                <span className="px-3 py-0.5 flex items-center border-r border-[#27272A]">
                   {marks}
                 </span>
-                <div className="flex flex-col divide-y divide-gray-500">
+                <div className="flex flex-col divide-y divide-[#27272A]">
                   <button
                     className="px-2 h-full hover:bg-gray-700 leading-none"
                     onClick={() => adjustMarks(1)}
