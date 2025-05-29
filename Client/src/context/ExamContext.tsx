@@ -39,6 +39,8 @@ interface ExamCtx {
   ) => void;
   setSessionInfo: (sessionId: string, expiry: Date) => void;
   clearSession: () => void;
+  checkSessionStatus: () => Promise<boolean>;
+  loadSessionData: () => Promise<void>;
 }
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
@@ -106,6 +108,62 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('answerkey_session_expiry');
   };
 
+  // Check if there's and active session on the server
+  const checkSessionStatus = async (): Promise<boolean> => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/sessions/current', {
+        credentials: 'include',
+      });
+
+      if (res.ok) {
+        const { data } = await res.json();
+        console.log(`Active session found on server: ${data.sessionId}`);
+
+        // Update local session info
+        setSessionId(data.sessionId);
+        setSessionExpiry(new Date(data.expiresAt));
+
+        // Set session in local storage
+        localStorage.setItem('answerkey_session_id', data.sessionId);
+        localStorage.setItem('answerkey_session_expiry', data.expiresAt);
+
+        return data.hasAnswerKey && data.hasTeleformData;
+      }
+    } catch (err) {
+      console.error('No active session found or session check failed:', err);
+      clearSession();
+    }
+
+    return false;
+  }
+
+  // Load exam data from session
+  const loadSessionData = async (): Promise<void> => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/marking/generate-stats-from-session', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        if (errorData?.message) {
+          toast.error(errorData.message);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
+
+      const { data } = await res.json();
+      handleResponse(data);
+      toast.success('Exam data loaded from session');
+    } catch (err) {
+      console.error('Error loading session data:', err);
+      toast.error('Failed to load session data');
+    }
+  }
+
   // Check for existing session on mount
   useEffect(() => {
     const storedSessionId = localStorage.getItem('answerkey_session_id');
@@ -118,60 +176,68 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       if (expiryDate > new Date()) {
         setSessionId(storedSessionId);
         setSessionExpiry(expiryDate);
+
+        // Verify session with server and potentially load data
+        checkSessionStatus().then((hasData) => {
+          if (hasData) {
+            console.log('Complete session found, loading data');
+            loadSessionData(); // Maybe remove this?
+          }
+        });
       } else {
         clearSession();
       }
+    } else {
+      // No stored session, check if the server has one anyway (cookie-based)
+      checkSessionStatus();
     }
   }, []);
 
   // TODO: Aidan uncomment below make sure this is the JSON endpoint to fetch from
-  const fetchExam = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:8000/api/v1/marking/generate-stats",
-        {
-          method: "POST",
-        },
-      );
-      let responseData;
-      const contentType = res.headers.get("Content-Type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await res.json();
-      } else {
-        responseData = await res.text();
-      }
-      if (!res.ok) {
-        if (
-          responseData &&
-          typeof responseData === "object" &&
-          responseData.message
-        ) {
-          toast.error(responseData.message);
-        } else if (
-          typeof responseData === "string" &&
-          responseData.length > 0
-        ) {
-          toast.error(`Server error: ${responseData}`);
-        } else {
-          toast.error(`Server error: ${res.status} ${res.statusText}`);
-        }
-        return;
-      }
-      const payload = (await res.json()) as [
-        { stats: ExamBreakdown },
-        { questions: AnswerKeyQuestion[] },
-      ];
-      handleResponse(payload);
-      toast.success("Exam stats generated successfully");
-    } catch (err) {
-      console.error("Error fetching exam:", err);
-      toast.error("Failed to connect to server");
-    }
-  };
-
-  useEffect(() => {
-    void fetchExam();
-  }, []);
+  // const fetchExam = async () => {
+  //   try {
+  //     const res = await fetch(
+  //       "http://localhost:8000/api/v1/marking/generate-stats-from-session",
+  //       {
+  //         method: "POST",
+  //         credentials: 'include',
+  //       },
+  //     );
+  //     let responseData;
+  //     const contentType = res.headers.get("Content-Type");
+  //     if (contentType && contentType.includes("application/json")) {
+  //       responseData = await res.json();
+  //     } else {
+  //       responseData = await res.text();
+  //     }
+  //     if (!res.ok) {
+  //       if (
+  //         responseData &&
+  //         typeof responseData === "object" &&
+  //         responseData.message
+  //       ) {
+  //         toast.error(responseData.message);
+  //       } else if (
+  //         typeof responseData === "string" &&
+  //         responseData.length > 0
+  //       ) {
+  //         toast.error(`Server error: ${responseData}`);
+  //       } else {
+  //         toast.error(`Server error: ${res.status} ${res.statusText}`);
+  //       }
+  //       return;
+  //     }
+  //     const payload = (await res.json()) as [
+  //       { stats: ExamBreakdown },
+  //       { questions: AnswerKeyQuestion[] },
+  //     ];
+  //     handleResponse(payload);
+  //     toast.success("Exam stats generated successfully");
+  //   } catch (err) {
+  //     console.error("Error fetching exam:", err);
+  //     toast.error("Failed to connect to server");
+  //   }
+  // };
 
   const update = async (change: object) => {
     try {
@@ -233,6 +299,8 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       handleResponse,
       setSessionInfo,
       clearSession,
+      checkSessionStatus,
+      loadSessionData,
     }),
     [stats, answerKey, sessionId, sessionExpiry],
   );
