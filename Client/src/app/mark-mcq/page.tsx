@@ -34,8 +34,8 @@ export default function MarkMCQ() {
         body: form,
       });
 
-      const test = await res.json();
-      console.log("upload response:", test);
+      // const test = await res.json();
+      // console.log("upload response:", test);
 
       // parse once
       const json = (await res.json()) as ApiSuccessResponse<
