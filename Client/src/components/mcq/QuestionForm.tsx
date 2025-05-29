@@ -198,8 +198,8 @@ export default function QuestionForm({
               {currentQuestionId
                 ? "Update"
                 : isAppendix
-                  ? "Add appendix"
-                  : "Add question"}
+                  ? "Add Appendix"
+                  : "Add Question"}
             </Button>
             {currentQuestionId && (
               <Button variant="secondary" onClick={handleCancel}>
