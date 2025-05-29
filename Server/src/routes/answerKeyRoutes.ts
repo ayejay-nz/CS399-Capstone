@@ -10,6 +10,7 @@ import {
 import path from 'path';
 import { AnswerKey } from '../dataTypes/answerKey';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
+import { parseAnswerKeyXLSX } from '../parsers/answerKeyParser';
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ router.post(
 
             switch (fileExt) {
                 case '.xlsx':
-                    // parse answer key
+                    parseResult = await parseAnswerKeyXLSX(fileBuffer);
                     break;
                 default:
                     // Ideally should never be reached but is a safeguard
@@ -46,9 +47,10 @@ router.post(
                     );
             }
 
-            const response: ApiSuccessResponse = {
+            const response: ApiSuccessResponse<AnswerKey> = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
+                data: parseResult,
             };
             res.status(response.status).json(response);
         } catch (error) {

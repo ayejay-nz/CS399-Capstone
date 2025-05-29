@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,20 +7,21 @@ import Link from "next/link";
 import { MetricCards } from "../../../components/metric-cards";
 import { StudentDistribution } from "../../../components/student-distribution";
 import { LowestScoringQuestions } from "../../../components/lowest-scoring-questions";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../../components/ui/tabs";
-import { Button } from "../../../components/ui/button";
-import { Download } from "lucide-react";
-import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 import { QuestionPerformanceTab } from "@/src/components/question-performance";
+import { IndividualPerformanceTab } from "@/src/components/individual-performance";
 import { DownloadAnswers } from "@/src/components/download-answers";
 import Navbar from "@/src/components/layout/Navbar";
 
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/src/components/ui/tabs";
+import { useExam } from "@/src/context/ExamContext";
+
+
 export default function Dashboard() {
+
+  const { summary, questionStats, students, answerKey, refresh, updateQuestion, updateFeedback } = useExam();
+
+  const scores = summary?.studentScores ?? [];
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -66,7 +69,7 @@ export default function Dashboard() {
                       color: "#fff",
                     }}
                   >
-                    <StudentDistribution />
+                    <StudentDistribution studentScores={scores} />
                   </div>
                   <div
                     className="rounded-lg p-4"
@@ -76,17 +79,28 @@ export default function Dashboard() {
                       color: "#fff",
                     }}
                   >
-                    <LowestScoringQuestions />
+                    <LowestScoringQuestions
+                      questionStats={questionStats ?? []}
+                      count={5}
+                    />
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="question-performance">
-                <QuestionPerformanceTab />
+                  <QuestionPerformanceTab
+                    questionStats={questionStats ?? []}
+                    answerKey={answerKey ?? []}
+                    onCorrectnessChange={updateQuestion}
+                    onFeedbackChange={updateFeedback}
+                />
               </TabsContent>
-
               <TabsContent value="individual-performance">
-                <IndividualPerformanceTab />
+                <IndividualPerformanceTab
+                  students={students ?? []}
+                  examMarks={summary?.examMarks ?? 0}
+                  onFeedbackChange={updateFeedback}
+                />
               </TabsContent>
             </Tabs>
           </div>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/utils";
 
 interface UseImageUploadProps {
-  onUpload?: (url: string) => void;
+  onUpload?: (file: File, url: string) => void;
 }
 
 export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
@@ -23,10 +23,10 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
         previewRef.current = url;
-        onUpload?.(url);
+        onUpload?.(file, url);
       }
     },
-    [onUpload]
+    [onUpload],
   );
 
   const handleRemove = useCallback(() => {
@@ -60,7 +60,7 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
 }
 
 interface ImageUploadProps {
-  onUpload?: (url: string) => void;
+  onUpload?: (file: File, url: string) => void;
   accept?: string;
   maxSizeMB?: number;
   className?: string;
@@ -95,8 +95,12 @@ export function ImageUpload({
             "border border-dashed border-white",
             "rounded-[12px] cursor-pointer",
             "transition-all duration-200 hover:border-white",
-            "flex flex-col items-center justify-center p-8"
+            "flex flex-col items-center justify-center",
+            "p-4 md:p-8",
           )}
+          style={{
+            aspectRatio: "4 / 3",
+          }}
         >
           <input
             ref={fileInputRef}
@@ -106,9 +110,9 @@ export function ImageUpload({
             className="hidden"
             aria-label="Upload file"
           />
-          
+
           {previewUrl ? (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full flex items-center justify-center">
               <img
                 src={previewUrl}
                 alt="Preview"
@@ -158,17 +162,17 @@ export function ImageUpload({
               </svg>
               <div className="flex flex-col items-center gap-1 mt-4">
                 <p className="text-sm text-gray-400">Click to select</p>
-                <p className="text-xs text-gray-500">or drag and drop file here</p>
+                <p className="text-xs text-gray-500">
+                  or drag and drop file here
+                </p>
               </div>
             </>
           )}
         </div>
       </div>
       {fileName && (
-        <p className="mt-2 text-sm text-gray-400">
-          Selected file: {fileName}
-        </p>
+        <p className="mt-2 text-sm text-gray-400">Selected file: {fileName}</p>
       )}
     </div>
   );
-} 
+}
