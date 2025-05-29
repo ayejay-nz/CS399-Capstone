@@ -39,6 +39,11 @@ interface ExamCtx {
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
 
+function trimAtQuestion(text: string): string {
+  const idx = text.indexOf('?');
+  return idx === -1 ? text : text.slice(0, idx + 1);
+}
+
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<ExamBreakdown | null>(null);
   const [answerKey, setAnswerKey] = useState<AnswerKeyQuestion[] | null>(null);
@@ -65,7 +70,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
 
       return {
         ...qb,
-        questionText: meta.content,
+        questionText: trimAtQuestion(meta.content),
         marks: meta.marks,
         options: meta.options,
         correctAnswers: correctAnswerIndices,
