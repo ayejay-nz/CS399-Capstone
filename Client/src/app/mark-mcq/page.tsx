@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
 
 export default function MarkMCQ() {
-
   const { refresh } = useExam();
   const [answerKeyFile, setAnswerKeyFile] = useState<File | null>(null);
   const [teleformDataFile, setTeleformDataFile] = useState<File | null>(null);
@@ -84,7 +83,7 @@ export default function MarkMCQ() {
         <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 flex flex-col items-center justify-center">
           {/* file uploads */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Student Answers"
                 subtitle="Supported format: TXT"
@@ -95,7 +94,7 @@ export default function MarkMCQ() {
               />
             </div>
 
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Answer Key"
                 subtitle="Supported format: XLSX"

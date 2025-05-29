@@ -95,8 +95,12 @@ export function ImageUpload({
             "border border-dashed border-white",
             "rounded-[12px] cursor-pointer",
             "transition-all duration-200 hover:border-white",
-            "flex flex-col items-center justify-center p-8",
+            "flex flex-col items-center justify-center",
+            "p-4 md:p-8",
           )}
+          style={{
+            aspectRatio: "4 / 3",
+          }}
         >
           <input
             ref={fileInputRef}
@@ -108,7 +112,7 @@ export function ImageUpload({
           />
 
           {previewUrl ? (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full flex items-center justify-center">
               <img
                 src={previewUrl}
                 alt="Preview"
