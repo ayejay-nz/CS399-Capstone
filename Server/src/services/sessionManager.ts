@@ -3,6 +3,8 @@ import { AnswerKey } from '../dataTypes/answerKey';
 import { ExamMarkingSession, SessionStore } from '../dataTypes/session';
 import config from '../config/config';
 import { configDotenv } from 'dotenv';
+import { TeleformData } from '../dataTypes/teleformData';
+import { ExamBreakdown } from '../dataTypes/examBreakdown';
 
 class SessionManager implements SessionStore {
     public sessions: Map<string, ExamMarkingSession> = new Map();
@@ -196,6 +198,50 @@ class SessionManager implements SessionStore {
 
         console.log(`Refreshed session ${sessionId}, new expiry: ${session.expiresAt.toISOString()}`);
         return true;
+    }
+
+    /**
+     * Add teleform data to existing session
+     */
+    addTeleformData(sessionId: string, teleformData: TeleformData, filename?: string): boolean {
+        const session = this.getSession(sessionId);
+        if (!session) {
+            return false;
+        }
+
+        session.teleformData = teleformData;
+        session.lastAccessedAt = new Date();
+        
+        if (filename && session.metadata) {
+            session.metadata.teleformDataFilename = filename;
+        }
+
+        console.log(`Teleform data added to session: ${sessionId}`);
+        return true;
+    }
+
+    /**
+     * Update exam breakdown for existing session
+     */
+    updateExamBreakdown(sessionId: string, examBreakdown: ExamBreakdown): boolean {
+        const session = this.getSession(sessionId);
+        if (!session) {
+            return false;
+        }
+
+        session.examBreakdown = examBreakdown;
+        session.lastAccessedAt = new Date();
+
+        console.log(`Exam breakdown updated for session: ${sessionId}`);
+        return true;
+    }
+
+    /**
+     * Check if session is complete (has answer key and teleform data)
+     */
+    isSessionComplete(sessionId: string): boolean {
+        const session = this.getSession(sessionId);
+        return !!(session?.answerKey && session?.teleformData);
     }
 }
 
