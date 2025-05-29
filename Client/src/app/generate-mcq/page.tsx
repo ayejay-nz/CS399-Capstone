@@ -11,6 +11,8 @@ import CustomCover from "@/src/components/mcq/CustomCover";
 import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
+import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
+import { AppendixPage, Coverpage, CoverpageDocx } from "../../../../Server/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -164,12 +166,72 @@ export default function GenerateMCQPage() {
         return;
       }
 
-      toast.success("Cover page uploaded successfully");
+      // Check if coverpage was parsed successfully
+      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
+      if (!coverpageJson) {
+        throw new Error("No coverpage data received from server.");
+      }
+
+      // Check if coverpage is present
+      // Future functionality: Will populate the Coverpage form with the parsed data
+      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
+      // const firstPage = coverpageJson.content[0];
+      // if (isCoverpage(firstPage)) {
+      //   const coverpage = firstPage.coverpage!;
+      //   setCoverPage({
+      //     id: -1,
+      //     ...coverpage.content,
+      //     versionNumber: coverpage.content.versionNumber || "version number",
+      //     isImported: true,
+      //   })
+      //   toast.success("Cover page uploaded successfully");
+      // } else {
+      //   toast.success("Cover page uploaded successfully -- please edit manually");
+      // }
+
+      // Add appendicies 
+      const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
+      const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
+
+      let htmlContent = "";
+      appendicies.forEach((appendix) => {
+        htmlContent = getAppendixHtml(appendix);
+        if (mcq.currentQuestionId !== null) {
+          mcq.setQuestions((prev) => 
+            prev.map((q) => 
+              q.id === mcq.currentQuestionId && q.isAppendix
+                ? {
+                    ...q,
+                    content: htmlContent,
+                    displayText: "Appendix",
+                  }
+                : q,
+            ),
+          );
+
+          mcq.questionEditor?.commands.setContent(htmlContent);
+          toast.success("Appendix uploaded successfully");
+        }
+      });
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to upload cover page");
     }
   };
+
+  const getAppendixHtml = (appendix: AppendixPage) => {
+    let htmlContent = "";
+    appendix.appendix.content.forEach((item: any) => {
+      if (item.__type === "AppendixText") {
+        htmlContent += `<p>${item.appendixText}</p>`;
+      } else if (item.__type === "ImageURI") {
+        htmlContent += `<img src="${item.imageUri}" />`;
+      } else if (item.__type === "TableURI") {
+        htmlContent += `<table>${item.tableUri}</table>`;
+      }
+    })
+    return htmlContent;
+  }
 
   const handleUploadAppendix = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -179,7 +241,7 @@ export default function GenerateMCQPage() {
 
     try {
       const formData = new FormData();
-      formData.append("examSourceFile", file);
+      formData.append("coverPageFile", file);
 
       const res = await fetch(
         "http://localhost:8000/api/v1/appendix/upload-file",
@@ -197,14 +259,7 @@ export default function GenerateMCQPage() {
 
       const { data } = await res.json();
 
-      let htmlContent = "";
-      data.appendix.content.forEach((item: any) => {
-        if (item.__type === "AppendixText") {
-          htmlContent += `<p>${item.appendixText}</p>`;
-        } else if (item.__type === "ImageURI") {
-          htmlContent += `<img src="${item.imageUri}" />`;
-        }
-      });
+      let htmlContent = getAppendixHtml(data);
 
       if (mcq.currentQuestionId !== null) {
         mcq.setQuestions((prev) =>
