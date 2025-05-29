@@ -353,7 +353,7 @@ export default function QuestionList({
                           {...provided.dragHandleProps}
                           className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
                             q.id === selectedId
-                              ? "bg-[oklch(19%_0_0)]"
+                              ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
                               : "bg-[oklch(0_0_0)]"
                           } hover:bg-[oklch(19%_0_0)] transition-colors ${
                             snapshot.isDragging ? "opacity-80" : ""

@@ -318,7 +318,7 @@ export default function GenerateMCQPage() {
       <Navbar />
 
       <div
-        className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 py-4"
+        className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pb-4"
         style={{ backgroundColor: "oklch(0 0 0)" }}
       >
         <Toolbar
