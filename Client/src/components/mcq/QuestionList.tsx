@@ -340,7 +340,7 @@ export default function QuestionList({
       >
         <div className="flex-1 overflow-y-auto pr-1 space-y-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Edit Questions</h2>
+            <h2 className="text-xl font-bold">Edit Examination</h2>
             <button
               className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
               onClick={onClearAll}
