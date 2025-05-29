@@ -1,9 +1,9 @@
 "use client";
 
 import { ImageUpload } from "../../components/ui/image-upload";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
