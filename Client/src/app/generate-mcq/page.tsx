@@ -188,14 +188,36 @@ export default function GenerateMCQPage() {
           body: formData,
         },
       );
+
+      // Always attempt to parse as JSON if the content type is JSON
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
+      }
+
       if (!res.ok) {
-        const errorText = await res.text();
-        const errorJson = JSON.parse(errorText);
-        toast.error(errorJson.message);
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
         return;
       }
 
-      const { data } = await res.json();
+      // Assume successful response always JSON and has expected structure
+      const { data } = responseData;
 
       let htmlContent = "";
       data.appendix.content.forEach((item: any) => {
@@ -223,9 +245,11 @@ export default function GenerateMCQPage() {
         mcq.questionEditor?.commands.setContent(htmlContent);
         toast.success("Appendix uploaded successfully");
       }
-    } catch (err) {
-      console.error("Error uploading appendix:", err);
-      toast.error("Failed to upload appendix");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(
+        "Network error or unexpected response format. Please try again.",
+      );
     }
   };
 

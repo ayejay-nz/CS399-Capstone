@@ -10,6 +10,8 @@ import { useExam } from "@/src/context/ExamContext";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
 import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
 import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
+import Navbar from "@/src/components/layout/Navbar";
+import { toast } from "sonner";
 
 export default function MarkMCQ() {
   const { handleResponse } = useExam();
@@ -20,7 +22,7 @@ export default function MarkMCQ() {
 
   async function handleMarkingUpload() {
     if (!ready) {
-      alert("Please upload both files first.");
+      toast.error("Please upload both files first.");
       return;
     }
 
@@ -34,29 +36,47 @@ export default function MarkMCQ() {
         body: form,
       });
 
-      const test = await res.json();
-      console.log("upload response:", test);
-
-      // parse once
-      const json = (await res.json()) as ApiSuccessResponse<
-        [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
-      >;
-
-      if (!res.ok) {
-        // your API’s error shape might differ
-        throw new Error((json as any).message ?? "Unknown error");
+      // Always attempt to parse as JSON if the content type is JSON
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
       }
 
-      const payload = json.data;
+      if (!res.ok) {
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
+
+      // Assume successful response always JSON and has expected structure
+      const payload = responseData.data;
       if (!payload) {
-        throw new Error("No payload from server");
+        toast.error("No payload from server");
+        return;
       }
 
       handleResponse(payload);
       router.push("/mark-mcq/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to upload and mark exam.");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(
+        "Network error or unexpected response format. Please try again.",
+      );
     }
   }
 
@@ -64,33 +84,7 @@ export default function MarkMCQ() {
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* nav bar */}
-        <nav className="flex justify-between items-center px-8 md:px-12 lg:px-16 py-4">
-          <div className="pl-2">
-            <Link href="/">
-              <Image
-                src="/assets/shuffleLogo.png"
-                alt="Shuffle Logo"
-                width={140}
-                height={32}
-                className="w-auto h-6 md:h-8"
-              />
-            </Link>
-          </div>
-          <div className="space-x-4 md:space-x-8 pr-2">
-            <Link
-              href="/docs"
-              className="hover:text-gray-300 text-sm md:text-base"
-            >
-              Documentation
-            </Link>
-            <Link
-              href="/about"
-              className="hover:text-gray-300 text-sm md:text-base"
-            >
-              About
-            </Link>
-          </div>
-        </nav>
+        <Navbar />
 
         {/* main content */}
         <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 flex flex-col items-center justify-center">
