@@ -15,6 +15,8 @@ import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { ApiErrorResponse } from '../dataTypes/apiErrorResponse';
 import { uploadMarkingFiles } from '../middlewares/uploadMiddleware';
+import { optionalSession } from '../middlewares/sessionMiddleware';
+import { SessionCreatedResponse } from '../dataTypes/session';
 
 const router = express.Router();
 
@@ -33,40 +35,44 @@ async function propagateApiError(res: globalThis.Response) {
 
 router.post(
     '/upload',
+    optionalSession, // Check for session but dont require it
     uploadMarkingFiles,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
-            const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
-            const answerKeyOriginalName = answerKeyFileObj.originalname as string;
-            const answerKeyMimeType = answerKeyFileObj.mimetype as string;
+            let answerKey: AnswerKey;
 
-            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
-            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
-            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
-            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
+            // Check if we have a session with an answer key
+            if (req.answerKeySession) {
+                answerKey = req.answerKeySession.answerKey;
+                console.log(`Using answer key from session: ${req.sessionId}`);
+            } else {
+                // Fallback to uploading answer key file            
+                const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
+                const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
+                const answerKeyOriginalName = answerKeyFileObj.originalname as string;
+                const answerKeyMimeType = answerKeyFileObj.mimetype as string;
 
-            const answerKeyForm = new FormData();
-            const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
-            answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
+                const answerKeyForm = new FormData();
+                const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
+                answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
 
-            const teleformDataForm = new FormData();
-            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
-            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
+                // Parse answer key
+                const answerKeyRes = await fetch(
+                    `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
+                    {
+                        method: 'POST',
+                        body: answerKeyForm,
+                    },
+                );
+    
+                if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
 
-            // Parse answer key
-            const answerKeyRes = await fetch(
-                `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
-                {
-                    method: 'POST',
-                    body: answerKeyForm,
-                },
-            );
+                const { data: answerKeyResponse } =
+                    (await answerKeyRes.json()) as ApiSuccessResponse<any>;
 
-            if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
-
-            const { data: answerKey } =
-                (await answerKeyRes.json()) as ApiSuccessResponse<AnswerKey>;
+                answerKey = answerKeyResponse.answerKey;
+                console.log('Using answer key from file upload');
+            }
 
             if (!answerKey) {
                 throw new ApiError(
@@ -76,6 +82,15 @@ router.post(
                     { message: 'No answer key detected' },
                 );
             }
+
+            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
+            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
+            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
+            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
+
+            const teleformDataForm = new FormData();
+            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
+            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
 
             // Parse teleform data
             const teleformDataRes = await fetch(
