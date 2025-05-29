@@ -91,7 +91,7 @@ router.get(
  * Refresh session expiry
  */
 router.post(
-    'refresh',
+    '/refresh',
     validateSession,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -133,7 +133,7 @@ router.post(
  * Get session statistics (for monitoring)
  */
 router.get(
-    'stats',
+    '/stats',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const stats = {
