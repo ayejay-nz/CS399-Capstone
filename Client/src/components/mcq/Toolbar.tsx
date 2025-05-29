@@ -22,33 +22,17 @@ export default function Toolbar({ mode, setMode, onUpload }: Props) {
   };
 
   return (
-    <div className="flex justify-between gap-4 mb-8 mt-5">
-      <div className="flex bg-white rounded-md p-1">
-        <Button
-          variant={mode === "form" ? "switch" : "secondary"}
-          onClick={() => setMode("form")}
-        >
-          Form editor
-        </Button>
-        <Button
-          variant={mode === "text" ? "switch" : "secondary"}
-          onClick={() => setMode("text")}
-        >
-          text editor
-        </Button>
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="*/*"
-          className="hidden"
-        />
-        <Button variant="secondary" onClick={triggerFileInput}>
-          Upload file
-        </Button>
-      </div>
+    <div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="*/*"
+        className="hidden"
+      />
+      <Button variant="secondary" size="sm" onClick={triggerFileInput}>
+        Upload Existing Exam
+      </Button>
     </div>
   );
 }

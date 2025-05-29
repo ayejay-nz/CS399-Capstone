@@ -49,50 +49,45 @@ export default function AppendixForm({
 
   return (
     <div
-      className="flex-1 p-6 pr-6 rounded-md"
-      style={{ backgroundColor: "oklch(23% 0 0)" }}
+      className="flex flex-col flex-1 p-6 pr-6 rounded-md border border-[#27272a] h-[665px]"
+      style={{ backgroundColor: "oklch(0 0 0)" }}
     >
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="ml-6 text-2xl font-bold">Appendix</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={handleSubmit}>
-            Update
-          </Button>
-          <Button variant="secondary" onClick={cancelEdit}>
-            Cancel
-          </Button>
-          <div className="relative">
-            <input
-              type="file"
-              accept=".doc,.docx,.pdf"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="appendix-upload"
-            />
-            <label htmlFor="appendix-upload">
-              <Button variant="secondary" asChild>
-                <span>Upload Appendix</span>
-              </Button>
-            </label>
-          </div>
+      <h1 className="ml-6 text-2xl font-bold mb-4">Appendix</h1>
+      <div className="ml-6 mr-4 flex-1 flex flex-col">
+        <div className="flex-1 w-full">
+          <Tiptap
+            key={`appendix-${currentQuestionId}`}
+            setEditor={setQuestionEditor}
+            allowImageUpload
+            isQuestionEditor={true}
+            error={validationError}
+            content={content}
+            onUpdate={(_html: string, text: string) => {
+              setValidationError(!text);
+            }}
+          />
         </div>
       </div>
-
-      <div className="ml-6 mr-4">
-        <div className="flex items-center gap-2">
-          <div className="flex-1 w-full mr-30">
-            <Tiptap
-              key={`appendix-${currentQuestionId}`}
-              setEditor={setQuestionEditor}
-              allowImageUpload
-              isQuestionEditor={true}
-              error={validationError}
-              content={content}
-              onUpdate={(html: string, text: string) => {
-                setValidationError(!text);
-              }}
-            />
-          </div>
+      <div className="ml-6 mr-4 flex justify-end items-center gap-2 mt-16">
+        <Button variant="secondary" onClick={handleSubmit}>
+          Update
+        </Button>
+        <Button variant="secondary" onClick={cancelEdit}>
+          Cancel
+        </Button>
+        <div className="relative">
+          <input
+            type="file"
+            accept=".doc,.docx,.pdf"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="appendix-upload"
+          />
+          <label htmlFor="appendix-upload">
+            <Button variant="secondary" asChild>
+              <span>Upload Appendix</span>
+            </Button>
+          </label>
         </div>
       </div>
     </div>

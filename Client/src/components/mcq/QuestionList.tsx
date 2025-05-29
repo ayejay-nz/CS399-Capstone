@@ -315,7 +315,7 @@ export default function QuestionList({
               className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
               onClick={onClearAll}
             >
-              clear all
+              Clear All
             </button>
           </div>
 
@@ -353,7 +353,7 @@ export default function QuestionList({
                           {...provided.dragHandleProps}
                           className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
                             q.id === selectedId
-                              ? "bg-[oklch(19%_0_0)]"
+                              ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
                               : "bg-[oklch(0_0_0)]"
                           } hover:bg-[oklch(19%_0_0)] transition-colors ${
                             snapshot.isDragging ? "opacity-80" : ""
@@ -414,7 +414,7 @@ export default function QuestionList({
 
         {/* GENERATE & PREVIEW */}
         <div className="mt-auto pt-4">
-          <hr className="w-full border-gray-600" />
+          <hr className="w-full border-[#27272a]" />
           <div className="flex justify-between mt-4 space-x-2">
             <Button
               variant="secondary"

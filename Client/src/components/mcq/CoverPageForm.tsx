@@ -86,61 +86,69 @@ export default function CoverPageForm({
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            onClick={form.handleSubmit(handleAddOrUpdate)}
-          >
-            Update
-          </Button>
-          <Button variant="secondary" onClick={cancelEdit}>
-            Cancel
-          </Button>
-          <div className="relative">
-            <input
-              type="file"
-              accept=".doc,.docx,.pdf"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="cover-page-upload"
-            />
-            <label htmlFor="cover-page-upload">
-              <Button variant="secondary" asChild>
-                <span>Upload Cover Page</span>
-              </Button>
-            </label>
-          </div>
-        </div>
       </div>
 
-      <Form {...form}>
-        <form className="grid gap-4 md:grid-cols-2">
-          {fieldConfigs.map((config) => (
-            <FormField
-              key={config.name}
-              control={form.control}
-              name={config.name}
-              render={({ field }) => (
-                <FormItem
-                  className={
-                    config.as === "textarea" ? "md:col-span-2" : undefined
-                  }
-                >
-                  <FormLabel>{config.label}</FormLabel>
-                  <FormControl>
-                    {config.as === "textarea" ? (
-                      <Textarea {...field} />
-                    ) : (
-                      <Input {...field} />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </form>
-      </Form>
+      <div className="ml-6 mr-4">
+        <Form {...form}>
+          <form className="grid gap-4 md:grid-cols-2">
+            {fieldConfigs.map((config) => (
+              <FormField
+                key={config.name}
+                control={form.control}
+                name={config.name}
+                render={({ field }) => (
+                  <FormItem
+                    className={
+                      config.as === "textarea" ? "md:col-span-2" : undefined
+                    }
+                  >
+                    <FormLabel>{config.label}</FormLabel>
+                    <FormControl>
+                      {config.as === "textarea" ? (
+                        <Textarea
+                          {...field}
+                          className="border-[#27272A] text-white"
+                        />
+                      ) : (
+                        <Input
+                          {...field}
+                          className="border-[#27272A] text-white"
+                        />
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+          </form>
+        </Form>
+      </div>
+      <div className="ml-6 mr-4 flex justify-end items-center gap-2 mt-38">
+        <Button
+          variant="secondary"
+          onClick={form.handleSubmit(handleAddOrUpdate)}
+        >
+          Update
+        </Button>
+        <Button variant="secondary" onClick={cancelEdit}>
+          Cancel
+        </Button>
+        <div className="relative">
+          <input
+            type="file"
+            accept=".doc,.docx,.pdf"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="cover-page-upload"
+          />
+          <label htmlFor="cover-page-upload">
+            <Button variant="secondary" asChild>
+              <span>Upload Cover Page</span>
+            </Button>
+          </label>
+        </div>
+      </div>
     </div>
   );
 }
