@@ -22,6 +22,8 @@ interface ExamCtx {
   questionStats: QuestionBreakdown[] | null;
   students: StudentBreakdown[] | null;
   answerKey: AnswerKeyQuestion[] | null;
+  sessionId: string | null;
+  sessionExpiry: Date | null;
   refresh: () => Promise<void>;
   updateQuestion: (
     questionId: number,
@@ -35,6 +37,8 @@ interface ExamCtx {
   handleResponse: (
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
   ) => void;
+  setSessionInfo: (sessionId: string, expiry: Date) => void;
+  clearSession: () => void;
 }
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
@@ -42,6 +46,8 @@ const ExamContext = createContext<ExamCtx | undefined>(undefined);
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<ExamBreakdown | null>(null);
   const [answerKey, setAnswerKey] = useState<AnswerKeyQuestion[] | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
 
   const handleResponse = (
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
@@ -81,6 +87,43 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       questions: enrichedQuestions,
     });
   };
+
+  const setSessionInfo = (newSessionId: string, expiry: Date) => {
+    setSessionId(newSessionId);
+    setSessionExpiry(expiry);
+
+    // Set session in local storage
+    localStorage.setItem('answerkey_session_id', newSessionId);
+    localStorage.setItem('answerkey_session_expiry', expiry.toISOString());
+  };
+
+  const clearSession = () => {
+    setSessionId(null);
+    setSessionExpiry(null);
+
+    // Clear from local storage
+    localStorage.removeItem('answerkey_session_id');
+    localStorage.removeItem('answerkey_session_expiry');
+  };
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const storedSessionId = localStorage.getItem('answerkey_session_id');
+    const storedSessionExpiry = localStorage.getItem('answerkey_session_expiry');
+
+    if (storedSessionId && storedSessionExpiry) {
+      const expiryDate = new Date(storedSessionExpiry);
+
+      // Check if expiry date is still valid
+      if (expiryDate > new Date()) {
+        setSessionId(storedSessionId);
+        setSessionExpiry(expiryDate);
+      } else {
+        clearSession();
+      }
+    }
+  }, []);
+
   // TODO: Aidan uncomment below make sure this is the JSON endpoint to fetch from
   const fetchExam = async () => {
     try {
@@ -183,11 +226,15 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       questionStats,
       students,
       answerKey,
+      sessionId,
+      sessionExpiry,
       updateQuestion,
       updateFeedback,
       handleResponse,
+      setSessionInfo,
+      clearSession,
     }),
-    [stats, answerKey],
+    [stats, answerKey, sessionId, sessionExpiry],
   );
 
   return <ExamContext.Provider value={value}>{children}</ExamContext.Provider>;

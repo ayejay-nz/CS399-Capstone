@@ -15,7 +15,7 @@ import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { ApiErrorResponse } from '../dataTypes/apiErrorResponse';
 import { uploadMarkingFiles } from '../middlewares/uploadMiddleware';
-import { optionalSession } from '../middlewares/sessionMiddleware';
+import { optionalSession, setSessionCookie } from '../middlewares/sessionMiddleware';
 import { SessionCreatedResponse } from '../dataTypes/session';
 
 const router = express.Router();
@@ -40,10 +40,12 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             let answerKey: AnswerKey;
+            let sessionId: string | undefined;
 
             // Check if we have a session with an answer key
             if (req.answerKeySession) {
                 answerKey = req.answerKeySession.answerKey;
+                sessionId = req.sessionId;
                 console.log(`Using answer key from session: ${req.sessionId}`);
             } else {
                 // Fallback to uploading answer key file            
@@ -71,6 +73,13 @@ router.post(
                     (await answerKeyRes.json()) as ApiSuccessResponse<any>;
 
                 answerKey = answerKeyResponse.answerKey;
+                sessionId = answerKeyResponse.sessionId;
+
+                if (sessionId) {
+                    setSessionCookie(res, sessionId);
+                    console.log(`Set session cookie for client: ${sessionId}`);
+                }
+
                 console.log('Using answer key from file upload');
             }
 
