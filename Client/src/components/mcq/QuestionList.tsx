@@ -335,8 +335,8 @@ export default function QuestionList({
   return (
     <>
       <div
-        className="lg:w-[400px] rounded-lg p-6 flex flex-col"
-        style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
+        className="lg:w-[400px] rounded-lg p-6 flex flex-col border border-[#27272a]"
+        style={{ backgroundColor: "oklch(0 0 0)", height: "665px" }}
       >
         <div className="flex-1 overflow-y-auto pr-1 space-y-4">
           <div className="flex justify-between items-center mb-6">
@@ -345,7 +345,7 @@ export default function QuestionList({
               className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
               onClick={onClearAll}
             >
-              clear all
+              Clear All
             </button>
           </div>
 
@@ -353,7 +353,7 @@ export default function QuestionList({
             className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
               coverPage.id === selectedId
                 ? "bg-[oklch(19%_0_0)]"
-                : "bg-[oklch(21%_0_0)]"
+                : "bg-[oklch(0_0_0)]"
             } hover:bg-[oklch(19%_0_0)] transition-colors`}
             onClick={() => {
               setSelectedId(coverPage.id);
@@ -383,8 +383,8 @@ export default function QuestionList({
                           {...provided.dragHandleProps}
                           className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
                             q.id === selectedId
-                              ? "bg-[oklch(19%_0_0)]"
-                              : "bg-[oklch(21%_0_0)]"
+                              ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
+                              : "bg-[oklch(0_0_0)]"
                           } hover:bg-[oklch(19%_0_0)] transition-colors ${
                             snapshot.isDragging ? "opacity-80" : ""
                           }`}
@@ -444,7 +444,7 @@ export default function QuestionList({
 
         {/* GENERATE & PREVIEW */}
         <div className="mt-auto pt-4">
-          <hr className="w-full border-gray-600" />
+          <hr className="w-full border-[#27272a]" />
           <div className="flex justify-between mt-4 space-x-2">
             <Button
               variant="secondary"

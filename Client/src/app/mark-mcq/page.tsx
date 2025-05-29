@@ -1,9 +1,11 @@
 "use client";
 
-import { ImageUpload } from "../../components/ui/image-upload";
 import Image from "next/image";
+import { ImageUpload } from "../../components/ui/image-upload";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
+import Navbar from "@/src/components/layout/Navbar";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
@@ -90,7 +92,7 @@ export default function MarkMCQ() {
         <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 flex flex-col items-center justify-center">
           {/* file uploads */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Student Answers"
                 subtitle="Supported format: TXT"
@@ -101,7 +103,7 @@ export default function MarkMCQ() {
               />
             </div>
 
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Answer Key"
                 subtitle="Supported format: XLSX"
