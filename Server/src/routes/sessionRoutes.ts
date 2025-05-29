@@ -13,7 +13,7 @@ const router = express.Router();
  * Retrieve answer key by session ID
  */
 router.get(
-    '/:sessionId',
+    '/id/:sessionId',
     validateSession,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -35,7 +35,7 @@ router.get(
  * Delete session by session ID
  */
 router.delete(
-    '/:sessionId',
+    '/id/:sessionId',
     validateSession,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
