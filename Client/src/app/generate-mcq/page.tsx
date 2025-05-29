@@ -193,26 +193,26 @@ export default function GenerateMCQPage() {
       const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
       const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
 
-      let htmlContent = "";
-      appendicies.forEach((appendix) => {
-        htmlContent = getAppendixHtml(appendix);
-        if (mcq.currentQuestionId !== null) {
-          mcq.setQuestions((prev) => 
-            prev.map((q) => 
-              q.id === mcq.currentQuestionId && q.isAppendix
-                ? {
-                    ...q,
-                    content: htmlContent,
-                    displayText: "Appendix",
-                  }
-                : q,
-            ),
-          );
-
-          mcq.questionEditor?.commands.setContent(htmlContent);
-          toast.success("Appendix uploaded successfully");
-        }
+      // Create new appendix entries for each appendix found
+      const newAppendicies = appendicies.map((appendix, index) => {
+        const htmlContent = getAppendixHtml(appendix);
+        return {
+          id: Date.now() + index, // Ensure unique IDs
+          content: htmlContent,
+          options: Array(5).fill(""),
+          marks: 0,
+          displayText: "Appendix",
+          isAppendix: true,
+          isImported: true,
+        };
       });
+
+      // Add all appendices together
+      mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
+
+      if (newAppendicies.length > 0) {
+        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
+      } 
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to upload cover page");
