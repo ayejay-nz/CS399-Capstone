@@ -12,7 +12,6 @@ import { useExam } from "@/src/context/ExamContext";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
 import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
 import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
-import Navbar from "@/src/components/layout/Navbar";
 import { toast } from "sonner";
 
 export default function MarkMCQ() {
