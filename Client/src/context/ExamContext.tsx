@@ -86,11 +86,32 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch(
         "http://localhost:8000/api/v1/marking/generate-stats",
+        {
+          method: "POST",
+        },
       );
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
+      }
       if (!res.ok) {
-        const errorText = await res.text();
-        const errorJson = JSON.parse(errorText);
-        toast.error(errorJson.message);
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
         return;
       }
       const payload = (await res.json()) as [
