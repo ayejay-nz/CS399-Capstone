@@ -321,11 +321,13 @@ export default function GenerateMCQPage() {
         className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pb-4"
         style={{ backgroundColor: "oklch(0 0 0)" }}
       >
-        <Toolbar
-          mode={mcq.activeButton}
-          setMode={mcq.setActiveButton}
-          onUpload={mcq.simulateProcessQuestions}
-        />
+        <div className="flex justify-end mb-4">
+          <Toolbar
+            mode={mcq.activeButton}
+            setMode={mcq.setActiveButton}
+            onUpload={mcq.simulateProcessQuestions}
+          />
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
           {renderForm()}
