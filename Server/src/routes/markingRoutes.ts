@@ -15,8 +15,9 @@ import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { ApiErrorResponse } from '../dataTypes/apiErrorResponse';
 import { uploadMarkingFiles } from '../middlewares/uploadMiddleware';
-import { optionalSession, setSessionCookie } from '../middlewares/sessionMiddleware';
+import { optionalSession, setSessionCookie, validateSession } from '../middlewares/sessionMiddleware';
 import { SessionCreatedResponse } from '../dataTypes/session';
+import sessionManager from '../services/sessionManager';
 
 const router = express.Router();
 
@@ -35,54 +36,36 @@ async function propagateApiError(res: globalThis.Response) {
 
 router.post(
     '/upload',
-    optionalSession, // Check for session but dont require it
     uploadMarkingFiles,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             let answerKey: AnswerKey;
-            let sessionId: string | undefined;
 
-            // Check if we have a session with an answer key
-            if (req.answerKeySession) {
-                answerKey = req.answerKeySession.answerKey;
-                sessionId = req.sessionId;
-                console.log(`Using answer key from session: ${req.sessionId}`);
-            } else {
-                // Fallback to uploading answer key file            
-                const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
-                const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
-                const answerKeyOriginalName = answerKeyFileObj.originalname as string;
-                const answerKeyMimeType = answerKeyFileObj.mimetype as string;
+            // Process answer key file
+            const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
+            const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
+            const answerKeyOriginalName = answerKeyFileObj.originalname as string;
+            const answerKeyMimeType = answerKeyFileObj.mimetype as string;
 
-                const answerKeyForm = new FormData();
-                const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
-                answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
+            const answerKeyForm = new FormData();
+            const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
+            answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
 
-                // Parse answer key
-                const answerKeyRes = await fetch(
-                    `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
-                    {
-                        method: 'POST',
-                        body: answerKeyForm,
-                    },
-                );
-    
-                if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
+            // Parse answer key
+            const answerKeyRes = await fetch(
+                `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
+                {
+                    method: 'POST',
+                    body: answerKeyForm,
+                },
+            );
 
-                const { data: answerKeyResponse } =
-                    (await answerKeyRes.json()) as ApiSuccessResponse<any>;
+            if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
 
-                answerKey = answerKeyResponse.answerKey;
-                sessionId = answerKeyResponse.sessionId;
+            const { data: answerKeyResponse } =
+                (await answerKeyRes.json()) as ApiSuccessResponse<any>;
 
-                if (sessionId) {
-                    setSessionCookie(res, sessionId);
-                    console.log(`Set session cookie for client: ${sessionId}`);
-                }
-
-                console.log('Using answer key from file upload');
-            }
-
+            answerKey = answerKeyResponse.answerKey;            
             if (!answerKey) {
                 throw new ApiError(
                     HTTP_STATUS_CODE.BAD_REQUEST,
@@ -90,6 +73,13 @@ router.post(
                     API_ERROR_CODE.BAD_REQUEST,
                     { message: 'No answer key detected' },
                 );
+            }
+
+            // Forward the session cookie to the client
+            const sessionId = answerKeyResponse.sessionId;
+            if (sessionId) {
+                setSessionCookie(res, sessionId);
+                console.log(`Set session cookie for client: ${sessionId}`);
             }
 
             const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
@@ -125,8 +115,15 @@ router.post(
                     { message: 'No teleform data detected' },
                 );
             }
-
             const examBreakdown = generateExamBreakdown(answerKey, teleformData);
+
+            // Store exam breakdown and teleform data in session
+            if (sessionId) {
+                sessionManager.addTeleformData(sessionId, teleformData, teleformDataOriginalName);
+                sessionManager.updateExamBreakdown(sessionId, examBreakdown);
+                console.log(`Stored exam breakdown and teleform data in session: ${sessionId}`);
+            }
+
             const responseData = [{ stats: examBreakdown }, { questions: answerKey.source }] as [
                 { stats: ExamBreakdown },
                 { questions: AnswerKeyQuestion[] },
