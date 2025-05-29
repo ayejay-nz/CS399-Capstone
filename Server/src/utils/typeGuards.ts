@@ -1,4 +1,4 @@
-import { AppendixPage, AppendixText } from '../dataTypes/coverpage';
+import { AppendixPage, AppendixText, Coverpage } from '../dataTypes/coverpage';
 import {
     ImageURI,
     Question,
@@ -16,7 +16,7 @@ import {
  * @returns
  *  `true` if `contentBlock` has a `section` property.
  */
-export function isSection(contentBlock: Question | Section | AppendixPage) {
+export function isSection(contentBlock: Question | Section | AppendixPage | Coverpage) {
     return 'section' in contentBlock;
 }
 
@@ -28,12 +28,16 @@ export function isSection(contentBlock: Question | Section | AppendixPage) {
  * @returns
  *  `true` if `contentBlock` has a `question` property.
  */
-export function isQuestion(contentBlock: Question | Section | AppendixPage) {
+export function isQuestion(contentBlock: Question | Section | AppendixPage | Coverpage) {
     return 'question' in contentBlock;
 }
 
-export function isAppendixPage(contentBlock: Question | Section | AppendixPage) {
+export function isAppendixPage(contentBlock: Question | Section | AppendixPage | Coverpage) {
     return 'appendix' in contentBlock;
+}
+
+export function isCoverpage(contentBlock: Question | Section | AppendixPage | Coverpage) {
+    return 'coverpage' in contentBlock;
 }
 
 function isBrandType(content: unknown, type: String) {
