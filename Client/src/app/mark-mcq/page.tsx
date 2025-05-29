@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ImageUpload } from "../../components/ui/image-upload";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
