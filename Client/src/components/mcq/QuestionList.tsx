@@ -324,8 +324,8 @@ export default function QuestionList({
   return (
     <>
       <div
-        className="lg:w-[400px] rounded-lg p-6 flex flex-col border border-[#27272a]"
-        style={{ backgroundColor: "oklch(0 0 0)", height: "665px" }}
+        className="lg:w-[400px] rounded-lg p-6 flex flex-col"
+        style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
       >
         <div className="flex-1 overflow-y-auto pr-1 space-y-4">
           <div className="flex justify-between items-center mb-6">

@@ -326,7 +326,7 @@ export default function GenerateMCQPage() {
 
       <div
         className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 py-4"
-        style={{ backgroundColor: "oklch(0 0 0)" }}
+        style={{ backgroundColor: "oklch(18% 0 0)" }}
       >
         <Toolbar
           mode={mcq.activeButton}
