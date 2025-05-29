@@ -113,40 +113,42 @@ export default function CoverPageForm({
         </div>
       </div>
 
-      <Form {...form}>
-        <form className="grid gap-4 md:grid-cols-2">
-          {fieldConfigs.map((config) => (
-            <FormField
-              key={config.name}
-              control={form.control}
-              name={config.name}
-              render={({ field }) => (
-                <FormItem
-                  className={
-                    config.as === "textarea" ? "md:col-span-2" : undefined
-                  }
-                >
-                  <FormLabel>{config.label}</FormLabel>
-                  <FormControl>
-                    {config.as === "textarea" ? (
-                      <Textarea
-                        {...field}
-                        className="border-[#27272A] text-white"
-                      />
-                    ) : (
-                      <Input
-                        {...field}
-                        className="border-[#27272A] text-white"
-                      />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </form>
-      </Form>
+      <div className="ml-6 mr-4">
+        <Form {...form}>
+          <form className="grid gap-4 md:grid-cols-2">
+            {fieldConfigs.map((config) => (
+              <FormField
+                key={config.name}
+                control={form.control}
+                name={config.name}
+                render={({ field }) => (
+                  <FormItem
+                    className={
+                      config.as === "textarea" ? "md:col-span-2" : undefined
+                    }
+                  >
+                    <FormLabel>{config.label}</FormLabel>
+                    <FormControl>
+                      {config.as === "textarea" ? (
+                        <Textarea
+                          {...field}
+                          className="border-[#27272A] text-white"
+                        />
+                      ) : (
+                        <Input
+                          {...field}
+                          className="border-[#27272A] text-white"
+                        />
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
