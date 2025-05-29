@@ -315,7 +315,7 @@ export default function QuestionList({
               className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
               onClick={onClearAll}
             >
-              clear all
+              Clear All
             </button>
           </div>
 
