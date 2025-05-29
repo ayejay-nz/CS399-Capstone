@@ -12,6 +12,7 @@ import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
 import examBundleRoutes from './routes/examBundleRoutes';
 import markingRoutes from './routes/markingRoutes';
+import appendixRoutes from './routes/appendixRoutes';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use(`${config.server.apiPrefix}/teleform-data`, teleformDataRoutes);
 app.use(`${config.server.apiPrefix}/asset`, assetRoutes);
 app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
 app.use(`${config.server.apiPrefix}/marking`, markingRoutes);
+app.use(`${config.server.apiPrefix}/appendix`, appendixRoutes);
 
 app.use(errorHandler);
 
