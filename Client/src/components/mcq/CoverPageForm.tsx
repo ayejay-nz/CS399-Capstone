@@ -129,9 +129,15 @@ export default function CoverPageForm({
                   <FormLabel>{config.label}</FormLabel>
                   <FormControl>
                     {config.as === "textarea" ? (
-                      <Textarea {...field} />
+                      <Textarea
+                        {...field}
+                        className="border-[#27272A] text-white"
+                      />
                     ) : (
-                      <Input {...field} />
+                      <Input
+                        {...field}
+                        className="border-[#27272A] text-white"
+                      />
                     )}
                   </FormControl>
                   <FormMessage />
