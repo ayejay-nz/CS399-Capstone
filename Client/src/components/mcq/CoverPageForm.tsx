@@ -19,12 +19,12 @@ const coverPageSchema = z.object({
   semester: z.string().nonempty(),
   campus: z.string().nonempty(),
   department: z.string().nonempty(),
-  course_code: z.string().nonempty(),
-  course_name: z.string().nonempty(),
-  exam_title: z.string().nonempty(),
+  courseCode: z.string().nonempty(),
+  courseName: z.string().nonempty(),
+  examTitle: z.string().nonempty(),
   duration: z.string().nonempty(),
-  version_number: z.string().nonempty(),
-  note_content: z.string().nonempty(),
+  versionNumber: z.string().nonempty(),
+  noteContent: z.string().nonempty(),
   isImported: z.boolean(),
 });
 
@@ -39,24 +39,26 @@ const fieldConfigs: {
   { name: "semester", label: "Semester" },
   { name: "campus", label: "Campus" },
   { name: "department", label: "Department" },
-  { name: "course_code", label: "Course Code" },
-  { name: "course_name", label: "Course Name" },
-  { name: "exam_title", label: "Exam Title" },
+  { name: "courseCode", label: "Course Code" },
+  { name: "courseName", label: "Course Name" },
+  { name: "examTitle", label: "Exam Title" },
   { name: "duration", label: "Duration" },
-  { name: "version_number", label: "Version Number" },
-  { name: "note_content", label: "Note Content", as: "textarea" },
+  { name: "versionNumber", label: "Version Number" },
+  { name: "noteContent", label: "Note Content", as: "textarea" },
 ];
 
 interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
+  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function CoverPageForm({
   handleAddOrUpdate,
   cancelEdit,
   initialValues,
+  onUploadFile,
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -67,18 +69,6 @@ export default function CoverPageForm({
       ) as CoverPageFormValues),
   });
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    handleAddOrUpdate({
-      ...form.getValues(),
-      isImported: true,
-    });
-  };
-
   return (
     <div
       className="flex-1 p-6 pr-6 rounded-md border border-[#27272a]"
@@ -86,6 +76,28 @@ export default function CoverPageForm({
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={form.handleSubmit(handleAddOrUpdate)}
+          >
+            Update
+          </Button>
+          <Button variant="secondary" onClick={cancelEdit}>
+            Cancel
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.onchange = (e) => onUploadFile?.(e as any);
+              input.click();
+            }}
+          >
+            Upload Cover Page
+          </Button>
+        </div>
       </div>
 
       <div className="ml-6 mr-4">
