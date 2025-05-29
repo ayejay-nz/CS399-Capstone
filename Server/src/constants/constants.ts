@@ -5,6 +5,7 @@ export const HTTP_STATUS_CODE = {
     CREATED: 201,
     ACCEPTED: 202,
     BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
     NOT_FOUND: 404,
     REQUEST_TIMEOUT: 408,
     CONTENT_TOO_LARGE: 413,
@@ -57,6 +58,7 @@ export const API_ERROR_MESSAGE = {
     updateFailed: 'Failed to save the requested changes',
 
     // Session Errors
+    noSessionId: 'No session ID was provided',
     sessionNotFound: 'The session you are trying to access could not be found',
     sessionExpired: 'The session you are trying to access has expired',
     sessionLimitReached: 'The maximum number of sessions has been reached. Please try again later',
@@ -96,6 +98,7 @@ export const API_ERROR_CODE = {
     UPDATE_FAILED: 'UPDATE_FAILED',
 
     // Session Errors
+    NO_SESSION_ID: 'NO_SESSION_ID',
     SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
     SESSION_EXPIRED: 'SESSION_EXPIRED',
     SESSION_LIMIT_REACHED: 'SESSION_LIMIT_REACHED',
