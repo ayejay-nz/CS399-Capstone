@@ -51,12 +51,14 @@ interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
+  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function CoverPageForm({
   handleAddOrUpdate,
   cancelEdit,
   initialValues,
+  onUploadFile,
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -66,18 +68,6 @@ export default function CoverPageForm({
         fieldConfigs.map((f) => [f.name, ""]),
       ) as CoverPageFormValues),
   });
-
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    handleAddOrUpdate({
-      ...form.getValues(),
-      isImported: true,
-    });
-  };
 
   return (
     <div
@@ -96,20 +86,17 @@ export default function CoverPageForm({
           <Button variant="secondary" onClick={cancelEdit}>
             Cancel
           </Button>
-          <div className="relative">
-            <input
-              type="file"
-              accept=".doc,.docx,.pdf"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="cover-page-upload"
-            />
-            <label htmlFor="cover-page-upload">
-              <Button variant="secondary" asChild>
-                <span>Upload Cover Page</span>
-              </Button>
-            </label>
-          </div>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.onchange = (e) => onUploadFile?.(e as any);
+              input.click();
+            }}
+          >
+            Upload Cover Page
+          </Button>
         </div>
       </div>
 

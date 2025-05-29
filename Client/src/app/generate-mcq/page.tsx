@@ -12,7 +12,11 @@ import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
-import { AppendixPage, Coverpage, CoverpageDocx } from "../../../../Server/src/dataTypes/coverpage";
+import {
+  AppendixPage,
+  Coverpage,
+  CoverpageDocx,
+} from "../../../../Server/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -167,11 +171,16 @@ export default function GenerateMCQPage() {
       }
 
       // Check if coverpage was parsed successfully
-      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
+      const { data: coverpageJson } =
+        (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
       if (!coverpageJson) {
         throw new Error("No coverpage data received from server.");
       }
-
+      setCoverPage((prev) => ({
+        ...prev,
+        isImported: true,
+      }));
+      toast.success("Cover page uploaded successfully");
       // Check if coverpage is present
       // Future functionality: Will populate the Coverpage form with the parsed data
       // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
@@ -187,11 +196,16 @@ export default function GenerateMCQPage() {
       //   toast.success("Cover page uploaded successfully");
       // } else {
       //   toast.success("Cover page uploaded successfully -- please edit manually");
-      // }
 
-      // Add appendicies 
-      const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
-      const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
+      // Add appendicies
+      const isAppendix = (
+        page: Coverpage | AppendixPage,
+      ): page is AppendixPage => {
+        return "appendix" in page;
+      };
+      const appendicies = coverpageJson.content.filter((page) =>
+        isAppendix(page),
+      );
 
       // Create new appendix entries for each appendix found
       const newAppendicies = appendicies.map((appendix, index) => {
@@ -211,8 +225,10 @@ export default function GenerateMCQPage() {
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
 
       if (newAppendicies.length > 0) {
-        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
-      } 
+        toast.success(
+          `${newAppendicies.length} appendix(es) uploaded successfully`,
+        );
+      }
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to upload cover page");
@@ -229,9 +245,9 @@ export default function GenerateMCQPage() {
       } else if (item.__type === "TableURI") {
         htmlContent += `<table>${item.tableUri}</table>`;
       }
-    })
+    });
     return htmlContent;
-  }
+  };
 
   const handleUploadAppendix = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -301,25 +317,31 @@ export default function GenerateMCQPage() {
         );
       }
       return (
-        <CoverPageForm
-          handleAddOrUpdate={handleCoverPageUpdate}
-          cancelEdit={() => {
-            mcq.setCurrentQuestionId(null);
-            setSelectedId(null);
-            mcq.setOptionEditors(Array(5).fill(null));
-            mcq.setOptionContents(Array(5).fill(""));
-            mcq.setOptionCount(5);
-            mcq.setOptionIds(
-              Array(5)
-                .fill(null)
-                .map(
-                  () =>
-                    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                ),
-            );
-          }}
-          initialValues={coverPage}
-        />
+        <div
+          className="flex-1 p-6 pr-6 rounded-md"
+          style={{ backgroundColor: "oklch(23% 0 0)" }}
+        >
+          <CoverPageForm
+            handleAddOrUpdate={handleCoverPageUpdate}
+            cancelEdit={() => {
+              mcq.setCurrentQuestionId(null);
+              setSelectedId(null);
+              mcq.setOptionEditors(Array(5).fill(null));
+              mcq.setOptionContents(Array(5).fill(""));
+              mcq.setOptionCount(5);
+              mcq.setOptionIds(
+                Array(5)
+                  .fill(null)
+                  .map(
+                    () =>
+                      `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  ),
+              );
+            }}
+            initialValues={coverPage}
+            onUploadFile={handleUploadCoverPage}
+          />
+        </div>
       );
     }
 
