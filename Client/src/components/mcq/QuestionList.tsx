@@ -414,7 +414,7 @@ export default function QuestionList({
 
         {/* GENERATE & PREVIEW */}
         <div className="mt-auto pt-4">
-          <hr className="w-full border-gray-600" />
+          <hr className="w-full border-[#27272a]" />
           <div className="flex justify-between mt-4 space-x-2">
             <Button
               variant="secondary"
