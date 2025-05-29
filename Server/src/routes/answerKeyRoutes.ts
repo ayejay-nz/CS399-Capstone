@@ -31,8 +31,8 @@ router.post(
             }
 
             const fileBuffer = req.file.buffer;
-            const originalFilename = req.file.originalname;
-            const fileExt = path.extname(originalFilename).toLowerCase();
+            const answerKeyFilename = req.file.originalname;
+            const fileExt = path.extname(answerKeyFilename).toLowerCase();
 
             let parseResult: AnswerKey;
 
@@ -52,8 +52,8 @@ router.post(
             
             // Create session for parsed answer key
             const sessionId = sessionManager.createSession(parseResult, {
-                originalFilename,
-                fileSize: req.file.size,
+                answerKeyFilename,
+                answerKeyFileSize: req.file.size,
                 uploadedBy: req.ip,
             });
 
