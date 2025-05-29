@@ -305,8 +305,8 @@ export default function QuestionList({
   return (
     <>
       <div
-        className="lg:w-[400px] rounded-lg p-6 flex flex-col"
-        style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
+        className="lg:w-[400px] rounded-lg p-6 flex flex-col border border-[#27272a]"
+        style={{ backgroundColor: "oklch(0 0 0)", height: "665px" }}
       >
         <div className="flex-1 overflow-y-auto pr-1 space-y-4">
           <div className="flex justify-between items-center mb-6">
@@ -323,7 +323,7 @@ export default function QuestionList({
             className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
               coverPage.id === selectedId
                 ? "bg-[oklch(19%_0_0)]"
-                : "bg-[oklch(21%_0_0)]"
+                : "bg-[oklch(0_0_0)]"
             } hover:bg-[oklch(19%_0_0)] transition-colors`}
             onClick={() => {
               setSelectedId(coverPage.id);
@@ -354,7 +354,7 @@ export default function QuestionList({
                           className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
                             q.id === selectedId
                               ? "bg-[oklch(19%_0_0)]"
-                              : "bg-[oklch(21%_0_0)]"
+                              : "bg-[oklch(0_0_0)]"
                           } hover:bg-[oklch(19%_0_0)] transition-colors ${
                             snapshot.isDragging ? "opacity-80" : ""
                           }`}

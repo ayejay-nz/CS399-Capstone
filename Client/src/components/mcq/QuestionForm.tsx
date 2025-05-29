@@ -160,10 +160,7 @@ export default function QuestionForm({
   };
 
   return (
-    <div
-      className="flex-1 p-6 pr-6 rounded-md"
-      style={{ backgroundColor: "oklch(23% 0 0)" }}
-    >
+    <div className="flex-1 p-6 pr-6 rounded-md border border-[#27272a]">
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">
           {isCoverPage ? "Cover Page" : isAppendix ? "Appendix" : "Question"}
@@ -248,7 +245,7 @@ export default function QuestionForm({
                       type="checkbox"
                       checked={i === 0}
                       onChange={() => handleCheckboxChange(i)}
-                      className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
+                      className="h-5 w-5 mr-3 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div className="flex-1 w-full relative">
                       <Tiptap
