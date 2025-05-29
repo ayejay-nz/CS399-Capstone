@@ -1,4 +1,4 @@
-import { Document, Packer } from 'docx';
+import { Document, Packer, Paragraph } from 'docx';
 import { ExamData } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { exportExamVersionsDocx } from './examVersionsDocx';
@@ -12,35 +12,34 @@ export async function exportSingleExamVersionDocx(
 ): Promise<Buffer> {
   // 1) generate the paragraphs
   const outputs = exportExamVersionsDocx([version], exam);
-  if (outputs.length === 0) {
-    throw new Error(
-      `exportExamVersionsDocx returned no output for version ${version.versionNumber}`
-    );
-  }
-
-  // 2) grab the first element — use `!` to tell TS it’s definitely there
+  if (!outputs.length) throw new Error(`No output for version ${version.versionNumber}`);
   const vOutput = outputs[0]!;
 
-  // 3) build the .docx
+  // 2) build a Document with *only* a first‐page header
   const doc = new Document({
-  title: `Exam Version ${version.versionNumber}`,
-  sections: [
-    {
-      // no `headers` key at all
-      properties: {},
-      children: vOutput.paragraphs,
-    },
-  ],
-});
+    title: `Exam Version ${version.versionNumber}`,
+    sections: [
+      {
+        headers: {
+          first: {
+            options: {
+              // stub so that header1.xml is created
+              children: [ new Paragraph({ text: '' }) ],
+            },
+          },
+        },
+        children: vOutput.paragraphs,
+      },
+    ],
+  });
 
-  const docxBuffer = await Packer.toBuffer(doc);
+  // 3) pack to .docx
+  let docxBuffer = await Packer.toBuffer(doc);
 
+  // 4) inject your real coverpage as header1.xml
   const coverpageBlock = exam.content.find(isCoverpage);
-  if (!coverpageBlock) {
-    throw new Error('No coverpage found in exam.content');
-  }
+  if (!coverpageBlock) throw new Error('No coverpage found');
   coverpageBlock.coverpage.content.versionNumber = version.versionNumber;
-
   const { documentXml, headerXml } = getCoverpageXml(coverpageBlock);
   const coverpageBody = extractCoverpageBody(documentXml);
 
