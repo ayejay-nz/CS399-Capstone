@@ -145,18 +145,7 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-  console.log(payload);
-  const jsonBlob = new Blob([JSON.stringify(payload, null, 2)], {
-    type: "application/json",
-  });
-  const jsonUrl = URL.createObjectURL(jsonBlob);
-  const jsonLink = document.createElement("a");
-  jsonLink.href = jsonUrl;
-  jsonLink.download = "exam-payload.json";
-  document.body.appendChild(jsonLink);
-  jsonLink.click();
-  document.body.removeChild(jsonLink);
-  URL.revokeObjectURL(jsonUrl);
+  
   try {
     const res = await fetch(
       "http://localhost:8000/api/v1/exam-source/upload-json",
