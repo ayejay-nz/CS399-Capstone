@@ -4,6 +4,7 @@ import errorHandler from './middlewares/errorHandler';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import examSourceRoutes from './routes/examSourceRoutes';
 import coverPageRoutes from './routes/coverPageRoutes';
@@ -12,18 +13,21 @@ import teleformDataRoutes from './routes/teleformRoutes';
 import assetRoutes from './routes/assetRoutes';
 import examBundleRoutes from './routes/examBundleRoutes';
 import markingRoutes from './routes/markingRoutes';
+import appendixRoutes from './routes/appendixRoutes';
+import sessionRoutes from './routes/sessionRoutes';
 
 const app = express();
 
 // Middlewares
-app.use(express.json({ limit: '5mb' }));
-
+app.use(express.json({ limit: '32mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
         origin: 'http://localhost:3000',
         credentials: true,
     }),
 );
+app.use(cookieParser());
 
 // Swagger API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -40,6 +44,8 @@ app.use(`${config.server.apiPrefix}/teleform-data`, teleformDataRoutes);
 app.use(`${config.server.apiPrefix}/asset`, assetRoutes);
 app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
 app.use(`${config.server.apiPrefix}/marking`, markingRoutes);
+app.use(`${config.server.apiPrefix}/appendix`, appendixRoutes);
+app.use(`${config.server.apiPrefix}/sessions`, sessionRoutes);
 
 app.use(errorHandler);
 

@@ -35,16 +35,16 @@ export default function MarkMCQ() {
       const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
         method: "POST",
         body: form,
+        credentials: "include",
       });
 
-      // Always attempt to parse as JSON if the content type is JSON
-      let responseData;
-      const contentType = res.headers.get("Content-Type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await res.json();
-      } else {
-        responseData = await res.text();
-      }
+      // const test = await res.json();
+      // console.log("upload response:", test);
+
+      // parse once
+      const json = (await res.json()) as ApiSuccessResponse<
+        [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+      >;
 
       if (!res.ok) {
         if (

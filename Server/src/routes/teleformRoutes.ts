@@ -11,6 +11,8 @@ import path from 'path';
 import { TeleformData } from '../dataTypes/teleformData';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 import { teleformParser } from '../parsers/teleformParser';
+import sessionManager from '../services/sessionManager';
+import { extractSessionCookie } from '../middlewares/sessionMiddleware';
 
 const router = express.Router();
 
@@ -48,6 +50,31 @@ router.post(
                     );
             }
 
+            // Check if theres and existing session to add teleform data to
+            const existingSessionId = extractSessionCookie(req);
+            if (existingSessionId) {
+                const session = sessionManager.getSession(existingSessionId);
+                if (session) {
+                    // Add teleform data to existing session
+                    const success = sessionManager.addTeleformData(
+                        existingSessionId, 
+                        parseResult, 
+                        originalFilename
+                    );
+
+                    if (success) {
+                        console.log(`Teleform data added to existing session: ${existingSessionId}`);
+                    } else {
+                        console.log(`Failed to add teleform data to session: ${existingSessionId}`);
+                    }
+                } else {
+                    console.log(`Session not found or expired: ${existingSessionId}`);
+                }
+            } else {
+                console.log('No session cookie found, returning parsed data only');
+            }
+
+            // No session or failed to add to session -- return parsed data
             const response: ApiSuccessResponse<TeleformData> = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,

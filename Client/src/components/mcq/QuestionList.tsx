@@ -40,12 +40,12 @@ interface Props {
     semester: string;
     campus: string;
     department: string;
-    course_code: string;
-    course_name: string;
-    exam_title: string;
+    courseCode: string;
+    courseName: string;
+    examTitle: string;
     duration: string;
-    version_number: string;
-    note_content: string;
+    versionNumber: string;
+    noteContent: string;
     isImported?: boolean;
   };
   questions: Question[];
@@ -76,12 +76,12 @@ async function handlePreview(questions: Question[], coverPage: any) {
                 semester: coverPage.semester,
                 campus: coverPage.campus,
                 department: coverPage.department,
-                course_code: coverPage.course_code,
-                course_name: coverPage.course_name,
-                exam_title: coverPage.exam_title,
+                courseCode: coverPage.courseCode,
+                courseName: coverPage.courseName,
+                examTitle: coverPage.examTitle,
                 duration: coverPage.duration,
-                note_content: coverPage.note_content,
-                version_number: coverPage.version_number,
+                noteContent: coverPage.noteContent,
+                versionNumber: coverPage.versionNumber,
               },
         },
       },
@@ -205,12 +205,12 @@ async function handlePreview2(
                   semester: coverPage.semester,
                   campus: coverPage.campus,
                   department: coverPage.department,
-                  course_code: coverPage.course_code,
-                  course_name: coverPage.course_name,
-                  exam_title: coverPage.exam_title,
+                  courseCode: coverPage.courseCode,
+                  courseName: coverPage.courseName,
+                  examTitle: coverPage.examTitle,
                   duration: coverPage.duration,
-                  note_content: coverPage.note_content,
-                  version_number: coverPage.version_number,
+                  noteContent: coverPage.noteContent,
+                  versionNumber: coverPage.versionNumber,
                 },
           },
         },
