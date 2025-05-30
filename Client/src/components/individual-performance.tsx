@@ -98,6 +98,8 @@ export function IndividualPerformanceTab({
     [selectedRowId, students]
   );
 
+  console.log(selectedStudent);
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -172,7 +174,8 @@ export function IndividualPerformanceTab({
             <TableBody>
               {selectedStudent.answers.map((ans: Answer) => {
                 const letter = ans.optionSelected != null
-                  ? String.fromCharCode(65 + ans.optionSelected)
+                  // Options are 1, 2, 4, 8, 16 so we're taking them back to 1, 2, 3, 4, 5 with log
+                  ? String.fromCharCode(65 + Math.log2(ans.optionSelected))
                   : "";
                 return (
                   <TableRow key={ans.questionId} className="border-b border-[#27272A]">
