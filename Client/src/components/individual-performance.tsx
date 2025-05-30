@@ -1,32 +1,16 @@
 "use client";
 
 import React from "react";
-import {
-  useReactTable,
-  ColumnDef,
-  getCoreRowModel,
-  getFilteredRowModel,
-  flexRender,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/src/components/ui/table";
+import { useReactTable, ColumnDef, getCoreRowModel, getFilteredRowModel, flexRender } from "@tanstack/react-table";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
-import type {
-  StudentBreakdown,
-  Answer,
-} from "@/src/dataTypes/examBreakdown";
+import type { StudentBreakdown, Answer } from "@/src/dataTypes/examBreakdown";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
-
+import { formatStudentResultText } from "@/src/utils/statsFormatter";
 
 interface IndividualPerformanceTabProps {
   students: StudentBreakdown[];
@@ -74,7 +58,9 @@ export function IndividualPerformanceTab({
         cell: ({ row }) => {
           const marks = row.original.mark;
           return percentageView ? (
-            <div className="w-20 text-center">{Math.round((marks / examMarks) * 100)}%</div>
+            <div className="w-20 text-center">
+              {Math.round((marks / examMarks) * 100)}%
+            </div>
           ) : (
             <div className="w-20 text-center">{marks}</div>
           );
@@ -102,41 +88,28 @@ export function IndividualPerformanceTab({
     [selectedRowId, students]
   );
 
-async function handleDownloadStudent() {
-  if (!selectedStudent) return;
+  // Generate and download a single student's stats as plain-text
+  async function handleDownloadStudent() {
+    if (!selectedStudent) return;
 
-  try {
-    const res = await fetch(
-      `http://localhost:8000/api/v1/marking/download-student/${selectedStudent.auid}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
-    );
+    try {
+      const txt = formatStudentResultText(selectedStudent);
+      const blob = new Blob([txt], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedStudent.auid}_stats.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `${res.status} ${res.statusText}`);
+      toast.success("Downloaded student stats");
+    } catch (err: any) {
+      console.error("Download failed:", err);
+      toast.error(`Failed to download student stats: ${err.message}`);
     }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${selectedStudent.auid}_stats.zip`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-
-    toast.success("Downloaded student stats");
-  } catch (err: any) {
-    console.error("Download failed:", err);
-    toast.error(`Failed to download: ${err.message}`);
   }
-}
-
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -199,42 +172,43 @@ async function handleDownloadStudent() {
       </div>
 
       <div className="rounded-xl border border-[#27272A] p-4 min-h-[200px] overflow-auto">
-       <div className="mb-4">
-  {selectedStudent && (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleDownloadStudent}
-      className="
-        gap-2
-        border-black
-        text-black
-        hover:bg-black
-        hover:text-white
-        hover:border-white
-        transition-colors
-        duration-200
-        ease-in-out
-      "
-    >
-      <Download className="h-4 w-4" />
-      Download This Student’s Stats
-    </Button>
-  )}
-</div>
+        <div className="mb-4">
+          {selectedStudent && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadStudent}
+              className="
+                gap-2
+                border-black
+                text-black
+                hover:bg-black
+                hover:text-white
+                hover:border-white
+                transition-colors
+                duration-200
+                ease-in-out
+              "
+            >
+              <Download className="h-4 w-4" />
+              Download This Student’s Stats
+            </Button>
+          )}
+        </div>
         {selectedStudent ? (
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#27272A]">
-                {["Question","Marks","Option","Feedback"].map((h) => (
-                  <TableHead key={h} className="text-white">{h}</TableHead>
+                {["Question", "Marks", "Option", "Feedback"].map((h) => (
+                  <TableHead key={h} className="text-white">
+                    {h}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {selectedStudent.answers.map((ans: Answer) => {
                 const letter = ans.optionSelected != null
-                  // Options are 1, 2, 4, 8, 16 so we're taking them back to 1, 2, 3, 4, 5 with log
                   ? String.fromCharCode(65 + Math.log2(ans.optionSelected))
                   : "";
                 return (
@@ -255,12 +229,11 @@ async function handleDownloadStudent() {
                               selectedStudent.auid,
                               val
                             );
-                            // blur to remount with new feedback or revert on cancel
                             (e.target as HTMLInputElement).blur();
                           }
                         }}
-                       className="w-full border border-[#27272A] text-white"
-                     />
+                        className="w-full border border-[#27272A] text-white"
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -269,8 +242,6 @@ async function handleDownloadStudent() {
           </Table>
         ) : (
           <div className="text-gray-400">Select a student to view details</div>
-          
-
         )}
       </div>
     </div>
