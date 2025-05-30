@@ -3,9 +3,9 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 export function DownloadAnswers() {
-
   // TODO: Aidan update this for downloading the .txt and excel file in zip (this would be tied to a session)
   async function handleClick() {
     try {
@@ -13,10 +13,35 @@ export function DownloadAnswers() {
         method: "POST",
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Download failed");
+
+      // Always attempt to parse as JSON if the content type is JSON
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
+      }
+
+      if (!res.ok) {
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
 
       const blob = await res.blob();
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -26,8 +51,12 @@ export function DownloadAnswers() {
 
       a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Error downloading answers:", err);
+      toast.success("Download completed successfully");
+    } catch (error) {
+      console.error("Error downloading answers:", error);
+      toast.error(
+        "Network error or unexpected response format. Please try again.",
+      );
     }
   }
 

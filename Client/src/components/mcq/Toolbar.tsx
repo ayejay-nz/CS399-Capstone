@@ -22,7 +22,7 @@ export default function Toolbar({ mode, setMode, onUpload }: Props) {
   };
 
   return (
-    <div className="flex justify-end gap-4 mb-8 mt-5">
+    <div className="flex justify-end gap-4">
       <div className="flex gap-2">
         <input
           type="file"
@@ -32,7 +32,7 @@ export default function Toolbar({ mode, setMode, onUpload }: Props) {
           className="hidden"
         />
         <Button variant="secondary" onClick={triggerFileInput}>
-          Upload file
+          Upload Existing Exam
         </Button>
       </div>
     </div>
