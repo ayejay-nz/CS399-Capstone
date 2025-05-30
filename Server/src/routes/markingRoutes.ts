@@ -185,13 +185,20 @@ router.post(
 
 router.post(
     '/generate-stats',
-    async (
-        req: Request<Record<string, never>, unknown, { examBreakdown: ExamBreakdown }>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const examBreakdown = req.body.examBreakdown;
+            const session = req.examMarkingSession!;
+            
+            if (!session.examBreakdown) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noExamBreakdown,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = session.examBreakdown;
 
             const zipBuffer = await exportGeneratedStats(examBreakdown);
 
