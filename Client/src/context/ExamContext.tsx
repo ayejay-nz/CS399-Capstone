@@ -59,6 +59,8 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const handleResponse = (
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
   ) => {
+
+    console.log("handleResponse payload:", payload);
     const statsPayload = payload[0].stats;
     const keyPayload = payload[1].questions;
 
@@ -71,7 +73,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     const enrichedQuestions = statsPayload.questions.map((qb) => {
       const meta = keyById[qb.questionId];
 
-      // correctAnswers indices from optionBreakdown
       const correctAnswerIndices = qb.optionBreakdown
         .filter((opt) => opt.isCorrect)
         .map((opt) => opt.optionNumber);
@@ -85,7 +86,23 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       };
     });
 
-    const enrichedStudents = statsPayload.students;
+ const enrichedStudents = statsPayload.students.map((student) => ({
+    ...student,
+    answers: student.answers.map((ans) => {
+      const meta = keyById[ans.questionId];
+
+      const mark = ans.isCorrect ? meta.marks : 0;
+
+      const feedback =
+        meta.feedback?.[student.auid] ?? ans.feedback ?? "";
+
+      return {
+        ...ans,
+        mark,
+        feedback,
+      };
+    }),
+  }));
     const enrichedSummary = statsPayload.summary;
 
     setStats({

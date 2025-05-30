@@ -23,6 +23,10 @@ import type {
   StudentBreakdown,
   Answer,
 } from "@/src/dataTypes/examBreakdown";
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Download } from "lucide-react";
+
 
 interface IndividualPerformanceTabProps {
   students: StudentBreakdown[];
@@ -98,7 +102,40 @@ export function IndividualPerformanceTab({
     [selectedRowId, students]
   );
 
-  console.log(selectedStudent);
+async function handleDownloadStudent() {
+  if (!selectedStudent) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:8000/api/v1/marking/download-student/${selectedStudent.auid}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `${res.status} ${res.statusText}`);
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${selectedStudent.auid}_stats.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Downloaded student stats");
+  } catch (err: any) {
+    console.error("Download failed:", err);
+    toast.error(`Failed to download: ${err.message}`);
+  }
+}
+
 
 
   return (
@@ -162,6 +199,29 @@ export function IndividualPerformanceTab({
       </div>
 
       <div className="rounded-xl border border-[#27272A] p-4 min-h-[200px] overflow-auto">
+       <div className="mb-4">
+  {selectedStudent && (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleDownloadStudent}
+      className="
+        gap-2
+        border-black
+        text-black
+        hover:bg-black
+        hover:text-white
+        hover:border-white
+        transition-colors
+        duration-200
+        ease-in-out
+      "
+    >
+      <Download className="h-4 w-4" />
+      Download This Student’s Stats
+    </Button>
+  )}
+</div>
         {selectedStudent ? (
           <Table>
             <TableHeader>
@@ -180,7 +240,7 @@ export function IndividualPerformanceTab({
                 return (
                   <TableRow key={ans.questionId} className="border-b border-[#27272A]">
                     <TableCell>{ans.questionId}</TableCell>
-                    <TableCell className="text-center">{ans.mark}</TableCell>
+                    <TableCell>{ans.mark}</TableCell>
                     <TableCell>{letter}</TableCell>
                     <TableCell>
                       <Input
@@ -209,6 +269,8 @@ export function IndividualPerformanceTab({
           </Table>
         ) : (
           <div className="text-gray-400">Select a student to view details</div>
+          
+
         )}
       </div>
     </div>

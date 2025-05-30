@@ -21,65 +21,56 @@ export default function MarkMCQ() {
   const router = useRouter();
   const ready = !!answerKeyFile && !!teleformDataFile;
 
-  async function handleMarkingUpload() {
-    if (!ready) {
-      toast.error("Please upload both files first.");
+async function handleMarkingUpload() {
+  if (!ready) {
+    toast.error("Please upload both files first.");
+    return;
+  }
+
+  try {
+    const form = new FormData();
+    form.append("answerKeyFile", answerKeyFile!);
+    form.append("teleformDataFile", teleformDataFile!);
+
+    const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
+      method: "POST",
+      body: form,
+      credentials: "include",
+    });
+
+    const responseData = await (async () => {
+      const contentType = res.headers.get("Content-Type") || "";
+      if (contentType.includes("application/json")) {
+        return (await res.json()) as ApiSuccessResponse<
+          [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+        >;
+      } else {
+        return { status: res.status, message: await res.text(), data: null } as any;
+      }
+    })();
+
+    if (!res.ok) {
+      if (responseData && typeof responseData === "object" && responseData.message) {
+        toast.error(responseData.message);
+      } else {
+        toast.error(`Server error: ${res.status} ${res.statusText}`);
+      }
       return;
     }
 
-    try {
-      const form = new FormData();
-      form.append("answerKeyFile", answerKeyFile!);
-      form.append("teleformDataFile", teleformDataFile!);
-
-      const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-
-      // const test = await res.json();
-      // console.log("upload response:", test);
-
-      // parse once
-      const json = (await res.json()) as ApiSuccessResponse<
-        [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
-      >;
-
-      if (!res.ok) {
-        if (
-          responseData &&
-          typeof responseData === "object" &&
-          responseData.message
-        ) {
-          toast.error(responseData.message);
-        } else if (
-          typeof responseData === "string" &&
-          responseData.length > 0
-        ) {
-          toast.error(`Server error: ${responseData}`);
-        } else {
-          toast.error(`Server error: ${res.status} ${res.statusText}`);
-        }
-        return;
-      }
-
-      // Assume successful response always JSON and has expected structure
-      const payload = responseData.data;
-      if (!payload) {
-        toast.error("No payload from server");
-        return;
-      }
-
-      handleResponse(payload);
-      router.push("/mark-mcq/dashboard");
-    } catch (error) {
-      console.error("Fetch error:", error);
-      toast.error(
-        "Network error or unexpected response format. Please try again.",
-      );
+    const payload = responseData.data;
+    if (!payload) {
+      toast.error("No payload from server");
+      return;
     }
+
+    handleResponse(payload);
+    router.push("/mark-mcq/dashboard");
+  } catch (error) {
+    console.error("Fetch error:", error);
+    toast.error("Network error or unexpected response format. Please try again.");
   }
+}
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
