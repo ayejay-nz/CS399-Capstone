@@ -13,6 +13,7 @@ import type {
   QuestionBreakdown,
   StudentBreakdown,
   AnswerKeyQuestion,
+  UpdateQuestionFields
 } from "../dataTypes/examBreakdown";
 import { toast } from "sonner";
 
@@ -27,7 +28,7 @@ interface ExamCtx {
   refresh: () => Promise<void>;
   updateQuestion: (
     questionId: number,
-    updatedFields: Partial<QuestionBreakdown>,
+    updatedFields: UpdateQuestionFields,
   ) => Promise<void>;
   updateFeedback: (
     questionId: number,
@@ -289,12 +290,16 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateQuestion = (questionId: number, updatedFields: any) =>
+  const updateQuestion = (questionId: number, updatedFields: UpdateQuestionFields) =>
+  {
+    console.log("updateQuestion:", { questionId, ...updatedFields });
     update({
       type: "correctness",
       questionId,
-      correctOptions: updatedFields.correctAnswers,
+      allTrue: updatedFields.allTrue,
+      originalValue: updatedFields.originalValue,
     });
+  };
 
   const updateFeedback = (
     questionId: number,
