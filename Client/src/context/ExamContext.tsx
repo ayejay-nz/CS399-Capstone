@@ -48,8 +48,6 @@ const ExamContext = createContext<ExamCtx | undefined>(undefined);
 
 function trimAtQuestion(text: string): string {
 
-  console.log(`String is: ${text}`);
-  
   const withoutMarkBlock = text.replace(/^\s*\[\s*(?:\d+\s*)?marks?\s*\]\s*/i, "");
 
   const idx = withoutMarkBlock.lastIndexOf("?");
@@ -64,10 +62,7 @@ function trimAtQuestion(text: string): string {
     return "";
   }
 
-  console.log("Testing: " + upToQuestion.slice(firstLetterIdx));
-
   return upToQuestion.slice(firstLetterIdx);
-
 }
 
 
