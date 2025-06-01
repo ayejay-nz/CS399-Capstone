@@ -47,9 +47,29 @@ interface ExamCtx {
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
 
 function trimAtQuestion(text: string): string {
-  const idx = text.indexOf('?');
-  return idx === -1 ? text : text.slice(0, idx + 1);
+
+  console.log(`String is: ${text}`);
+  
+  const withoutMarkBlock = text.replace(/^\s*\[\s*(?:\d+\s*)?marks?\s*\]\s*/i, "");
+
+  const idx = withoutMarkBlock.lastIndexOf("?");
+  if (idx === -1) {
+    return withoutMarkBlock;
+  }
+
+  const upToQuestion = withoutMarkBlock.slice(0, idx + 1);
+
+  const firstLetterIdx = upToQuestion.search(/[A-Za-z]/);
+  if (firstLetterIdx === -1) {
+    return "";
+  }
+
+  console.log("Testing: " + upToQuestion.slice(firstLetterIdx));
+
+  return upToQuestion.slice(firstLetterIdx);
+
 }
+
 
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<ExamBreakdown | null>(null);
