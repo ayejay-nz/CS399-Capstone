@@ -25,7 +25,9 @@ export default function AppendixForm({
   const [validationError, setValidationError] = useState(false);
 
   const validateContent = () => {
-    const hasContent = questionEditor?.getText()?.trim();
+    const hasText = questionEditor?.getText()?.trim();
+    const hasImages = questionEditor?.getHTML()?.includes("<img");
+    const hasContent = hasText || hasImages;
     setValidationError(!hasContent);
     return hasContent;
   };
@@ -63,7 +65,8 @@ export default function AppendixForm({
             error={validationError}
             content={content}
             onUpdate={(_html: string, text: string) => {
-              setValidationError(!text);
+              const hasImages = _html.includes("<img");
+              setValidationError(!text && !hasImages);
             }}
           />
         </div>

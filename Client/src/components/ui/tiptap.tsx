@@ -70,6 +70,10 @@ const Tiptap = ({
       Image.configure({
         inline: false,
         allowBase64: true,
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-md",
+          style: "max-height: 400px; object-fit: contain;",
+        },
       }),
     ],
     content,
