@@ -163,24 +163,54 @@ export default function GenerateMCQPage() {
         },
       );
 
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      console.log("Response Content-Type:", contentType);
+
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+        console.log("JSON Response Data:", responseData);
+      } else {
+        responseData = await res.text();
+        console.log("Text Response Data:", responseData);
+      }
+
       if (!res.ok) {
-        const errorText = await res.text();
-        const errorJson = JSON.parse(errorText);
-        toast.error(errorJson.message);
+        console.log("Error Response:", {
+          status: res.status,
+          statusText: res.statusText,
+          responseData,
+        });
+
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
         return;
       }
 
       // Check if coverpage was parsed successfully
       const { data: coverpageJson } =
-        (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
+        responseData as ApiSuccessResponse<CoverpageDocx>;
       if (!coverpageJson) {
-        throw new Error("No coverpage data received from server.");
+        toast.error("No coverpage data received from server.");
+        return;
       }
       setCoverPage((prev) => ({
         ...prev,
         isImported: true,
       }));
-      toast.success("Cover page uploaded successfully");
+      toast.success(responseData.message);
       // Check if coverpage is present
       // Future functionality: Will populate the Coverpage form with the parsed data
       // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
@@ -231,7 +261,7 @@ export default function GenerateMCQPage() {
       }
     } catch (err) {
       console.error("Error uploading cover page:", err);
-      toast.error("Failed to upload cover page");
+      toast.error("Failed to connect to server");
     }
   };
 
