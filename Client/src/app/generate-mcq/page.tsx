@@ -341,10 +341,7 @@ export default function GenerateMCQPage() {
         );
       }
       return (
-        <div
-          className="flex-1 p-6 pr-6 rounded-md"
-          style={{ backgroundColor: "oklch(23% 0 0)" }}
-        >
+        <div className="flex-1 rounded-md">
           <CoverPageForm
             handleAddOrUpdate={handleCoverPageUpdate}
             cancelEdit={() => {

@@ -76,28 +76,6 @@ export default function CoverPageForm({
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            onClick={form.handleSubmit(handleAddOrUpdate)}
-          >
-            Update
-          </Button>
-          <Button variant="secondary" onClick={cancelEdit}>
-            Cancel
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.onchange = (e) => onUploadFile?.(e as any);
-              input.click();
-            }}
-          >
-            Upload Cover Page
-          </Button>
-        </div>
       </div>
 
       <div className="ml-6 mr-4">
@@ -150,7 +128,7 @@ export default function CoverPageForm({
           <input
             type="file"
             accept=".doc,.docx,.pdf"
-            onChange={handleFileUpload}
+            onChange={onUploadFile}
             className="hidden"
             id="cover-page-upload"
           />
