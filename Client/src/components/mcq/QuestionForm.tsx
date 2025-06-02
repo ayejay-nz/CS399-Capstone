@@ -279,7 +279,7 @@ export default function QuestionForm({
                       <button
                         onClick={() => handleDeleteOption(i)}
                         className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
-                        disabled={optionCount <= 2}
+                        disabled={optionCount <= 3}
                       >
                         <svg
                           width="16"

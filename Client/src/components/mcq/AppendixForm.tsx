@@ -51,7 +51,7 @@ export default function AppendixForm({
 
   return (
     <div
-      className="flex flex-col flex-1 p-6 pr-6 rounded-md border border-[#27272a] h-[665px]"
+      className="flex flex-col flex-1 p-6 pr-6 rounded-md border border-[#27272a]"
       style={{ backgroundColor: "oklch(0 0 0)" }}
     >
       <h1 className="ml-6 text-2xl font-bold mb-4">Appendix</h1>

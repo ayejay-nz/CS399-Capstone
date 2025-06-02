@@ -127,7 +127,7 @@ export default function CoverPageForm({
         <div className="relative">
           <input
             type="file"
-            accept=".doc,.docx,.pdf"
+            accept=".docx"
             onChange={onUploadFile}
             className="hidden"
             id="cover-page-upload"

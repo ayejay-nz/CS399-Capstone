@@ -333,7 +333,7 @@ export default function GenerateMCQPage() {
             onUpload={() => {
               const input = document.createElement("input");
               input.type = "file";
-              input.accept = ".doc,.docx,.pdf";
+              input.accept = ".docx,.txt,.xml,.tex";
               input.onchange = (e) => handleUploadCoverPage(e as any);
               input.click();
             }}
