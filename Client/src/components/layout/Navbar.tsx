@@ -20,6 +20,12 @@ export default function Navbar() {
         <Link href="/docs" className="hover:text-gray-300 text-sm md:text-base">
           Demo
         </Link>
+        <Link
+          href="/documentation"
+          className="hover:text-gray-300 text-sm md:text-base"
+        >
+          Documentation
+        </Link>
       </div>
     </nav>
   );
