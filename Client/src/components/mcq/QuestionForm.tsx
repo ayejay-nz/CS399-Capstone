@@ -160,10 +160,7 @@ export default function QuestionForm({
   };
 
   return (
-    <div
-      className="flex-1 p-6 pr-6 rounded-md"
-      style={{ backgroundColor: "oklch(23% 0 0)" }}
-    >
+    <div className="flex-1 p-6 pr-6 rounded-md border border-[#27272a]">
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">
           {isCoverPage ? "Cover Page" : isAppendix ? "Appendix" : "Question"}
@@ -171,14 +168,14 @@ export default function QuestionForm({
         <div className="flex items-center gap-5">
           {!isCoverPage && !isAppendix && (
             <div className="flex items-center text-sm text-white">
-              <div className="flex items-stretch border border-gray-500 rounded overflow-hidden">
-                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+              <div className="flex items-stretch border border-[#27272A] rounded overflow-hidden">
+                <span className="px-3 py-0.5 flex items-center border-r border-[#27272A]">
                   Mark(s)
                 </span>
-                <span className="px-3 py-0.5 flex items-center border-r border-gray-500">
+                <span className="px-3 py-0.5 flex items-center border-r border-[#27272A]">
                   {marks}
                 </span>
-                <div className="flex flex-col divide-y divide-gray-500">
+                <div className="flex flex-col divide-y divide-[#27272A]">
                   <button
                     className="px-2 h-full hover:bg-gray-700 leading-none"
                     onClick={() => adjustMarks(1)}
@@ -201,8 +198,8 @@ export default function QuestionForm({
               {currentQuestionId
                 ? "Update"
                 : isAppendix
-                  ? "Add appendix"
-                  : "Add question"}
+                  ? "Add Appendix"
+                  : "Add Question"}
             </Button>
             {currentQuestionId && (
               <Button variant="secondary" onClick={handleCancel}>
@@ -248,7 +245,7 @@ export default function QuestionForm({
                       type="checkbox"
                       checked={i === 0}
                       onChange={() => handleCheckboxChange(i)}
-                      className="h-5 w-5 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
+                      className="h-5 w-5 mr-3 rounded border-gray-400 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div className="flex-1 w-full relative">
                       <Tiptap

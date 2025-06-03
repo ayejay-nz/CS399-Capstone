@@ -145,7 +145,18 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-
+  console.log(payload);
+  const jsonBlob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  const jsonUrl = URL.createObjectURL(jsonBlob);
+  const jsonLink = document.createElement("a");
+  jsonLink.href = jsonUrl;
+  jsonLink.download = "exam-payload.json";
+  document.body.appendChild(jsonLink);
+  jsonLink.click();
+  document.body.removeChild(jsonLink);
+  URL.revokeObjectURL(jsonUrl);
   try {
     const res = await fetch(
       "http://localhost:8000/api/v1/exam-source/upload-json",
@@ -324,17 +335,17 @@ export default function QuestionList({
   return (
     <>
       <div
-        className="lg:w-[400px] rounded-lg p-6 flex flex-col"
-        style={{ backgroundColor: "oklch(23% 0 0)", height: "665px" }}
+        className="lg:w-[400px] rounded-lg p-6 flex flex-col border border-[#27272a]"
+        style={{ backgroundColor: "oklch(0 0 0)", height: "665px" }}
       >
         <div className="flex-1 overflow-y-auto pr-1 space-y-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Edit Questions</h2>
+            <h2 className="text-xl font-bold">Edit Examination</h2>
             <button
               className="text-base text-gray-300 hover:text-white underline underline-offset-2 transition-colors"
               onClick={onClearAll}
             >
-              clear all
+              Clear All
             </button>
           </div>
 
@@ -342,7 +353,7 @@ export default function QuestionList({
             className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
               coverPage.id === selectedId
                 ? "bg-[oklch(19%_0_0)]"
-                : "bg-[oklch(21%_0_0)]"
+                : "bg-[oklch(0_0_0)]"
             } hover:bg-[oklch(19%_0_0)] transition-colors`}
             onClick={() => {
               setSelectedId(coverPage.id);
@@ -372,8 +383,8 @@ export default function QuestionList({
                           {...provided.dragHandleProps}
                           className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
                             q.id === selectedId
-                              ? "bg-[oklch(19%_0_0)]"
-                              : "bg-[oklch(21%_0_0)]"
+                              ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
+                              : "bg-[oklch(0_0_0)]"
                           } hover:bg-[oklch(19%_0_0)] transition-colors ${
                             snapshot.isDragging ? "opacity-80" : ""
                           }`}
@@ -403,10 +414,11 @@ export default function QuestionList({
                               viewBox="0 0 14 16"
                               fill="none"
                               xmlns="http://www.w3.org/2000/svg"
+                              className="text-gray-400 hover:text-white transition-colors"
                             >
                               <path
                                 d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
-                                stroke="white"
+                                stroke="currentColor"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               />
@@ -433,7 +445,7 @@ export default function QuestionList({
 
         {/* GENERATE & PREVIEW */}
         <div className="mt-auto pt-4">
-          <hr className="w-full border-gray-600" />
+          <hr className="w-full border-[#27272a]" />
           <div className="flex justify-between mt-4 space-x-2">
             <Button
               variant="secondary"

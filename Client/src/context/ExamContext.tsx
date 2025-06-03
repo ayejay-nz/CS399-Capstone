@@ -13,6 +13,7 @@ import type {
   QuestionBreakdown,
   StudentBreakdown,
   AnswerKeyQuestion,
+  UpdateQuestionFields
 } from "../dataTypes/examBreakdown";
 import { toast } from "sonner";
 
@@ -27,7 +28,7 @@ interface ExamCtx {
   refresh: () => Promise<void>;
   updateQuestion: (
     questionId: number,
-    updatedFields: Partial<QuestionBreakdown>,
+    updatedFields: UpdateQuestionFields,
   ) => Promise<void>;
   updateFeedback: (
     questionId: number,
@@ -45,6 +46,26 @@ interface ExamCtx {
 
 const ExamContext = createContext<ExamCtx | undefined>(undefined);
 
+function trimAtQuestion(text: string): string {
+
+  const withoutMarkBlock = text.replace(/^\s*\[\s*(?:\d+\s*)?marks?\s*\]\s*/i, "");
+
+  const idx = withoutMarkBlock.lastIndexOf("?");
+  if (idx === -1) {
+    return withoutMarkBlock;
+  }
+
+  const upToQuestion = withoutMarkBlock.slice(0, idx + 1);
+
+  const firstLetterIdx = upToQuestion.search(/[A-Za-z]/);
+  if (firstLetterIdx === -1) {
+    return "";
+  }
+
+  return upToQuestion.slice(firstLetterIdx);
+}
+
+
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<ExamBreakdown | null>(null);
   const [answerKey, setAnswerKey] = useState<AnswerKeyQuestion[] | null>(null);
@@ -54,6 +75,8 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const handleResponse = (
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
   ) => {
+
+    console.log("handleResponse payload:", payload);
     const statsPayload = payload[0].stats;
     const keyPayload = payload[1].questions;
 
@@ -66,21 +89,36 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     const enrichedQuestions = statsPayload.questions.map((qb) => {
       const meta = keyById[qb.questionId];
 
-      // correctAnswers indices from optionBreakdown
       const correctAnswerIndices = qb.optionBreakdown
         .filter((opt) => opt.isCorrect)
         .map((opt) => opt.optionNumber);
 
       return {
         ...qb,
-        questionText: meta.content,
+        questionText: trimAtQuestion(meta.content),
         marks: meta.marks,
         options: meta.options,
         correctAnswers: correctAnswerIndices,
       };
     });
 
-    const enrichedStudents = statsPayload.students;
+ const enrichedStudents = statsPayload.students.map((student) => ({
+    ...student,
+    answers: student.answers.map((ans) => {
+      const meta = keyById[ans.questionId];
+
+      const mark = ans.isCorrect ? meta.marks : 0;
+
+      const feedback =
+        meta.feedback?.[student.auid] ?? ans.feedback ?? "";
+
+      return {
+        ...ans,
+        mark,
+        feedback,
+      };
+    }),
+  }));
     const enrichedSummary = statsPayload.summary;
 
     setStats({
@@ -267,12 +305,16 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateQuestion = (questionId: number, updatedFields: any) =>
+  const updateQuestion = (questionId: number, updatedFields: UpdateQuestionFields) =>
+  {
+    console.log("updateQuestion:", { questionId, ...updatedFields });
     update({
       type: "correctness",
       questionId,
-      correctOptions: updatedFields.correctAnswers,
+      allTrue: updatedFields.allTrue,
+      originalValue: updatedFields.originalValue,
     });
+  };
 
   const updateFeedback = (
     questionId: number,

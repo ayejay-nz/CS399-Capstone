@@ -65,6 +65,7 @@ export const API_ERROR_MESSAGE = {
     sessionMemoryLimitReached: 'The maximum memory usage has been reached. Please try again later',
     invalidSessionId: 'Invalid session identifier provided',
     noTeleformData: 'No teleform data detected in the session. Please upload a teleform data file',
+    noExamBreakdown: 'No exam breakdown detected in the session. Please try again',
 };
 
 export const API_ERROR_CODE = {

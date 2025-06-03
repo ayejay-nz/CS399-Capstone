@@ -1,15 +1,18 @@
 "use client";
 
-import { ImageUpload } from "../../components/ui/image-upload";
 import Image from "next/image";
+import { ImageUpload } from "../../components/ui/image-upload";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
+import Navbar from "@/src/components/layout/Navbar";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
 import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
 import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
+import { toast } from "sonner";
 
 export default function MarkMCQ() {
   const { handleResponse } = useExam();
@@ -18,86 +21,68 @@ export default function MarkMCQ() {
   const router = useRouter();
   const ready = !!answerKeyFile && !!teleformDataFile;
 
-  async function handleMarkingUpload() {
-    if (!ready) {
-      alert("Please upload both files first.");
+async function handleMarkingUpload() {
+  if (!ready) {
+    toast.error("Please upload both files first.");
+    return;
+  }
+
+  try {
+    const form = new FormData();
+    form.append("answerKeyFile", answerKeyFile!);
+    form.append("teleformDataFile", teleformDataFile!);
+
+    const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
+      method: "POST",
+      body: form,
+      credentials: "include",
+    });
+
+    const responseData = await (async () => {
+      const contentType = res.headers.get("Content-Type") || "";
+      if (contentType.includes("application/json")) {
+        return (await res.json()) as ApiSuccessResponse<
+          [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+        >;
+      } else {
+        return { status: res.status, message: await res.text(), data: null } as any;
+      }
+    })();
+
+    if (!res.ok) {
+      if (responseData && typeof responseData === "object" && responseData.message) {
+        toast.error(responseData.message);
+      } else {
+        toast.error(`Server error: ${res.status} ${res.statusText}`);
+      }
       return;
     }
 
-    try {
-      const form = new FormData();
-      form.append("answerKeyFile", answerKeyFile!);
-      form.append("teleformDataFile", teleformDataFile!);
-
-      const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
-
-      // const test = await res.json();
-      // console.log("upload response:", test);
-
-      // parse once
-      const json = (await res.json()) as ApiSuccessResponse<
-        [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
-      >;
-
-      if (!res.ok) {
-        // your API’s error shape might differ
-        throw new Error((json as any).message ?? "Unknown error");
-      }
-
-      const payload = json.data;
-      if (!payload) {
-        throw new Error("No payload from server");
-      }
-
-      handleResponse(payload);
-      router.push("/mark-mcq/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to upload and mark exam.");
+    const payload = responseData.data;
+    if (!payload) {
+      toast.error("No payload from server");
+      return;
     }
+
+    handleResponse(payload);
+    router.push("/mark-mcq/dashboard");
+  } catch (error) {
+    console.error("Fetch error:", error);
+    toast.error("Network error or unexpected response format. Please try again.");
   }
+}
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* nav bar */}
-        <nav className="flex justify-between items-center px-8 md:px-12 lg:px-16 py-4">
-          <div className="pl-2">
-            <Link href="/">
-              <Image
-                src="/assets/shuffleLogo.png"
-                alt="Shuffle Logo"
-                width={140}
-                height={32}
-                className="w-auto h-6 md:h-8"
-              />
-            </Link>
-          </div>
-          <div className="space-x-4 md:space-x-8 pr-2">
-            <Link
-              href="/docs"
-              className="hover:text-gray-300 text-sm md:text-base"
-            >
-              Documentation
-            </Link>
-            <Link
-              href="/about"
-              className="hover:text-gray-300 text-sm md:text-base"
-            >
-              About
-            </Link>
-          </div>
-        </nav>
+        <Navbar />
 
         {/* main content */}
         <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 flex flex-col items-center justify-center">
           {/* file uploads */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Student Answers"
                 subtitle="Supported format: TXT"
@@ -108,7 +93,7 @@ export default function MarkMCQ() {
               />
             </div>
 
-            <div className="aspect-[4/3] relative">
+            <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
               <ImageUpload
                 title="Upload Answer Key"
                 subtitle="Supported format: XLSX"
