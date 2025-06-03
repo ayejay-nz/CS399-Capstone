@@ -19,12 +19,12 @@ const coverPageSchema = z.object({
   semester: z.string().nonempty(),
   campus: z.string().nonempty(),
   department: z.string().nonempty(),
-  course_code: z.string().nonempty(),
-  course_name: z.string().nonempty(),
-  exam_title: z.string().nonempty(),
+  courseCode: z.string().nonempty(),
+  courseName: z.string().nonempty(),
+  examTitle: z.string().nonempty(),
   duration: z.string().nonempty(),
-  version_number: z.string().nonempty(),
-  note_content: z.string().nonempty(),
+  versionNumber: z.string().nonempty(),
+  noteContent: z.string().nonempty(),
   isImported: z.boolean(),
 });
 
@@ -39,24 +39,26 @@ const fieldConfigs: {
   { name: "semester", label: "Semester" },
   { name: "campus", label: "Campus" },
   { name: "department", label: "Department" },
-  { name: "course_code", label: "Course Code" },
-  { name: "course_name", label: "Course Name" },
-  { name: "exam_title", label: "Exam Title" },
+  { name: "courseCode", label: "Course Code" },
+  { name: "courseName", label: "Course Name" },
+  { name: "examTitle", label: "Exam Title" },
   { name: "duration", label: "Duration" },
-  { name: "version_number", label: "Version Number" },
-  { name: "note_content", label: "Note Content", as: "textarea" },
+  { name: "versionNumber", label: "Version Number" },
+  { name: "noteContent", label: "Note Content", as: "textarea" },
 ];
 
 interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
+  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function CoverPageForm({
   handleAddOrUpdate,
   cancelEdit,
   initialValues,
+  onUploadFile,
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -66,18 +68,6 @@ export default function CoverPageForm({
         fieldConfigs.map((f) => [f.name, ""]),
       ) as CoverPageFormValues),
   });
-
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    handleAddOrUpdate({
-      ...form.getValues(),
-      isImported: true,
-    });
-  };
 
   return (
     <div
@@ -137,8 +127,8 @@ export default function CoverPageForm({
         <div className="relative">
           <input
             type="file"
-            accept=".doc,.docx,.pdf"
-            onChange={handleFileUpload}
+            accept=".docx"
+            onChange={onUploadFile}
             className="hidden"
             id="cover-page-upload"
           />
