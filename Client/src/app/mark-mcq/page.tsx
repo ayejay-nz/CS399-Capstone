@@ -64,7 +64,7 @@ async function handleMarkingUpload() {
       return;
     }
 
-    handleResponse(payload);
+    await handleResponse(payload, true);
     router.push("/mark-mcq/dashboard");
   } catch (error) {
     console.error("Fetch error:", error);
