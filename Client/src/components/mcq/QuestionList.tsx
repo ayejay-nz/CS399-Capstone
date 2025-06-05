@@ -159,7 +159,7 @@ async function handlePreview(questions: Question[], coverPage: any) {
   URL.revokeObjectURL(jsonUrl);
   try {
     const res = await fetch(
-      "http://localhost:8000/api/v1/exam-source/upload-json",
+      "/api/v1/exam-source/upload-json",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -284,7 +284,7 @@ async function handlePreview2(
 
   try {
     const res = await fetch(
-      "http://localhost:8000/api/v1/exam-bundle/preview-pdf",
+      "/api/v1/exam-bundle/preview-pdf",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

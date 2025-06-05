@@ -108,7 +108,7 @@ export function useMcq() {
     formData.append("examSourceFile", file);
 
     const res = await fetch(
-      "http://localhost:8000/api/v1/exam-source/upload-file",
+      "/api/v1/exam-source/upload-file",
       {
         method: "POST",
         body: formData,

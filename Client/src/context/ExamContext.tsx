@@ -169,7 +169,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   // ─── Check server for “current session” (cookie-based). If found, store it.
   const checkSessionStatus = async (): Promise<boolean> => {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/sessions/current", {
+      const res = await fetch("/api/v1/sessions/current", {
         credentials: "include",
       });
       if (res.ok) {
@@ -206,7 +206,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const loadSessionData = async (): Promise<void> => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/v1/marking/generate-stats-from-session",
+        "/api/v1/marking/generate-stats-from-session",
         {
           method: "POST",
           credentials: "include",
@@ -269,7 +269,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const update = async (change: object) => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/v1/marking/update-dashboard",
+        "/api/v1/marking/update-dashboard",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

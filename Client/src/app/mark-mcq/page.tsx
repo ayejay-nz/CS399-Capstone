@@ -32,7 +32,7 @@ async function handleMarkingUpload() {
     form.append("answerKeyFile", answerKeyFile!);
     form.append("teleformDataFile", teleformDataFile!);
 
-    const res = await fetch("http://localhost:8000/api/v1/marking/upload", {
+    const res = await fetch("/api/v1/marking/upload", {
       method: "POST",
       body: form,
       credentials: "include",

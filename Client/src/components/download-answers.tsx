@@ -17,7 +17,7 @@ export function DownloadAnswers() {
     try {
       // 1) Fetch the backend ZIP
       const res = await fetch(
-        "http://localhost:8000/api/v1/marking/generate-stats",
+        "/api/v1/marking/generate-stats",
         { method: "POST", credentials: "include" }
       );
       if (!res.ok) {

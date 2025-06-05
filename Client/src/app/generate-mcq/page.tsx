@@ -152,7 +152,7 @@ export default function GenerateMCQPage() {
       const formData = new FormData();
       formData.append("coverPageFile", file);
       const res = await fetch(
-        "http://localhost:8000/api/v1/cover-page/upload-file",
+        "/api/v1/cover-page/upload-file",
         {
           method: "POST",
           body: formData,
@@ -244,7 +244,7 @@ export default function GenerateMCQPage() {
       formData.append("coverPageFile", file);
 
       const res = await fetch(
-        "http://localhost:8000/api/v1/appendix/upload-file",
+        "/api/v1/appendix/upload-file",
         {
           method: "POST",
           body: formData,
