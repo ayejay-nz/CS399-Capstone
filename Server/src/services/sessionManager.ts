@@ -193,7 +193,7 @@ class SessionManager implements SessionStore {
         }
 
         const now = new Date();
-        session.expiresAt = new Date(now.getTime() + config.session.defaultExpiryHours * 60 * 1000);
+        session.expiresAt = new Date(now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000);
         session.lastAccessedAt = now;
 
         console.log(`Refreshed session ${sessionId}, new expiry: ${session.expiresAt.toISOString()}`);

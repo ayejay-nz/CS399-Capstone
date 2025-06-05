@@ -280,10 +280,11 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const update = async (change: object) => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/exam-breakdown/update-dashboard",
+        "http://localhost:8000/api/v1/marking/update-dashboard",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include',
           body: JSON.stringify(change),
         },
       );
