@@ -19,6 +19,7 @@ import {
 } from '../constants/constants';
 import { teleformAnswerToIndex } from '../utils/answerKey';
 import { toPercentage2dp } from '../utils/format';
+import { FeedbackDefaults } from '../dataTypes/examData';
 
 function getExamMarks(questions: AnswerKeyQuestion[]) {
     let marks = 0;
@@ -32,6 +33,7 @@ function getExamMarks(questions: AnswerKeyQuestion[]) {
 function generateStudentBreakdown(
     studentData: StudentTeleformData,
     versionSolution: VersionSolution,
+    answerKey: AnswerKey,
 ): StudentBreakdown {
     let mark = 0;
     let totalCorrect = 0;
@@ -45,29 +47,33 @@ function generateStudentBreakdown(
         const studentAnswer = studentAnswers[qIdx] || NO_ANSWER;
         let isCorrect = false;
 
-        // Check if the student answered
-        if (studentAnswer === NO_ANSWER) {
-            answers.push({
-                questionId: questionId,
-                optionSelected: undefined,
-                isCorrect: false,
-            });
-            return;
+        // Find the question in the answer key to get feedback
+        const question = answerKey.source.find(q => q.id === questionId);
+        let feedback = 'No feedback available';
+        
+        if (question) {
+            if (studentAnswer === NO_ANSWER) {
+                // No answer provided
+                feedback = question.feedback.incorrectFeedback || FeedbackDefaults.incorrectFeedback!;
+            } else {
+                // Check if the student answered correctly
+                if (qSolution.answers.includes(studentAnswer)) {
+                    mark += qSolution.mark;
+                    totalCorrect += 1;
+                    isCorrect = true;
+                    feedback = question.feedback.correctFeedback || FeedbackDefaults.correctFeedback!;
+                } else {
+                    feedback = question.feedback.incorrectFeedback || FeedbackDefaults.incorrectFeedback!;
+                }
+                questionsAnswered += 1;
+            }
         }
-
-        // Check if the student answered correctly
-        if (qSolution.answers.includes(studentAnswer)) {
-            mark += qSolution.mark;
-            totalCorrect += 1;
-            isCorrect = true;
-        }
-
-        questionsAnswered += 1;
 
         answers.push({
             questionId: questionId,
-            optionSelected: studentAnswer,
+            optionSelected: studentAnswer === NO_ANSWER ? undefined : studentAnswer,
             isCorrect: isCorrect,
+            feedback: feedback,
         });
     });
 
@@ -284,7 +290,7 @@ export function generateExamBreakdown(
             );
         }
 
-        const studentBreakdown = generateStudentBreakdown(student, versionSolution);
+        const studentBreakdown = generateStudentBreakdown(student, versionSolution, answerKey);
         studentsBreakdown.push(studentBreakdown);
     });
 

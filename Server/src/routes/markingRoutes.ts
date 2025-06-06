@@ -380,6 +380,8 @@ router.post(
                     );
                 }
 
+                // Update the display feedback with custom feedback
+                answer.feedback = feedbackUpdate.customFeedback;
                 answer.customFeedback = feedbackUpdate.customFeedback;
 
                 const responseData: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }] =

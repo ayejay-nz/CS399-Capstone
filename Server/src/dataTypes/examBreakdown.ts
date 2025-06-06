@@ -13,7 +13,8 @@ export interface Answer {
     questionId: number;
     optionSelected?: number; // Teleform answer format (1, 2, 4, 8, 16)
     isCorrect: boolean;
-    customFeedback?: string;
+    feedback?: string; // Add feedback field for display (default or custom)
+    customFeedback?: string; // Keep for tracking custom feedback separately
 }
 
 export interface StudentBreakdown {
