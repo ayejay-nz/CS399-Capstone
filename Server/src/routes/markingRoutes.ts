@@ -298,8 +298,23 @@ router.post(
                             questionSolution.answers = allAnswers;
                         }
                     });
+                } else {
+                    // Update answer key
+                    session.answerKey.versionSolutions.forEach((version) => {
+                        const questionSolution = version.questionSolutions.find(
+                            (qs) => qs.questionId === correctnessUpdate.questionId,
+                        );
+
+                        if (questionSolution) {
+                            // Go back to only having one correct answer
+                            const originalCorrectIndex = questionSolution.optionSequence.indexOf(
+                                correctnessUpdate.originalValue,
+                            );
+                            const correctAnswer = indexToTeleformAnswer(originalCorrectIndex);
+                            questionSolution.answers = [correctAnswer];
+                        }
+                    });
                 }
-                // TODO: Update where allTrue is false? i.e. reverting back to original answer key
 
                 // Regenerate exam breakdown with new answer key
                 const updatedExamBreakdown = generateExamBreakdown(
