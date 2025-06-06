@@ -63,7 +63,7 @@ router.post(
 
             // Parse answer key
             const answerKeyRes = await fetch(
-                `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
+                `${config.server.internalApiUrl}${config.server.apiPrefix}/answer-key/upload`,
                 {
                     method: 'POST',
                     body: answerKeyForm,
@@ -103,9 +103,7 @@ router.post(
 
             // Parse teleform data
             const teleformDataRes = await fetch(
-                `${req.protocol}://${req.get('host')}${
-                    config.server.apiPrefix
-                }/teleform-data/upload`,
+                `${config.server.internalApiUrl}${config.server.apiPrefix}/teleform-data/upload`,
                 {
                     method: 'POST',
                     body: teleformDataForm,

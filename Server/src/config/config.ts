@@ -15,6 +15,7 @@ interface Config {
         port: number;
         nodeEnv: string;
         apiPrefix: string;
+        internalApiUrl: string;
     };
     upload: {
         maxExamSourceFileSize: number;
@@ -40,6 +41,7 @@ const config: Config = {
         port: Number(process.env.PORT) || 8000,
         nodeEnv: process.env.NODE_ENV || 'development',
         apiPrefix: process.env.API_PREFIX || '/api/v1',
+        internalApiUrl: process.env.INTERNAL_API_URL || 'http://shuffle-backend:8000',
     },
     upload: {
         maxExamSourceFileSize: MAX_EXAM_SOURCE_FILE_MB * MB,
