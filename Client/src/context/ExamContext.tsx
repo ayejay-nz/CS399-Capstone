@@ -267,6 +267,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
 
   // ─── “Update dashboard” endpoint ───
   const update = async (change: object) => {
+    const test_data_stuff = JSON.stringify(change);
     try {
       const res = await fetch(
         "/api/v1/marking/update-dashboard",
@@ -288,6 +289,21 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
         { stats: ExamBreakdown },
         { questions: AnswerKeyQuestion[] }
       ];
+
+      // Remove later it's just testing
+      // const updatedStats = payload[0].stats;
+      // const updatedQuestions = updatedStats.questions;
+
+      // console.log("Test is:", test_data_stuff);
+      // console.log("Updated question details:");
+
+      // for (const question of updatedQuestions) {
+      //   const questionId = question.questionId;
+      //   console.log(`- Question ID: ${questionId}`);
+      //   console.log("  Percentage Correct:", question.percentageCorrect);
+      // }
+      // to here
+      console.log(payload);
       handleResponse(payload);
       toast.success("Dashboard updated successfully");
     } catch (err) {
