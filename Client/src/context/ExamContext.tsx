@@ -285,6 +285,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const json = await res.json();
+      console.log(json.data);
       const payload = json.data as [
         { stats: ExamBreakdown },
         { questions: AnswerKeyQuestion[] }
