@@ -106,7 +106,7 @@ export default function Documentation() {
                 </p>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl text-white font-semibold">
+                  <h3 className="text-xl text-white">
                     Key Features:
                   </h3>
                   <ul className="list-disc list-inside space-y-2 text-gray-300">
@@ -118,7 +118,7 @@ export default function Documentation() {
                     <li>Customizable cover page with exam details</li>
                     <li>Appendix support for additional materials</li>
                     <li>Live preview of the exam</li>
-                    <li>Export to PDF format</li>
+                    <li>Export to 4 different versions of the exam</li>
                   </ul>
                 </div>
 
@@ -130,7 +130,7 @@ export default function Documentation() {
                     To create a new exam, start by adding questions using the
                     question editor. Each question can have multiple options,
                     and you can mark the correct answer. You can also add images
-                    to both questions and options for better visual
+                    to questions for better visual
                     representation. The cover page can be customized with exam
                     details, and you can add appendices for supplementary
                     materials.
@@ -143,13 +143,28 @@ export default function Documentation() {
               id="question-management"
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
-              <h2 className="text-2xl text-white mb-4">Creating Questions</h2>
+              <h2 className="text-2xl text-white font-semibold mb-4">Creating Questions</h2>
               <div className="space-y-6">
                 <p className="text-gray-300">
-                  All the tools required to create an exam question is on this
-                  section to the left. To create the question, start by
-                  adjusting the marks for the question near the top right.
+                  The question form section provides a comprehensive
+                  interface for creating your exam questions. Start by adjusting the marks
+                  on the top right corner. Then fill out the question box at the top followed by each individual 
+                  options below. To add more options to the questions, press the "Add Option" button at the bottom
+                  of the editors. To remove an option, press the trash icon at the end of the option editor you want
+                  to delete. To select the correct answer, click on the checkbox on the left of the option editor.
+                  When you are done with filling in the question, click on the "Add question" button on the top right
+                  
                 </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">
+                    Key Features:
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Rich text editors</li>
+                    <li>Flexible option control</li>
+                    <li>Support for image upload</li>
+                  </ul>
+                </div>
                 <div className="relative w-full rounded-lg">
                   <Image
                     src="/assets/documentation/question-management.png"
@@ -165,14 +180,13 @@ export default function Documentation() {
               id="editing-questions"
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
-              <h2 className="text-2xl text-white mb-4">Editing Questions</h2>
+              <h2 className="text-2xl text-white font-semibold mb-4">Editing Questions</h2>
               <div className="space-y-6">
                 <p className="text-gray-300">
-                  To edit an existing question, click on the question in the
-                  question list on the left panel. The question editor will load
-                  with the current question content and options. You can modify
-                  the question text, options, and marks. Click "Update" to save
-                  your changes or "Cancel" to discard them.
+                  When editing an already created question. Start by selecting which question you want to edit
+                  by pressing on the question in the list of questions in the right panel. This will then bring
+                  up the question you created, ready to edit. To edit, simply remove and add in the changes, then press
+                  update to confirm the changes. Otherwise press cancel to discard changes.
                 </p>
                 <div className="relative w-full rounded-lg">
                   <Image
@@ -189,9 +203,15 @@ export default function Documentation() {
               id="option-management"
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
-              <h2 className="text-2xl text-white mb-4">Question Management</h2>
+              <h2 className="text-2xl text-white mb-4 font-semibold">Question Management</h2>
               <div className="space-y-6">
-                <p className="text-gray-300">question management</p>
+                <p className="text-gray-300">
+                  The question management section in the left panel
+                  lets you overview the already created questions that will be used
+                  to generate the exam. You can click onto each indivdual question to review and edit.
+                  You are able to drag and drop each question to reorder them and also press the clear all 
+                  button at the top right to clear all data created
+                </p>
                 <div className="relative w-full rounded-lg">
                   <Image
                     src="/assets/documentation/option-management.png"
@@ -207,9 +227,29 @@ export default function Documentation() {
               id="cover-page"
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
-              <h2 className="text-2xl text-white mb-4">Cover Page</h2>
+              <h2 className="text-2xl text-white mb-4 font-semibold">Cover Page</h2>
               <div className="space-y-6">
-                <p className="text-gray-300">cover page</p>
+                <p className="text-gray-300">
+                  The cover page section allows you to customize the front page
+                  of your exam. Start by pressing on the cover page section in the 
+                  questions list. You can input essential exam information such as
+                  course details, exam title, duration, and any additional
+                  notes. The cover page supports both manual input and file
+                  upload options.
+                </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">
+                    Cover Page Fields:
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Semester and Campus information</li>
+                    <li>Department and Course details</li>
+                    <li>Exam title and duration</li>
+                    <li>Version number</li>
+                    <li>Additional notes section</li>
+                    <li>Option to upload existing cover page</li>
+                  </ul>
+                </div>
                 <div className="relative w-full rounded-lg">
                   <Image
                     src="/assets/documentation/cover-page.png"
@@ -225,9 +265,28 @@ export default function Documentation() {
               id="appendix"
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
-              <h2 className="text-2xl text-white mb-4">Appendix</h2>
+              <h2 className="text-2xl text-white mb-4 font-semibold">Appendix</h2>
               <div className="space-y-6">
-                <p className="text-gray-300">appendix</p>
+                <p className="text-gray-300">
+                  The appendix section allows you to add supplementary materials
+                  to your exam. Start by pressing on the "Add appendix" button 
+                  at the bottom of the question list section. Appendices can include additional information,
+                  reference materials, or any other content that students might
+                  need during the exam. The appendix supports both text and
+                  image content.
+                </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">
+                    Appendix Features:
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Rich text editor for appendix content</li>
+                    <li>Image upload and embedding</li>
+                    <li>Multiple appendices support</li>
+                    <li>Drag and drop reordering</li>
+                    <li>Easy deletion of appendices</li>
+                  </ul>
+                </div>
                 <div className="relative w-full rounded-lg">
                   <Image
                     src="/assets/documentation/appendix.png"
