@@ -1,4 +1,4 @@
-import { Document, ImageRun, Paragraph } from 'docx';
+import { Document, ImageRun, Paragraph, TextRun } from 'docx';
 import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
@@ -58,6 +58,18 @@ function imageFromBase64(b64: string): ImageRun {
 
 function renderExamQuestion(question: Question, optionOrder: number[] | null): Paragraph[] {
     const qParagraph: Paragraph[] = [];
+
+    // Add question ID at the beginning
+    qParagraph.push(
+        new Paragraph({
+            children: [
+                new TextRun({
+                    text: `Question ${question.question.id}`,
+                    bold: true,
+                }),
+            ],
+        })
+    );
 
     // Question stem
     question.question.content.forEach((contentBlock) => {

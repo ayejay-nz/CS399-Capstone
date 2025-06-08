@@ -383,10 +383,12 @@ export default function QuestionList({
                           }}
                         >
                           <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <span className="font-semibold">{index + 1}.</span>
-                            <div className="line-clamp-1">
-                              {q.displayText ||
-                                (q.isAppendix ? "Appendix" : "Question")}
+                            <div className="flex flex-col">
+                              <span className="font-bold">Question {index + 1}</span>
+                              <div className="line-clamp-1">
+                                {q.displayText ||
+                                  (q.isAppendix ? "Appendix" : "Question")}
+                              </div>
                             </div>
                           </div>
                           <button
