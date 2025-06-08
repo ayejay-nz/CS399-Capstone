@@ -19,9 +19,9 @@ export default function Documentation() {
       title: "Generate Exam",
       subsections: [
         { id: "overview", title: "Overview" },
-        { id: "question-management", title: "Question Management" },
+        { id: "question-management", title: "Create Questions" },
         { id: "editing-questions", title: "Editing Questions" },
-        { id: "option-management", title: "Option Management" },
+        { id: "option-management", title: "Question Management" },
         { id: "cover-page", title: "Cover Page" },
         { id: "appendix", title: "Appendix" },
       ],
