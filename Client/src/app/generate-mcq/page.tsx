@@ -208,80 +208,19 @@ export default function GenerateMCQPage() {
         isImported: true,
       }));
       toast.success(responseData.message);
-      // Check if coverpage is present
-      // Future functionality: Will populate the Coverpage form with the parsed data
-      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
-      // const firstPage = coverpageJson.content[0];
-      // if (isCoverpage(firstPage)) {
-      //   const coverpage = firstPage.coverpage!;
-      //   setCoverPage({
-      //     id: -1,
-      //     ...coverpage.content,
-      //     versionNumber: coverpage.content.versionNumber || "version number",
-      //     isImported: true,
-      //   })
-      //   toast.success("Cover page uploaded successfully");
-      // } else {
-      //   toast.success("Cover page uploaded successfully -- please edit manually");
 
-
-      // Add appendicies
+      // Add appendices
       const isAppendix = (
         page: Coverpage | AppendixPage,
       ): page is AppendixPage => {
         return "appendix" in page;
       };
-      const appendicies = coverpageJson.content.filter((page) =>
+      const appendices = coverpageJson.content.filter((page) =>
         isAppendix(page),
       );
 
       // Create new appendix entries for each appendix found
-      const newAppendicies = appendicies.map((appendix, index) => {
-        const htmlContent = getAppendixHtml(appendix);
-        return {
-          id: Date.now() + index, // Ensure unique IDs
-          content: htmlContent,
-          options: Array(5).fill(""),
-          marks: 0,
-          displayText: "Appendix",
-          isAppendix: true,
-          isImported: true,
-        };
-      });
-
-
-      // Add all appendices together
-      mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
-      
-      // Check if coverpage was parsed successfully
-      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
-      if (!coverpageJson) {
-        throw new Error("No coverpage data received from server.");
-      }
-
-      // Check if coverpage is present
-      // Future functionality: Will populate the Coverpage form with the parsed data
-      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
-      // const firstPage = coverpageJson.content[0];
-      // if (isCoverpage(firstPage)) {
-      //   const coverpage = firstPage.coverpage!;
-      //   setCoverPage({
-      //     id: -1,
-      //     ...coverpage.content,
-      //     versionNumber: coverpage.content.versionNumber || "version number",
-      //     isImported: true,
-      //   })
-      //   toast.success("Cover page uploaded successfully");
-      // } else {
-      //   toast.success("Cover page uploaded successfully -- please edit manually");
-      // }
-
-      // Add appendicies 
-      const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
-      const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
-
-      // Create new appendix entries for each appendix found
-      const newAppendicies = appendicies.map((appendix, index) => {
+      const newAppendices = appendices.map((appendix, index) => {
         const htmlContent = getAppendixHtml(appendix);
         return {
           id: Date.now() + index, // Ensure unique IDs
@@ -295,10 +234,10 @@ export default function GenerateMCQPage() {
       });
 
       // Add all appendices together
-      mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
+      mcq.setQuestions((prev) => [...prev, ...newAppendices]);
 
-      if (newAppendicies.length > 0) {
-        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
+      if (newAppendices.length > 0) {
+        toast.success(`${newAppendices.length} appendix(es) uploaded successfully`);
       } 
     } catch (err) {
       console.error("Error uploading cover page:", err);
