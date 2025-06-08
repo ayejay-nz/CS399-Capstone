@@ -382,7 +382,7 @@ export default function QuestionList({
                             onEdit(q);
                           }}
                         >
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-2 flex-1 min-w-0">
                             <span className="font-semibold">{index + 1}.</span>
                             <div className="line-clamp-1">
                               {q.displayText ||
