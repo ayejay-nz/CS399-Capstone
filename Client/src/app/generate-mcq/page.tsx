@@ -166,18 +166,34 @@ export default function GenerateMCQPage() {
         return;
       }
 
-      const response = await res.json();
-      if (!response || !response.data) {
-        toast.error("Invalid response from server");
-        return;
+      // Check if coverpage was parsed successfully
+      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
+      if (!coverpageJson) {
+        throw new Error("No coverpage data received from server.");
       }
 
-      const coverpageJson = response.data;
       setCoverPage(prev => ({
         ...prev,
         isImported: true
       }));
+      // Check if coverpage is present
+      // Future functionality: Will populate the Coverpage form with the parsed data
+      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
+      // const firstPage = coverpageJson.content[0];
+      // if (isCoverpage(firstPage)) {
+      //   const coverpage = firstPage.coverpage!;
+      //   setCoverPage({
+      //     id: -1,
+      //     ...coverpage.content,
+      //     versionNumber: coverpage.content.versionNumber || "version number",
+      //     isImported: true,
+      //   })
+      //   toast.success("Cover page uploaded successfully");
+      // } else {
+      //   toast.success("Cover page uploaded successfully -- please edit manually");
+      // }
 
+      // Add appendicies 
       const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
       const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
 
@@ -197,10 +213,8 @@ export default function GenerateMCQPage() {
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
 
       if (newAppendicies.length > 0) {
-        toast.success(`Cover page and ${newAppendicies.length} appendix(es) uploaded successfully`);
-      } else {
-        toast.success("Cover page uploaded successfully");
-      }
+        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
+      } 
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to upload cover page");
