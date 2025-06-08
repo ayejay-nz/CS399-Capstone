@@ -29,7 +29,12 @@ export default function Documentation() {
     {
       id: "mark-mcq",
       title: "Mark MCQ",
-      subsections: [{ id: "overview-marking", title: "Overview" }],
+      subsections: [
+        { id: "overview-marking", title: "Overview" },
+        { id: "file-upload", title: "File Upload" },
+        { id: "marking-dashboard", title: "Marking Dashboard" },
+        { id: "result-analysis", title: "Result Analysis" },
+      ],
     },
   ];
 
@@ -83,9 +88,7 @@ export default function Documentation() {
 
         <div className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
-            <section
-              id="generate-exam"
-            >
+            <section id="generate-exam">
               <h1 className="text-3xl text-white font-bold mb-4">
                 Generate Exam
               </h1>
@@ -319,7 +322,156 @@ export default function Documentation() {
               className="mb-12 pb-8 border-b border-[#27272A]"
             >
               <h2 className="text-2xl text-white font-bold mb-4">Overview</h2>
-              <p className="text-gray-300">Mark mcq</p>
+              <div className="space-y-6">
+                <p className="text-gray-300">
+                  The Mark MCQ feature provides an efficient solution for
+                  grading multiple-choice examinations. This feature allows you
+                  to upload both the answer key and student response files,
+                  automatically processes them, and generates detailed marking
+                  results. The system supports various file formats and provides
+                  a comprehensive dashboard for reviewing and managing marking
+                  results.
+                </p>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">Key Features:</h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Support for multiple file formats</li>
+                    <li>Automated answer matching and scoring</li>
+                    <li>Detailed marking statistics and analytics</li>
+                    <li>Individual student result tracking</li>
+                    <li>Export functionality for results</li>
+                    <li>Error detection and handling</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white font-semibold">
+                    Getting Started:
+                  </h3>
+                  <p className="text-gray-300">
+                    To begin marking an exam, you'll need two files: the answer
+                    key file and the student response file. Upload both files
+                    using the provided interface, and the system will
+                    automatically process them. Once processing is complete,
+                    you'll be redirected to the marking dashboard where you can
+                    review results, analyze performance, and export the marking
+                    data.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              id="file-upload"
+              className="mb-12 pb-8 border-b border-[#27272A]"
+            >
+              <h2 className="text-2xl text-white font-semibold mb-4">
+                File Upload
+              </h2>
+              <div className="space-y-6">
+                <p className="text-gray-300">
+                  The file upload interface allows you to submit both the answer
+                  key and student response files. The answer key file should
+                  contain the correct answers for the exam, while the student
+                  response file should include all student submissions. The
+                  system supports various file formats and automatically
+                  validates the uploaded files for compatibility and
+                  completeness.
+                </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">Upload Process:</h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Select the answer key file</li>
+                    <li>Choose the student response file</li>
+                    <li>Verify file compatibility</li>
+                    <li>Initiate the marking process</li>
+                  </ul>
+                </div>
+                <div className="relative w-full rounded-lg">
+                  <Image
+                    src="/assets/documentation/mark-mcq-upload.png"
+                    alt="Mark MCQ Upload"
+                    width={800}
+                    height={600}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section
+              id="marking-dashboard"
+              className="mb-12 pb-8 border-b border-[#27272A]"
+            >
+              <h2 className="text-2xl text-white font-semibold mb-4">
+                Marking Dashboard
+              </h2>
+              <div className="space-y-6">
+                <p className="text-gray-300">
+                  The marking dashboard provides a comprehensive overview of the
+                  marking results. Here you can view individual student scores,
+                  question-wise performance, and overall statistics. The
+                  dashboard includes features for filtering results, exporting
+                  data, and analyzing marking patterns. Each student's
+                  submission is processed and scored automatically, with results
+                  displayed in an easy-to-read format.
+                </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">Dashboard Features:</h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Overall marking statistics</li>
+                    <li>Individual student results</li>
+                    <li>Question-wise analysis</li>
+                    <li>Performance metrics</li>
+                    <li>Export options for results</li>
+                    <li>Filtering and sorting capabilities</li>
+                  </ul>
+                </div>
+                <div className="relative w-full rounded-lg">
+                  <Image
+                    src="/assets/documentation/mark-mcq-dashboard.png"
+                    alt="Mark MCQ Dashboard"
+                    width={800}
+                    height={600}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section
+              id="result-analysis"
+              className="mb-12 pb-8 border-b border-[#27272A]"
+            >
+              <h2 className="text-2xl text-white font-semibold mb-4">
+                Result Analysis
+              </h2>
+              <div className="space-y-6">
+                <p className="text-gray-300">
+                  The result analysis section provides detailed insights into
+                  the marking outcomes. You can analyze question difficulty,
+                  student performance patterns, and identify areas that may need
+                  attention. The system generates comprehensive reports that can
+                  be used for assessment evaluation and future exam preparation.
+                </p>
+                <div className="space-y-4">
+                  <h3 className="text-xl text-white">Analysis Features:</h3>
+                  <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <li>Question difficulty analysis</li>
+                    <li>Performance distribution charts</li>
+                    <li>Comparative analysis tools</li>
+                    <li>Detailed marking reports</li>
+                    <li>Export capabilities for analysis</li>
+                  </ul>
+                </div>
+                <div className="relative w-full rounded-lg">
+                  <Image
+                    src="/assets/documentation/mark-mcq-analysis.png"
+                    alt="Mark MCQ Analysis"
+                    width={800}
+                    height={600}
+                  />
+                </div>
+              </div>
             </section>
           </div>
         </div>

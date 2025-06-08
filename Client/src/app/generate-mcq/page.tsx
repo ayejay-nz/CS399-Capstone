@@ -166,38 +166,25 @@ export default function GenerateMCQPage() {
         return;
       }
 
-      // Check if coverpage was parsed successfully
-      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
-      if (!coverpageJson) {
-        throw new Error("No coverpage data received from server.");
+      const response = await res.json();
+      if (!response || !response.data) {
+        toast.error("Invalid response from server");
+        return;
       }
 
-      // Check if coverpage is present
-      // Future functionality: Will populate the Coverpage form with the parsed data
-      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
-      // const firstPage = coverpageJson.content[0];
-      // if (isCoverpage(firstPage)) {
-      //   const coverpage = firstPage.coverpage!;
-      //   setCoverPage({
-      //     id: -1,
-      //     ...coverpage.content,
-      //     versionNumber: coverpage.content.versionNumber || "version number",
-      //     isImported: true,
-      //   })
-      //   toast.success("Cover page uploaded successfully");
-      // } else {
-      //   toast.success("Cover page uploaded successfully -- please edit manually");
-      // }
+      const coverpageJson = response.data;
+      setCoverPage(prev => ({
+        ...prev,
+        isImported: true
+      }));
 
-      // Add appendicies 
       const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
       const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
 
-      // Create new appendix entries for each appendix found
       const newAppendicies = appendicies.map((appendix, index) => {
         const htmlContent = getAppendixHtml(appendix);
         return {
-          id: Date.now() + index, // Ensure unique IDs
+          id: Date.now() + index,
           content: htmlContent,
           options: Array(5).fill(""),
           marks: 0,
@@ -207,12 +194,13 @@ export default function GenerateMCQPage() {
         };
       });
 
-      // Add all appendices together
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
 
       if (newAppendicies.length > 0) {
-        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
-      } 
+        toast.success(`Cover page and ${newAppendicies.length} appendix(es) uploaded successfully`);
+      } else {
+        toast.success("Cover page uploaded successfully");
+      }
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to upload cover page");
@@ -343,6 +331,13 @@ export default function GenerateMCQPage() {
             );
           }}
           initialValues={coverPage}
+          onUpload={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".doc,.docx,.pdf";
+            input.onchange = (e) => handleUploadCoverPage(e as any);
+            input.click();
+          }}
         />
       );
     }
