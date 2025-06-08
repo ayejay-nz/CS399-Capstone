@@ -17,8 +17,14 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="space-x-4 md:space-x-8 pr-2">
-        <Link href="/docs" className="hover:text-gray-300 text-sm md:text-base">
+        <Link href="/docs" className="hover:text-gray-300 text-white text-sm md:text-base">
           Demo
+        </Link>
+        <Link
+          href="/documentation"
+          className="hover:text-gray-300 text-white text-sm md:text-base"
+        >
+          Documentation
         </Link>
       </div>
     </nav>

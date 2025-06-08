@@ -199,7 +199,7 @@ export default function GenerateMCQPage() {
         return;
       }
 
-      // Check if coverpage was parsed successfully
+
       const { data: coverpageJson } =
         responseData as ApiSuccessResponse<CoverpageDocx>;
       if (!coverpageJson) {
@@ -227,6 +227,7 @@ export default function GenerateMCQPage() {
       // } else {
       //   toast.success("Cover page uploaded successfully -- please edit manually");
 
+
       // Add appendicies
       const isAppendix = (
         page: Coverpage | AppendixPage,
@@ -250,6 +251,7 @@ export default function GenerateMCQPage() {
           isImported: true,
         };
       });
+
 
       // Add all appendices together
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
@@ -371,28 +373,32 @@ export default function GenerateMCQPage() {
         );
       }
       return (
-        <div className="flex-1 rounded-md">
-          <CoverPageForm
-            handleAddOrUpdate={handleCoverPageUpdate}
-            cancelEdit={() => {
-              mcq.setCurrentQuestionId(null);
-              setSelectedId(null);
-              mcq.setOptionEditors(Array(5).fill(null));
-              mcq.setOptionContents(Array(5).fill(""));
-              mcq.setOptionCount(5);
-              mcq.setOptionIds(
-                Array(5)
-                  .fill(null)
-                  .map(
-                    () =>
-                      `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                  ),
-              );
-            }}
-            initialValues={coverPage}
-            onUploadFile={handleUploadCoverPage}
-          />
-        </div>
+        <CoverPageForm
+          handleAddOrUpdate={handleCoverPageUpdate}
+          cancelEdit={() => {
+            mcq.setCurrentQuestionId(null);
+            setSelectedId(null);
+            mcq.setOptionEditors(Array(5).fill(null));
+            mcq.setOptionContents(Array(5).fill(""));
+            mcq.setOptionCount(5);
+            mcq.setOptionIds(
+              Array(5)
+                .fill(null)
+                .map(
+                  () =>
+                    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                ),
+            );
+          }}
+          initialValues={coverPage}
+          onUpload={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.onchange = (e) => handleUploadCoverPage(e as any);
+            input.click();
+          }}
+        />
+
       );
     }
 

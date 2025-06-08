@@ -51,14 +51,16 @@ interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
-  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpload: () => void;
+
 }
 
 export default function CoverPageForm({
   handleAddOrUpdate,
   cancelEdit,
   initialValues,
-  onUploadFile,
+  onUpload,
+
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -124,20 +126,10 @@ export default function CoverPageForm({
         <Button variant="secondary" onClick={cancelEdit}>
           Cancel
         </Button>
-        <div className="relative">
-          <input
-            type="file"
-            accept=".docx"
-            onChange={onUploadFile}
-            className="hidden"
-            id="cover-page-upload"
-          />
-          <label htmlFor="cover-page-upload">
-            <Button variant="secondary" asChild>
-              <span>Upload Cover Page</span>
-            </Button>
-          </label>
-        </div>
+        <Button variant="secondary" onClick={onUpload}>
+          Upload Cover Page
+        </Button>
+
       </div>
     </div>
   );

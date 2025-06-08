@@ -3,6 +3,8 @@ import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
 import {
+    isAppendixPage,
+    isAppendixText,
     isImageURI,
     isQuestion,
     isQuestionText,
@@ -13,6 +15,7 @@ import {
 import { imageSize } from 'image-size';
 import ApiError from '../utils/apiError';
 import { API_ERROR_CODE, API_ERROR_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
+import { AppendixPage } from '../dataTypes/coverpage';
 
 function reorderQuestionOptions(options: string[], optionOrder: number[] | null): string[] {
     if (!optionOrder || optionOrder.length !== options.length) return options;
@@ -116,6 +119,28 @@ function renderExamSection(section: Section): Paragraph[] {
     return sParagraph;
 }
 
+function renderExamAppendix(appendix: AppendixPage): Paragraph[] {
+    const aParagraph: Paragraph[] = [];
+
+    appendix.appendix.content.forEach((contentBlock) => {
+        if (isAppendixText(contentBlock)) {
+            aParagraph.push(new Paragraph({ text: contentBlock.appendixText }));
+        } else if (isImageURI(contentBlock)) {
+            const b64 = contentBlock.imageUri;
+            const img = imageFromBase64(b64);
+            aParagraph.push(
+                new Paragraph({
+                    children: [img],
+                }),
+            );
+        } else if (isTableURI(contentBlock)) {
+            aParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
+        }
+    });
+
+    return aParagraph;
+}
+
 function renderExamContent(
     examData: ExamData,
     version: VersionedExam,
@@ -124,9 +149,10 @@ function renderExamContent(
     const eParagraphs: Paragraph[] = [];
 
     examData.content.forEach((contentBlock) => {
-        // TODO -- HANDLE APPENDICES
-        if (isSection(contentBlock)) {
+        if (isSection(contentBlock)) { // Remove this later -- redundant with AppendixPage
             eParagraphs.push(...renderExamSection(contentBlock));
+        } else if (isAppendixPage(contentBlock)) {
+            eParagraphs.push(...renderExamAppendix(contentBlock));
         } else if (isQuestion(contentBlock)) {
             const optionOrder = version.optionOrders[qPtr.current]!;
             eParagraphs.push(...renderExamQuestion(contentBlock, optionOrder));

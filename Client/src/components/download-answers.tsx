@@ -9,11 +9,9 @@ export function DownloadAnswers() {
   // TODO: Aidan update this for downloading the .txt and excel file in zip (this would be tied to a session)
   async function handleClick() {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/marking/download", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/zip",
-        },
+      const res = await fetch("http://localhost:8000/api/v1/marking/generate-stats", {
+        method: "POST",
+        credentials: "include",
       });
 
       // Always attempt to parse as JSON if the content type is JSON
