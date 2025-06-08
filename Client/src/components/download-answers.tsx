@@ -51,7 +51,7 @@ export function DownloadAnswers() {
 
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast.success("Download completed successfully");
+      toast.success(responseData.message);
     } catch (error) {
       console.error("Error downloading answers:", error);
       toast.error(

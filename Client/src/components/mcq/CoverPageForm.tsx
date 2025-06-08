@@ -52,6 +52,7 @@ interface Props {
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
   onUpload: () => void;
+
 }
 
 export default function CoverPageForm({
@@ -59,6 +60,7 @@ export default function CoverPageForm({
   cancelEdit,
   initialValues,
   onUpload,
+
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -127,6 +129,7 @@ export default function CoverPageForm({
         <Button variant="secondary" onClick={onUpload}>
           Upload Cover Page
         </Button>
+
       </div>
     </div>
   );

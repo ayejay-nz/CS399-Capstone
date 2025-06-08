@@ -12,7 +12,11 @@ import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
-import { AppendixPage, Coverpage, CoverpageDocx } from "../../../../Server/src/dataTypes/coverpage";
+import {
+  AppendixPage,
+  Coverpage,
+  CoverpageDocx,
+} from "../../../../Server/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -159,23 +163,54 @@ export default function GenerateMCQPage() {
         },
       );
 
+      let responseData;
+      const contentType = res.headers.get("Content-Type");
+      console.log("Response Content-Type:", contentType);
+
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await res.json();
+        console.log("JSON Response Data:", responseData);
+      } else {
+        responseData = await res.text();
+        console.log("Text Response Data:", responseData);
+      }
+
       if (!res.ok) {
-        const errorText = await res.text();
-        const errorJson = JSON.parse(errorText);
-        toast.error(errorJson.message);
+        console.log("Error Response:", {
+          status: res.status,
+          statusText: res.statusText,
+          responseData,
+        });
+
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else if (
+          typeof responseData === "string" &&
+          responseData.length > 0
+        ) {
+          toast.error(`Server error: ${responseData}`);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
         return;
       }
 
-      // Check if coverpage was parsed successfully
-      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
-      if (!coverpageJson) {
-        throw new Error("No coverpage data received from server.");
-      }
 
-      setCoverPage(prev => ({
+      const { data: coverpageJson } =
+        responseData as ApiSuccessResponse<CoverpageDocx>;
+      if (!coverpageJson) {
+        toast.error("No coverpage data received from server.");
+        return;
+      }
+      setCoverPage((prev) => ({
         ...prev,
-        isImported: true
+        isImported: true,
       }));
+      toast.success(responseData.message);
       // Check if coverpage is present
       // Future functionality: Will populate the Coverpage form with the parsed data
       // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
@@ -191,16 +226,23 @@ export default function GenerateMCQPage() {
       //   toast.success("Cover page uploaded successfully");
       // } else {
       //   toast.success("Cover page uploaded successfully -- please edit manually");
-      // }
 
-      // Add appendicies 
-      const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
-      const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
 
+      // Add appendicies
+      const isAppendix = (
+        page: Coverpage | AppendixPage,
+      ): page is AppendixPage => {
+        return "appendix" in page;
+      };
+      const appendicies = coverpageJson.content.filter((page) =>
+        isAppendix(page),
+      );
+
+      // Create new appendix entries for each appendix found
       const newAppendicies = appendicies.map((appendix, index) => {
         const htmlContent = getAppendixHtml(appendix);
         return {
-          id: Date.now() + index,
+          id: Date.now() + index, // Ensure unique IDs
           content: htmlContent,
           options: Array(5).fill(""),
           marks: 0,
@@ -210,14 +252,18 @@ export default function GenerateMCQPage() {
         };
       });
 
+
+      // Add all appendices together
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
 
       if (newAppendicies.length > 0) {
-        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
-      } 
+        toast.success(
+          `${newAppendicies.length} appendix(es) uploaded successfully`,
+        );
+      }
     } catch (err) {
       console.error("Error uploading cover page:", err);
-      toast.error("Failed to upload cover page");
+      toast.error("Failed to connect to server");
     }
   };
 
@@ -231,9 +277,9 @@ export default function GenerateMCQPage() {
       } else if (item.__type === "TableURI") {
         htmlContent += `<table>${item.tableUri}</table>`;
       }
-    })
+    });
     return htmlContent;
-  }
+  };
 
   const handleUploadAppendix = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -319,7 +365,7 @@ export default function GenerateMCQPage() {
             onUpload={() => {
               const input = document.createElement("input");
               input.type = "file";
-              input.accept = ".doc,.docx,.pdf";
+              input.accept = ".docx,.txt,.xml,.tex";
               input.onchange = (e) => handleUploadCoverPage(e as any);
               input.click();
             }}
@@ -348,11 +394,11 @@ export default function GenerateMCQPage() {
           onUpload={() => {
             const input = document.createElement("input");
             input.type = "file";
-            input.accept = ".doc,.docx,.pdf";
             input.onchange = (e) => handleUploadCoverPage(e as any);
             input.click();
           }}
         />
+
       );
     }
 

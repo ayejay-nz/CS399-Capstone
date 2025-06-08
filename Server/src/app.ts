@@ -16,6 +16,7 @@ import markingRoutes from './routes/markingRoutes';
 import appendixRoutes from './routes/appendixRoutes';
 import sessionRoutes from './routes/sessionRoutes';
 
+
 const app = express();
 
 // Middlewares
@@ -46,6 +47,7 @@ app.use(`${config.server.apiPrefix}/exam-bundle`, examBundleRoutes);
 app.use(`${config.server.apiPrefix}/marking`, markingRoutes);
 app.use(`${config.server.apiPrefix}/appendix`, appendixRoutes);
 app.use(`${config.server.apiPrefix}/sessions`, sessionRoutes);
+
 
 app.use(errorHandler);
 

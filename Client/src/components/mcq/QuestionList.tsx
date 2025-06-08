@@ -145,7 +145,7 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-  
+
   try {
     const res = await fetch(
       "http://localhost:8000/api/v1/exam-source/upload-json",
