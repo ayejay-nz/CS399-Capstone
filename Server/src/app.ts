@@ -47,6 +47,7 @@ app.use(`${config.server.apiPrefix}/marking`, markingRoutes);
 app.use(`${config.server.apiPrefix}/appendix`, appendixRoutes);
 app.use(`${config.server.apiPrefix}/sessions`, sessionRoutes);
 
+
 app.use(errorHandler);
 
 export default app;

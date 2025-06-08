@@ -41,7 +41,6 @@ interface ExamCtx {
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
     newSession?: boolean
   ) => void;
-
   setSessionInfo: (sessionId: string, expiry: Date) => void;
   clearSession: () => void;
   checkSessionStatus: () => Promise<boolean>;
@@ -72,8 +71,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [answerKey, setAnswerKey] = useState<AnswerKeyQuestion[] | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
-
-
   const handleResponse = async (
     payload: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }],
     newSession: boolean = false
@@ -228,8 +225,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       console.error("Error loading session data:", err);
       toast.error("Failed to load session data");
     }
-  };
-
+  }
   // ─── On mount: check if localStorage has a valid (unexpired) sessionId/expiry ───
   useEffect(() => {
     const storedSessionId = localStorage.getItem("answerkey_session_id");
@@ -290,20 +286,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
         { stats: ExamBreakdown },
         { questions: AnswerKeyQuestion[] }
       ];
-
-      // Remove later it's just testing
-      // const updatedStats = payload[0].stats;
-      // const updatedQuestions = updatedStats.questions;
-
-      // console.log("Test is:", test_data_stuff);
-      // console.log("Updated question details:");
-
-      // for (const question of updatedQuestions) {
-      //   const questionId = question.questionId;
-      //   console.log(`- Question ID: ${questionId}`);
-      //   console.log("  Percentage Correct:", question.percentageCorrect);
-      // }
-      // to here
       console.log(payload);
       handleResponse(payload);
       toast.success("Dashboard updated successfully");

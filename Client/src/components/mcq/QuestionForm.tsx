@@ -126,8 +126,9 @@ export default function QuestionForm({
 
     const hasText = questionEditor?.getText()?.trim();
     const hasImage = questionEditor?.getHTML()?.includes("<img");
+    const hasContent = hasText || hasImage;
 
-    if (!hasText && !hasImage) {
+    if (!hasContent) {
       newErrors.question = true;
       isValid = false;
     }
@@ -136,8 +137,9 @@ export default function QuestionForm({
       optionEditors.forEach((editor, i) => {
         const optionHasText = editor?.getText()?.trim();
         const optionHasImage = editor?.getHTML()?.includes("<img");
+        const optionHasContent = optionHasText || optionHasImage;
 
-        if (!optionHasText && !optionHasImage) {
+        if (!optionHasContent) {
           newErrors.options[i] = true;
           isValid = false;
         }
@@ -220,10 +222,11 @@ export default function QuestionForm({
               isQuestionEditor={true}
               isAppendix={isAppendix}
               error={validationErrors.question}
-              onUpdate={(_, text) => {
+              onUpdate={(html, text) => {
+                const hasImages = html.includes("<img");
                 setValidationErrors((prev) => ({
                   ...prev,
-                  question: !text,
+                  question: !text && !hasImages,
                 }));
               }}
             />
@@ -264,9 +267,10 @@ export default function QuestionForm({
                             newContents[i] = html;
                             return newContents;
                           });
+                          const hasImages = html.includes("<img");
                           setValidationErrors((prev) => {
                             const newOptions = [...prev.options];
-                            newOptions[i] = !text;
+                            newOptions[i] = !text && !hasImages;
                             return { ...prev, options: newOptions };
                           });
                         }}
@@ -275,7 +279,7 @@ export default function QuestionForm({
                       <button
                         onClick={() => handleDeleteOption(i)}
                         className="absolute right-2 top-3 p-1 hover:bg-white/10 rounded-sm"
-                        disabled={optionCount <= 2}
+                        disabled={optionCount <= 3}
                       >
                         <svg
                           width="16"

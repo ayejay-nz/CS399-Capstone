@@ -10,7 +10,6 @@ import { useExam } from "@/src/context/ExamContext";
 import { formatStatsTxt, formatStudentResultText } from "@/src/utils/statsFormatter";
 
 export function DownloadAnswers() {
-
   const { stats: exam } = useExam();
 
   async function handleClick() {
