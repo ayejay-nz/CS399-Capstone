@@ -82,7 +82,7 @@ router.post('/upload-json', async (req: Request, res: Response, next: NextFuncti
 
         // Generate randomised exam versions and answer key
         const generateRes = await fetch(
-            `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/exam-bundle`,
+            `${config.server.internalApiUrl}${config.server.apiPrefix}/exam-bundle`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

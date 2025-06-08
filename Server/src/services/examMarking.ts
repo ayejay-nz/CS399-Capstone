@@ -19,6 +19,7 @@ import {
 } from '../constants/constants';
 import { teleformAnswerToIndex } from '../utils/answerKey';
 import { toPercentage2dp } from '../utils/format';
+import { FeedbackDefaults } from '../dataTypes/examData';
 
 function getExamMarks(questions: AnswerKeyQuestion[]) {
     let marks = 0;
@@ -32,6 +33,7 @@ function getExamMarks(questions: AnswerKeyQuestion[]) {
 function generateStudentBreakdown(
     studentData: StudentTeleformData,
     versionSolution: VersionSolution,
+    answerKey: AnswerKey,
 ): StudentBreakdown {
     let mark = 0;
     let totalCorrect = 0;
@@ -45,29 +47,33 @@ function generateStudentBreakdown(
         const studentAnswer = studentAnswers[qIdx] || NO_ANSWER;
         let isCorrect = false;
 
-        // Check if the student answered
-        if (studentAnswer === NO_ANSWER) {
-            answers.push({
-                questionId: questionId,
-                optionSelected: undefined,
-                isCorrect: false,
-            });
-            return;
+        // Find the question in the answer key to get feedback
+        const question = answerKey.source.find(q => q.id === questionId);
+        let feedback = 'No feedback available';
+        
+        if (question) {
+            if (studentAnswer === NO_ANSWER) {
+                // No answer provided
+                feedback = question.feedback.incorrectFeedback || FeedbackDefaults.incorrectFeedback!;
+            } else {
+                // Check if the student answered correctly
+                if (qSolution.answers.includes(studentAnswer)) {
+                    mark += qSolution.mark;
+                    totalCorrect += 1;
+                    isCorrect = true;
+                    feedback = question.feedback.correctFeedback || FeedbackDefaults.correctFeedback!;
+                } else {
+                    feedback = question.feedback.incorrectFeedback || FeedbackDefaults.incorrectFeedback!;
+                }
+                questionsAnswered += 1;
+            }
         }
-
-        // Check if the student answered correctly
-        if (qSolution.answers.includes(studentAnswer)) {
-            mark += qSolution.mark;
-            totalCorrect += 1;
-            isCorrect = true;
-        }
-
-        questionsAnswered += 1;
 
         answers.push({
             questionId: questionId,
-            optionSelected: studentAnswer,
+            optionSelected: studentAnswer === NO_ANSWER ? undefined : studentAnswer,
             isCorrect: isCorrect,
+            feedback: feedback,
         });
     });
 
@@ -188,50 +194,79 @@ function generateQuestionsBreakdown(
 }
 
 function generateSummary(
-    studentsBreakdown: StudentBreakdown[],
-    questionsBreakdown: QuestionBreakdown[],
-    questions: AnswerKeyQuestion[],
+  studentsBreakdown: StudentBreakdown[],
+  questionsBreakdown: QuestionBreakdown[],
+  questions: AnswerKeyQuestion[],
 ): Summary {
-    const studentMarks = studentsBreakdown.map((student) => student.mark);
-    const examMarks = getExamMarks(questions);
+  // Collect each student's raw mark (e.g. 1, 1 for two students who each got 1/2).
+  const studentMarks = studentsBreakdown.map((student) => student.mark);
 
-    const studentScores = studentMarks.map((mark) => toPercentage2dp(mark / examMarks));
+  // Total possible marks on the exam (e.g. 2).
+  const examMarks = getExamMarks(questions);
 
-    const sortedStudentMarks = [...studentMarks].sort((a, b) => a - b);
-    const n = sortedStudentMarks.length;
+  // Create studentScores = each student’s percentage to two decimal places
+  //    (for example, mark=1 / examMarks=2 → 1/2 → 0.5 → 50.00).
+  const studentScores = studentMarks.map((mark) =>
+    toPercentage2dp(mark / examMarks)
+  );
 
-    const median = (a: number[]): number => {
-        const m = a.length;
-        const mid = Math.floor(m / 2);
-        return m % 2 === 0 ? (a[mid - 1]! + a[mid]!) / 2 : a[mid]!;
-    };
+  // Sort the raw marks ascending so we can get min, max, median, quartiles on raw marks.
+  const sortedMarks = [...studentMarks].sort((a, b) => a - b);
+  const n = sortedMarks.length;
 
-    const min = sortedStudentMarks[0];
-    const max = sortedStudentMarks[n - 1];
+  // A small helper to compute median of a sorted array of numbers.
+  //    If array is empty → return NaN.
+  const medianOf = (arr: number[]): number => {
+    const m = arr.length;
+    if (m === 0) return NaN; // let JSON.stringify(NaN) become null
+    const mid = Math.floor(m / 2);
+    if (m % 2 === 0) {
+      // even count → average of the two middle
+      return (arr[mid - 1]! + arr[mid]!) / 2;
+    } else {
+      // odd count → middle element
+      return arr[mid]!;
+    }
+  };
 
-    const med = median(sortedStudentMarks);
+  const minRaw = sortedMarks[0]!;
+  const maxRaw = sortedMarks[n - 1]!;
+  const medianRaw = medianOf(sortedMarks);
 
-    const midIndex = Math.floor(n);
-    const lowerHalf = sortedStudentMarks.slice(0, midIndex);
-    const upperHalf = sortedStudentMarks.slice(n % 2 === 0 ? midIndex : midIndex + 1);
+  const halfIndex = Math.floor(n / 2);
+  const lowerHalf = sortedMarks.slice(0, halfIndex);
+  // If n is even, upperHalf is sortedMarks.slice(halfIndex). If n is odd, skip the middle element:
+  const upperHalf =
+    n % 2 === 0
+      ? sortedMarks.slice(halfIndex)
+      : sortedMarks.slice(halfIndex + 1);
 
-    const lowerQuartile = median(lowerHalf);
-    const upperQuartile = median(upperHalf);
+  const lowerQuartileRaw = medianOf(lowerHalf);
+  const upperQuartileRaw = medianOf(upperHalf);
 
-    const lowestScoringQuestions: number[] = [...questionsBreakdown]
-        .sort((a, b) => a.percentageCorrect - b.percentageCorrect)
-        .map((question) => question.questionId);
+  // Convert those raw “minRaw” etc. into percentages with two decimals:
+  //    – minRaw/examMarks → percent
+  //    – lowerQuartileRaw/examMarks → percent, etc.
+  const lowestScore = toPercentage2dp(minRaw / examMarks);
+  const lowerQuartile = toPercentage2dp(lowerQuartileRaw / examMarks);
+  const median = toPercentage2dp(medianRaw / examMarks);
+  const upperQuartile = toPercentage2dp(upperQuartileRaw / examMarks);
+  const highestScore = toPercentage2dp(maxRaw / examMarks);
 
-    return {
-        lowestScore: min,
-        lowerQuartile: lowerQuartile,
-        median: med,
-        upperQuartile: upperQuartile,
-        highestScore: max,
-        examMarks: examMarks,
-        studentScores: studentScores,
-        lowestScoringQuestions: lowestScoringQuestions,
-    } as Summary;
+  const lowestScoringQuestions: number[] = [...questionsBreakdown]
+    .sort((a, b) => a.percentageCorrect - b.percentageCorrect)
+    .map((q) => q.questionId);
+
+  return {
+    lowestScore,           // e.g. 50
+    lowerQuartile,         // e.g. 50
+    median,                // e.g. 50
+    upperQuartile,         // e.g. 50
+    highestScore,          // e.g. 50
+    examMarks,             // e.g. 2
+    studentScores,         // e.g. [50.00, 50.00]
+    lowestScoringQuestions // e.g. [1, 2]
+  } as Summary;
 }
 
 export function generateExamBreakdown(
@@ -255,7 +290,7 @@ export function generateExamBreakdown(
             );
         }
 
-        const studentBreakdown = generateStudentBreakdown(student, versionSolution);
+        const studentBreakdown = generateStudentBreakdown(student, versionSolution, answerKey);
         studentsBreakdown.push(studentBreakdown);
     });
 

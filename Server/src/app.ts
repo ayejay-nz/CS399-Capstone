@@ -16,7 +16,6 @@ import markingRoutes from './routes/markingRoutes';
 import appendixRoutes from './routes/appendixRoutes';
 import sessionRoutes from './routes/sessionRoutes';
 
-
 const app = express();
 
 // Middlewares
@@ -24,7 +23,7 @@ app.use(express.json({ limit: '32mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: ['http://localhost:3000', 'http://localhost'],
         credentials: true,
     }),
 );

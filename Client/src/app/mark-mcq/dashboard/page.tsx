@@ -15,10 +15,15 @@ import Navbar from "@/src/components/layout/Navbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/src/components/ui/tabs";
 import { useExam } from "@/src/context/ExamContext";
 
-
 export default function Dashboard() {
-
-  const { summary, questionStats, students, answerKey } = useExam();
+  const {
+    summary,
+    questionStats,
+    students,
+    answerKey,
+    updateQuestion,
+    updateFeedback,
+  } = useExam();
 
   const scores = summary?.studentScores ?? [];
 
@@ -88,18 +93,19 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="question-performance">
-                  <QuestionPerformanceTab
-                    questionStats={questionStats ?? []}
-                    answerKey={answerKey ?? []}
-                    onCorrectnessChange={async () => {}}
-                    onFeedbackChange={async () => {}}
+                <QuestionPerformanceTab
+                  questionStats={questionStats ?? []}
+                  answerKey={answerKey ?? []}
+                  onCorrectnessChange={updateQuestion}
+                  onFeedbackChange={updateFeedback}
                 />
               </TabsContent>
+
               <TabsContent value="individual-performance">
                 <IndividualPerformanceTab
                   students={students ?? []}
                   examMarks={summary?.examMarks ?? 0}
-                  onFeedbackChange={async () => {}}
+                  onFeedbackChange={updateFeedback}
                 />
               </TabsContent>
             </Tabs>

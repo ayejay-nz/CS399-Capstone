@@ -12,11 +12,8 @@ import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
-import {
-  AppendixPage,
-  Coverpage,
-  CoverpageDocx,
-} from "../../../../Server/src/dataTypes/coverpage";
+
+import { AppendixPage, Coverpage, CoverpageDocx } from "../../../../Server/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -156,7 +153,7 @@ export default function GenerateMCQPage() {
       const formData = new FormData();
       formData.append("coverPageFile", file);
       const res = await fetch(
-        "http://localhost:8000/api/v1/cover-page/upload-file",
+        "/api/v1/cover-page/upload-file",
         {
           method: "POST",
           body: formData,
@@ -255,12 +252,54 @@ export default function GenerateMCQPage() {
 
       // Add all appendices together
       mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
+      
+      // Check if coverpage was parsed successfully
+      const { data: coverpageJson } = (await res.json()) as ApiSuccessResponse<CoverpageDocx>;
+      if (!coverpageJson) {
+        throw new Error("No coverpage data received from server.");
+      }
+
+      // Check if coverpage is present
+      // Future functionality: Will populate the Coverpage form with the parsed data
+      // const isCoverpage = (page: Coverpage | AppendixPage): page is Coverpage => {return 'coverpage' in page}
+      // const firstPage = coverpageJson.content[0];
+      // if (isCoverpage(firstPage)) {
+      //   const coverpage = firstPage.coverpage!;
+      //   setCoverPage({
+      //     id: -1,
+      //     ...coverpage.content,
+      //     versionNumber: coverpage.content.versionNumber || "version number",
+      //     isImported: true,
+      //   })
+      //   toast.success("Cover page uploaded successfully");
+      // } else {
+      //   toast.success("Cover page uploaded successfully -- please edit manually");
+      // }
+
+      // Add appendicies 
+      const isAppendix = (page: Coverpage | AppendixPage): page is AppendixPage => {return 'appendix' in page}
+      const appendicies = coverpageJson.content.filter((page) => isAppendix(page));
+
+      // Create new appendix entries for each appendix found
+      const newAppendicies = appendicies.map((appendix, index) => {
+        const htmlContent = getAppendixHtml(appendix);
+        return {
+          id: Date.now() + index, // Ensure unique IDs
+          content: htmlContent,
+          options: Array(5).fill(""),
+          marks: 0,
+          displayText: "Appendix",
+          isAppendix: true,
+          isImported: true,
+        };
+      });
+
+      // Add all appendices together
+      mcq.setQuestions((prev) => [...prev, ...newAppendicies]);
 
       if (newAppendicies.length > 0) {
-        toast.success(
-          `${newAppendicies.length} appendix(es) uploaded successfully`,
-        );
-      }
+        toast.success(`${newAppendicies.length} appendix(es) uploaded successfully`);
+      } 
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to connect to server");
@@ -277,9 +316,10 @@ export default function GenerateMCQPage() {
       } else if (item.__type === "TableURI") {
         htmlContent += `<table>${item.tableUri}</table>`;
       }
-    });
+    })
     return htmlContent;
-  };
+  }
+
 
   const handleUploadAppendix = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -292,7 +332,7 @@ export default function GenerateMCQPage() {
       formData.append("coverPageFile", file);
 
       const res = await fetch(
-        "http://localhost:8000/api/v1/appendix/upload-file",
+        "/api/v1/appendix/upload-file",
         {
           method: "POST",
           body: formData,
