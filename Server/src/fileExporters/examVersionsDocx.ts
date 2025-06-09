@@ -1,196 +1,197 @@
-import { Document, ImageRun, Paragraph, TextRun } from 'docx';
+import { Document, ImageRun, Paragraph, TextRun, BorderStyle, type IParagraphOptions } from 'docx';
 import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
 import {
-    isAppendixPage,
-    isAppendixText,
-    isImageURI,
-    isQuestion,
-    isQuestionText,
-    isSection,
-    isSectionText,
-    isTableURI,
+  isQuestion,
+  isQuestionText,
+  isImageURI,
+  isTableURI,
+  isSection,
+  isSectionText,
+  isAppendixPage,
+  isAppendixText,
 } from '../utils/typeGuards';
 import { imageSize } from 'image-size';
 import ApiError from '../utils/apiError';
 import { API_ERROR_CODE, API_ERROR_MESSAGE, HTTP_STATUS_CODE } from '../constants/constants';
 import { AppendixPage } from '../dataTypes/coverpage';
 
+// Page layout constants
+const PAGE_WIDTH_PX = 600;
+const PAGE_HEIGHT_PX = 800;
+const MARGIN_TOP_PX = 72;
+const MARGIN_BOTTOM_PX = 72;
+const MARGIN_LEFT_PX = 72;
+const MARGIN_RIGHT_PX = 72;
+const OPTION_LINE_HEIGHT_PX = 20;
+
 function reorderQuestionOptions(options: string[], optionOrder: number[] | null): string[] {
-    if (!optionOrder || optionOrder.length !== options.length) return options;
-
-    return optionOrder.map((i) => options[i]!);
+  if (!optionOrder || optionOrder.length !== options.length) return options;
+  return optionOrder.map((i) => options[i]!);
 }
 
-function imageFromBase64(b64: string): ImageRun {
-    const cleaned = b64.replace(/^data:[^;]+;base64,/, '');
-    const data = Buffer.from(cleaned, 'base64');
+function imageFromBase64(
+  b64: string,
+  maxDimensions?: { width: number; height: number }
+): ImageRun {
+  const cleaned = b64.replace(/^data:[^;]+;base64,/, '');
+  const data = Buffer.from(cleaned, 'base64');
+  const match = b64.match(/^data:image\/(\w+);base64,/);
+  const rawType = match?.[1]?.toLowerCase() ?? '';
 
-    const typeData = b64.match(/^data:image\/([\S]+);base64,/) || 'png';
-    const type = typeData[1];
+  let format: 'jpg' | 'png' | 'gif' | 'bmp';
+  switch (rawType) {
+    case 'jpeg':
+    case 'jpg': format = 'jpg'; break;
+    case 'png': format = 'png'; break;
+    case 'gif': format = 'gif'; break;
+    case 'bmp': format = 'bmp'; break;
+    default:
+      throw new ApiError(
+        HTTP_STATUS_CODE.UNSUPPORTED_MEDIA_TYPE,
+        API_ERROR_MESSAGE.invalidFileFormat,
+        API_ERROR_CODE.INVALID_FILE_FORMAT
+      );
+  }
 
-    if (!type) {
-        throw new ApiError(
-            HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
-            API_ERROR_MESSAGE.examVersionGenerationFailed,
-            API_ERROR_CODE.EXAM_VERSION_GENERATION_FAILED,
-        );
-    }
+  const { width: origW, height: origH } = imageSize(data);
+  let width = origW;
+  let height = origH;
 
-    if (type !== 'jpg' && type !== 'png' && type !== 'gif' && type !== 'bmp') {
-        throw new ApiError(
-            HTTP_STATUS_CODE.UNSUPPORTED_MEDIA_TYPE,
-            API_ERROR_MESSAGE.invalidFileFormat,
-            API_ERROR_CODE.INVALID_FILE_FORMAT,
-        );
-    }
+  if (maxDimensions) {
+    const { width: maxW, height: maxH } = maxDimensions;
+    const scale = Math.min(1, maxW / origW, maxH / origH);
+    width = Math.floor(origW * scale);
+    height = Math.floor(origH * scale);
+  }
 
-    const { width, height } = imageSize(data);
-
-    return new ImageRun({
-        type,
-        data,
-        transformation: { width, height },
-        altText: { name: 'image' },
-    });
+  return new ImageRun({
+    type: format,
+    data,
+    transformation: { width, height },
+    altText: { name: 'image' }
+  });
 }
 
-function renderExamQuestion(question: Question, optionOrder: number[] | null): Paragraph[] {
-    const qParagraph: Paragraph[] = [];
+function renderExamQuestion(
+  question: Question,
+  optionOrder: number[] | null
+): Paragraph[] {
+  // Build a block of paragraphs to keep together
+  const rawParagraphs: Partial<IParagraphOptions>[] = [];
+  // Default to 1 mark if unspecified
+  const marks = question.question.marks ?? 1;
+  const markText = `[${marks} mark${marks === 1 ? '' : 's'}]`;
 
-    // Add question ID at the beginning
-    qParagraph.push(
-        new Paragraph({
-            children: [
-                new TextRun({
-                    text: `Question ${question.question.id}`,
-                    bold: true,
-                }),
-            ],
-        })
-    );
+  // Question header (no marks, no border)
+  rawParagraphs.push({
+    children: [new TextRun({ text: `Question ${question.question.id}`, bold: true })],
+  });
 
-    // Question stem
-    question.question.content.forEach((contentBlock) => {
-        if (isQuestionText(contentBlock)) {
-            qParagraph.push(new Paragraph({ text: contentBlock.questionText }));
-        } else if (isImageURI(contentBlock)) {
-            const b64 = contentBlock.imageUri;
-            const img = imageFromBase64(b64);
-            qParagraph.push(
-                new Paragraph({
-                    children: [img],
-                }),
-            );
-        } else if (isTableURI(contentBlock)) {
-            qParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
-        }
-    });
+  // Prepare options and calculate image space
+  const opts = reorderQuestionOptions(question.question.options, optionOrder);
+  const reservedHeight = opts.length * OPTION_LINE_HEIGHT_PX;
+  const maxImageHeight =
+    PAGE_HEIGHT_PX - MARGIN_TOP_PX - MARGIN_BOTTOM_PX - reservedHeight;
+  const maxImageWidth = PAGE_WIDTH_PX - MARGIN_LEFT_PX - MARGIN_RIGHT_PX;
 
-    // Question options
-    const reorderedOptions = reorderQuestionOptions(question.question.options, optionOrder);
-    reorderedOptions.forEach((option, idx) => {
-        const optionLetter = String.fromCharCode(97 + idx);
-        qParagraph.push(
-            new Paragraph({
-                text: `(${optionLetter}) ${option}`,
-                indent: { left: 360 },
-            }),
-        );
-    });
+  // Question stem content (prepend marks to first text block)
+  let markPrepended = false;
+  question.question.content.forEach((blk) => {
+    if (isQuestionText(blk)) {
+      if (!markPrepended) {
+        rawParagraphs.push({ text: `${markText} ${blk.questionText}` });
+        markPrepended = true;
+      } else {
+        rawParagraphs.push({ text: blk.questionText });
+      }
+    } else if (isImageURI(blk) && blk.imageUri) {
+      const img = imageFromBase64(blk.imageUri, {
+        width: maxImageWidth,
+        height: maxImageHeight,
+      });
+      rawParagraphs.push({ children: [img] });
+    } else if (isTableURI(blk)) {
+      rawParagraphs.push({ text: '\n[table]\n' });
+    }
+  });
 
-    // Spacing
-    qParagraph.push(new Paragraph({}));
+  // Add a single blank line between question stem and options
+  rawParagraphs.push({ text: '' });
 
-    return qParagraph;
+  // Options (no blank lines between)
+  opts.slice(0, 5).forEach((opt, idx) => {
+    const letter = String.fromCharCode(97 + idx);
+    rawParagraphs.push({ text: `(${letter}) ${opt}`, indent: { left: 360 } });
+  });
+
+  // Convert to Paragraphs, keeping block together
+  return rawParagraphs.map((paraOpts, idx) =>
+    new Paragraph({
+      ...paraOpts,
+      keepNext: idx < rawParagraphs.length - 1,
+    })
+  );
 }
 
 function renderExamSection(section: Section): Paragraph[] {
-    const sParagraph: Paragraph[] = [];
-
-    section.section.content.forEach((contentBlock) => {
-        if (isSectionText(contentBlock)) {
-            sParagraph.push(new Paragraph({ text: contentBlock.sectionText }));
-        } else if (isImageURI(contentBlock)) {
-            const b64 = contentBlock.imageUri;
-            const img = imageFromBase64(b64);
-            sParagraph.push(
-                new Paragraph({
-                    children: [img],
-                }),
-            );
-        } else if (isTableURI(contentBlock)) {
-            sParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
-        }
-    });
-
-    // Spacing
-    sParagraph.push(new Paragraph({}));
-
-    return sParagraph;
+  const paras: Paragraph[] = [];
+  section.section.content.forEach((blk) => {
+    if (isSectionText(blk)) {
+      paras.push(new Paragraph({ text: blk.sectionText }));
+    } else if (isImageURI(blk) && blk.imageUri) {
+      const img = imageFromBase64(blk.imageUri);
+      paras.push(new Paragraph({ children: [img] }));
+    } else if (isTableURI(blk)) {
+      paras.push(new Paragraph({ text: '\n[table]\n' }));
+    }
+  });
+  paras.push(new Paragraph({}));
+  return paras;
 }
 
 function renderExamAppendix(appendix: AppendixPage): Paragraph[] {
-    const aParagraph: Paragraph[] = [];
-
-    appendix.appendix.content.forEach((contentBlock) => {
-        if (isAppendixText(contentBlock)) {
-            aParagraph.push(new Paragraph({ text: contentBlock.appendixText }));
-        } else if (isImageURI(contentBlock)) {
-            const b64 = contentBlock.imageUri;
-            const img = imageFromBase64(b64);
-            aParagraph.push(
-                new Paragraph({
-                    children: [img],
-                }),
-            );
-        } else if (isTableURI(contentBlock)) {
-            aParagraph.push(new Paragraph({ text: '\n[table]\n' })); // TODO -- HANDLE TABLES
-        }
-    });
-
-    return aParagraph;
+  const paras: Paragraph[] = [];
+  appendix.appendix.content.forEach((blk) => {
+    if (isAppendixText(blk)) {
+      paras.push(new Paragraph({ text: blk.appendixText }));
+    } else if (isImageURI(blk) && blk.imageUri) {
+      const img = imageFromBase64(blk.imageUri);
+      paras.push(new Paragraph({ children: [img] }));
+    } else if (isTableURI(blk)) {
+      paras.push(new Paragraph({ text: '\n[table]\n' }));
+    }
+  });
+  return paras;
 }
 
 function renderExamContent(
-    examData: ExamData,
-    version: VersionedExam,
-    qPtr: { current: number },
+  examData: ExamData,
+  version: VersionedExam,
+  qPtr: { current: number }
 ): Paragraph[] {
-    const eParagraphs: Paragraph[] = [];
-
-    examData.content.forEach((contentBlock) => {
-        if (isSection(contentBlock)) { // Remove this later -- redundant with AppendixPage
-            eParagraphs.push(...renderExamSection(contentBlock));
-        } else if (isAppendixPage(contentBlock)) {
-            eParagraphs.push(...renderExamAppendix(contentBlock));
-        } else if (isQuestion(contentBlock)) {
-            const optionOrder = version.optionOrders[qPtr.current]!;
-            eParagraphs.push(...renderExamQuestion(contentBlock, optionOrder));
-            qPtr.current += 1;
-        }
-    });
-
-    return eParagraphs;
+  const all: Paragraph[] = [];
+  examData.content.forEach((blk) => {
+    if (isSection(blk)) all.push(...renderExamSection(blk));
+    else if (isAppendixPage(blk)) all.push(...renderExamAppendix(blk));
+    else if (isQuestion(blk)) {
+      const order = version.optionOrders[qPtr.current]!;
+      all.push(...renderExamQuestion(blk, order));
+      all.push(new Paragraph({}));
+      qPtr.current++;
+    }
+  });
+  return all;
 }
 
 export function exportExamVersionsDocx(
-    versions: VersionedExam[],
-    exam: ExamData,
+  versions: VersionedExam[],
+  exam: ExamData
 ): { versionNumber: string; paragraphs: Paragraph[] }[] {
-    const versionsParagraphs: { versionNumber: string; paragraphs: Paragraph[] }[] = [];
-
-    versions.forEach((version) => {
-        const qIndex = { current: 0 }; // TODO -- ADD PROPER QUESTION NUMBERING
-
-        // Build the actual exam
-        const vParagraphs = renderExamContent(exam, version, qIndex);
-        versionsParagraphs.push({
-            versionNumber: version.versionNumber,
-            paragraphs: vParagraphs,
-        });
-    });
-
-    return versionsParagraphs;
+  return versions.map((v) => {
+    const ptr = { current: 0 };
+    const paras = renderExamContent(exam, v, ptr);
+    return { versionNumber: v.versionNumber, paragraphs: paras };
+  });
 }
