@@ -35,16 +35,17 @@ const fieldConfigs: {
   name: keyof CoverPageFormValues;
   label: string;
   as?: "textarea";
+  placeholder?: string;
 }[] = [
-  { name: "semester", label: "Semester" },
-  { name: "campus", label: "Campus" },
-  { name: "department", label: "Department" },
-  { name: "courseCode", label: "Course Code" },
-  { name: "courseName", label: "Course Name" },
-  { name: "examTitle", label: "Exam Title" },
-  { name: "duration", label: "Duration" },
-  { name: "versionNumber", label: "Version Number" },
-  { name: "noteContent", label: "Note Content", as: "textarea" },
+  { name: "semester", label: "Semester", placeholder: "e.g. Semester 1, 2025" },
+  { name: "campus", label: "Campus", placeholder: "e.g. Campus: City" },
+  { name: "department", label: "Department", placeholder: "e.g. Computer Science" },
+  { name: "courseCode", label: "Course Code", placeholder: "e.g. COMPSCI 399 : Capstone: Computer" },
+  { name: "courseName", label: "Course Name", placeholder: "e.g. COMPSCI 399" },
+  { name: "examTitle", label: "Exam Title", placeholder: "e.g. Mid-Semester Test" },
+  { name: "duration", label: "Duration", placeholder: "e.g. (Time Allowed: ONE hour)" },
+  { name: "versionNumber", label: "Version Number", placeholder: "e.g. original" },
+  { name: "noteContent", label: "Note Content", as: "textarea", placeholder: "e.g. This exam is restricted book. You are permitted to bring one A4 sheet of handwritten or typed notes" },
 ];
 
 interface Props {
@@ -100,11 +101,13 @@ export default function CoverPageForm({
                         <Textarea
                           {...field}
                           className="border-[#27272A] text-white"
+                          placeholder={config.placeholder}
                         />
                       ) : (
                         <Input
                           {...field}
                           className="border-[#27272A] text-white"
+                          placeholder={config.placeholder}
                         />
                       )}
                     </FormControl>
