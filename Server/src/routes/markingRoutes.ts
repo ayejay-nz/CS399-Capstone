@@ -317,6 +317,19 @@ router.post(
                     );
                 }
 
+                // --- Preserve custom feedback before regenerating breakdown ---
+                const feedbackMap = new Map();
+                if (session.examBreakdown && session.examBreakdown.students) {
+                    for (const student of session.examBreakdown.students) {
+                        for (const answer of student.answers) {
+                            if (answer.customFeedback) {
+                                feedbackMap.set(`${student.auid}-${answer.questionId}`, answer.customFeedback);
+                            }
+                        }
+                    }
+                }
+                // -------------------------------------------------------------
+
                 // Update version solutions for allTrue
                 if (correctnessUpdate.allTrue) {
                     // Update answer key
@@ -359,6 +372,21 @@ router.post(
                     session.answerKey,
                     session.teleformData,
                 );
+
+                // --- Re-apply custom feedback after regenerating breakdown ---
+                if (updatedExamBreakdown && updatedExamBreakdown.students) {
+                    for (const student of updatedExamBreakdown.students) {
+                        for (const answer of student.answers) {
+                            const key = `${student.auid}-${answer.questionId}`;
+                            if (feedbackMap.has(key)) {
+                                answer.customFeedback = feedbackMap.get(key);
+                                answer.feedback = feedbackMap.get(key); // Also update display feedback
+                            }
+                        }
+                    }
+                }
+                // ------------------------------------------------------------
+
                 sessionManager.updateExamBreakdown(session.sessionId, updatedExamBreakdown);
 
                 // Prepare response
