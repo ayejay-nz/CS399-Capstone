@@ -153,16 +153,45 @@ function renderExamSection(section: Section): Paragraph[] {
 
 function renderExamAppendix(appendix: AppendixPage): Paragraph[] {
   const paras: Paragraph[] = [];
+  
+  // Add a page break before the appendix
+  paras.push(new Paragraph({
+    pageBreakBefore: true,
+    spacing: { after: 400 }
+  }));
+
+  // Add appendix title
+  paras.push(new Paragraph({
+    children: [new TextRun({ text: 'Appendix', bold: true })],
+    spacing: { after: 400 }
+  }));
+
+  // Render appendix content
   appendix.appendix.content.forEach((blk) => {
     if (isAppendixText(blk)) {
-      paras.push(new Paragraph({ text: blk.appendixText }));
+      paras.push(new Paragraph({ 
+        text: blk.appendixText,
+        keepNext: true // Keep content together
+      }));
     } else if (isImageURI(blk) && blk.imageUri) {
       const img = imageFromBase64(blk.imageUri);
-      paras.push(new Paragraph({ children: [img] }));
+      paras.push(new Paragraph({ 
+        children: [img],
+        keepNext: true // Keep content together
+      }));
     } else if (isTableURI(blk)) {
-      paras.push(new Paragraph({ text: '\n[table]\n' }));
+      paras.push(new Paragraph({ 
+        text: '\n[table]\n',
+        keepNext: true // Keep content together
+      }));
     }
   });
+
+  // Add spacing after appendix
+  paras.push(new Paragraph({
+    spacing: { after: 400 }
+  }));
+
   return paras;
 }
 
