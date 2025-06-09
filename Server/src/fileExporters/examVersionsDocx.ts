@@ -1,4 +1,4 @@
-import { Document, ImageRun, Paragraph, TextRun, BorderStyle, type IParagraphOptions } from 'docx';
+import { Document, ImageRun, Paragraph, TextRun, BorderStyle, type IParagraphOptions, Header, AlignmentType, PageNumberElement, SectionType } from 'docx';
 import { ExamData, Question, Section } from '../dataTypes/examData';
 import { VersionedExam } from '../dataTypes/versionedExam';
 import { generateExamVersions } from '../services/examVersioning';
@@ -151,19 +151,44 @@ function renderExamSection(section: Section): Paragraph[] {
   return paras;
 }
 
+function createHeader(versionNumber: string): Header {
+  return new Header({
+    children: [
+      new Paragraph({
+        children: [
+          new TextRun({ text: `Version ${versionNumber}`, bold: true }),
+          new TextRun({ text: '\t\t' }),   // push "Page" to the right
+          new TextRun({ text: 'Page ' }),
+          new PageNumberElement(),         // real page number element
+        ],
+        alignment: AlignmentType.CENTER,
+      }),
+    ],
+  });
+}
+
+function createAppendixHeader(versionNumber: string): Header {
+  return new Header({
+    children: [
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'APPENDIX', bold: true }),
+          new TextRun({ text: '\t\t' }),
+          new TextRun({ text: 'Page ' }),
+          new PageNumberElement(),         // real page number element
+        ],
+        alignment: AlignmentType.LEFT,
+      }),
+    ],
+  });
+}
+
 function renderExamAppendix(appendix: AppendixPage): Paragraph[] {
   const paras: Paragraph[] = [];
   
-  // Add a page break before the appendix
+  // Add a page break before each appendix
   paras.push(new Paragraph({
-    pageBreakBefore: true,
-    spacing: { after: 400 }
-  }));
-
-  // Add appendix title
-  paras.push(new Paragraph({
-    children: [new TextRun({ text: 'Appendix', bold: true })],
-    spacing: { after: 400 }
+    pageBreakBefore: true
   }));
 
   // Render appendix content
@@ -187,31 +212,28 @@ function renderExamAppendix(appendix: AppendixPage): Paragraph[] {
     }
   });
 
-  // Add spacing after appendix
-  paras.push(new Paragraph({
-    spacing: { after: 400 }
-  }));
-
   return paras;
 }
 
-function renderExamContent(
-  examData: ExamData,
-  version: VersionedExam,
-  qPtr: { current: number }
-): Paragraph[] {
-  const all: Paragraph[] = [];
-  examData.content.forEach((blk) => {
-    if (isSection(blk)) all.push(...renderExamSection(blk));
-    else if (isAppendixPage(blk)) all.push(...renderExamAppendix(blk));
-    else if (isQuestion(blk)) {
-      const order = version.optionOrders[qPtr.current]!;
-      all.push(...renderExamQuestion(blk, order));
-      all.push(new Paragraph({}));
-      qPtr.current++;
-    }
-  });
-  return all;
+function renderExamQuestionBlocks(blk: any, version: VersionedExam, qPtr: { current: number }): Paragraph[] {
+  if (isQuestion(blk)) {
+    const order = version.optionOrders[qPtr.current]!;
+    const paras = renderExamQuestion(blk, order);
+    // Add spacing after each question
+    paras.push(new Paragraph({}));
+    qPtr.current++;
+    return paras;
+  } else if (isSection(blk)) {
+    return renderExamSection(blk);
+  }
+  return [];
+}
+
+function renderAppendixBlocks(blk: any): Paragraph[] {
+  if (isAppendixPage(blk)) {
+    return renderExamAppendix(blk);
+  }
+  return [];
 }
 
 export function exportExamVersionsDocx(
@@ -220,7 +242,62 @@ export function exportExamVersionsDocx(
 ): { versionNumber: string; paragraphs: Paragraph[] }[] {
   return versions.map((v) => {
     const ptr = { current: 0 };
-    const paras = renderExamContent(exam, v, ptr);
-    return { versionNumber: v.versionNumber, paragraphs: paras };
+    
+    // Split content into exam and appendix sections
+    const examParas: Paragraph[] = [];
+    const appendixParas: Paragraph[] = [];
+    let inAppendix = false;
+
+    exam.content.forEach((blk) => {
+      if (isAppendixPage(blk)) {
+        inAppendix = true;
+        appendixParas.push(...renderExamAppendix(blk));
+      } else if (!inAppendix) {
+        examParas.push(...renderExamQuestionBlocks(blk, v, ptr));
+      }
+    });
+
+    // Create document with two sections
+    const doc = new Document({
+      sections: [
+        {
+          properties: {
+            page: {
+              margin: {
+                top: MARGIN_TOP_PX,
+                bottom: MARGIN_BOTTOM_PX,
+                left: MARGIN_LEFT_PX,
+                right: MARGIN_RIGHT_PX,
+              },
+            },
+          },
+          headers: {
+            default: createHeader(v.versionNumber),
+            first: createHeader(v.versionNumber),
+          },
+          children: examParas,
+        },
+        {
+          properties: { 
+            type: SectionType.NEXT_PAGE,
+            page: {
+              margin: {
+                top: MARGIN_TOP_PX,
+                bottom: MARGIN_BOTTOM_PX,
+                left: MARGIN_LEFT_PX,
+                right: MARGIN_RIGHT_PX,
+              },
+            },
+          },
+          headers: {
+            default: createAppendixHeader(v.versionNumber),
+            first: createAppendixHeader(v.versionNumber),
+          },
+          children: appendixParas,
+        },
+      ],
+    });
+
+    return { versionNumber: v.versionNumber, paragraphs: [...examParas, ...appendixParas] };
   });
 }
