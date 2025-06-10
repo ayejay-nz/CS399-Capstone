@@ -4,6 +4,15 @@ import Navbar from "@/src/components/layout/Navbar";
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/assets/homepageBackgroundImage.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 1,
+        }}
+      ></div>
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* nav bar */}
         <Navbar />
