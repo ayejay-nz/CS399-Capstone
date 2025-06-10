@@ -1,36 +1,67 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/4-04QCSZ)
+# 📝 Shuffle
 
-## Run Client & Server
+## 📋 Project Management
+- Replace with lin
 
+## 📖 Project Overview
+Shuffle is a web-based exam generation and marking tool designed to automate the process of creating, and grading multiple-choice university exams. It generates multiple shuffled versions of an exam, handles answer sheet parsing, and allows instructors to manually adjust results with real-time feedback. 
+
+Final report: link
+
+## 🛠️ Technologies
+| Component      | Tech & Version                          |
+| -------------- | --------------------------------------- |
+| **Backend**    | Node.js v20, Express v5, TypeScript v5.8 |
+| **Frontend**   | Next.js v15, React v19, TailwindCSS v4   |
+| **PDF Gen**    | libreoffice-convert v1.6, docx v9.5      |
+| **Container**  | Docker, Docker Compose v2               |
+
+## ⚙️ Installation & Setup
+
+### Clone the repo
+```bash
+git clone https://github.com/uoa-compsci399-2025-s1/capstone-project-2025-s1-team-1.git
+cd capstone-project-2025-s1-team-1
 ```
-cd Server/ # or
-cd Client/
 
-# first time?
+### Dev (recommended)
+Run your app in development mode with live reload:
+
+**First time:**
+```bash
 docker compose up --build
-# every other time
+```
+
+**Subsequent runs:**
+```bash
 docker compose up
 ```
 
-## API Documentation
+### Production
 
-The backend API is documented using Swagger UI. Once the server is running, you can access the API documentation at:
-
+First checkout the production branch:
+```bash
+git checkout -b production/v1
+cd 
 ```
-http://localhost:8000/api-docs
+
+Build and start all services for production:
+
+**First time:**
+```bash
+docker compose -f docker-compose.prod.yml up --build
 ```
 
-The documentation provides detailed information about available endpoints, request parameters, and response formats.
+**Subsequent runs:**
+```bash
+docker compose -f docker-compose.prod.yml up
+```
 
-## File Uploads
+## 💻 Usage Examples
+Check out the demo:  
+[![Watch the demo](https://img.youtube.com/vi/VQUk5Eiw33E/0.jpg)](https://www.youtube.com/watch?v=VQUk5Eiw33E&ab_channel=EmmaChen)
 
-When uploading files via the API, make sure to use the correct field names:
-- `examSourceFile` - For exam source files (DOCX, TXT, XML, TEX)
-- `coverPageFile` - For cover page files (DOCX)
-- `teleformDataFile` - For teleform data files (TXT)
-- `answerKeyFile` - For answer key files (XLSX)
-- `assetFile` - For asset files (PNG, JPEG)
+## 🌐 Live Deployment
+The project is currently hosted at: **http://school.anthony-sh.co.nz**
 
-## Install Packages on Docker
-
-`docker compose exec frontend npm install <package_name>`
+## 🚀 Future Plans
