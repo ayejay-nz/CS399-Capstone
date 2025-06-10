@@ -30,7 +30,7 @@ export default function Home() {
             {/* generate mcq */}
             <div>
               <Link href="/generate-mcq" className="block">
-                <div className="bg-zinc-900/50 rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-2xl backdrop-blur-sm transition-transform hover:scale-[1.02]">
+                <div className="border border-[#8CAEDB] rounded-lg md:rounded-xl shadow-2xl backdrop-blur-sm transition-transform hover:scale-[1.02]">
                   <div
                     className="relative w-full"
                     style={{ paddingTop: "65%" }}
@@ -65,7 +65,7 @@ export default function Home() {
             {/* mark mcq/stats */}
             <div>
               <Link href="/mark-mcq" className="block">
-                <div className="bg-zinc-900/50 rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-2xl backdrop-blur-sm transition-transform hover:scale-[1.02]">
+                <div className="border border-[#8CAEDB] rounded-lg md:rounded-xl shadow-2xl backdrop-blur-sm transition-transform hover:scale-[1.02]">
                   <div
                     className="relative w-full"
                     style={{ paddingTop: "65%" }}
