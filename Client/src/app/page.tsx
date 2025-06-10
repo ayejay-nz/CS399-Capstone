@@ -16,6 +16,7 @@ export default function Home() {
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* nav bar */}
         <Navbar />
+        <div className="border-b border-[#27272A]"></div>
 
         {/* hero */}
         <main className="flex-1 max-w-[1200px] mx-auto px-4 flex flex-col justify-center w-full">
