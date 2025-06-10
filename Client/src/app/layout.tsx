@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/src/components/Providers";
 import { Toast } from "@/src/components/ui/toast";
+import { Inter, Dancing_Script } from "next/font/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +13,14 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const inter = Inter({ subsets: ["latin"] });
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-dancing-script",
 });
 
 export const metadata: Metadata = {
@@ -25,13 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>{children}</Providers>
-        <Toast />
-      </body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.className} ${dancingScript.variable} antialiased`}
+    >
+      <body>{children}</body>
     </html>
   );
 }

@@ -19,8 +19,8 @@ export default function Home() {
 
         {/* hero */}
         <main className="flex-1 max-w-[1200px] mx-auto px-4 flex flex-col justify-center w-full">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 md:mb-16">
-            The <span className="italic">easiest</span> way to create and
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 md:mb-16">
+            The <span className="font-easiest">easiest</span> way to create and
             <br />
             grade multiple-choice exams
           </h1>
