@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useEditor, EditorContent, Mark } from "@tiptap/react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useEditor, EditorContent, Mark, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Heading from "@tiptap/extension-heading";
@@ -37,16 +37,17 @@ const Underline = Mark.create({
   renderHTML({ HTMLAttributes }) {
     return ["u", HTMLAttributes, 0];
   },
-  addCommands() {
-    return {
-      toggleUnderline:
-        () =>
-        ({ chain }) => {
-          return chain().toggleMark("underline").run();
-        },
-    };
-  },
 });
+
+interface TiptapProps {
+  setEditor?: (editor: Editor) => void;
+  content?: string;
+  allowImageUpload?: boolean;
+  isQuestionEditor?: boolean;
+  isAppendix?: boolean;
+  error?: boolean;
+  onUpdate?: (html: string, text: string) => void;
+}
 
 const Tiptap = ({
   setEditor,
@@ -56,9 +57,10 @@ const Tiptap = ({
   isAppendix = false,
   error = false,
   onUpdate,
-}) => {
+}: TiptapProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorSetRef = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -100,28 +102,41 @@ const Tiptap = ({
     setIsMounted(true);
   }, []);
 
+  const memoizedSetEditor = useCallback(
+    (editor: Editor) => {
+      if (setEditor && !editorSetRef.current) {
+        setEditor(editor);
+        editorSetRef.current = true;
+      }
+    },
+    [setEditor],
+  );
+
   useEffect(() => {
-    if (editor && setEditor) {
-      setEditor(editor);
+    if (editor) {
+      memoizedSetEditor(editor);
     }
-  }, [editor]);
+  }, [editor, memoizedSetEditor]);
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
-  }, [content]);
+  }, [content, editor]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      editor.commands.setImage({ src: reader.result });
+      const result = reader.result;
+      if (typeof result === "string") {
+        editor.commands.setImage({ src: result });
+      }
     };
     reader.readAsDataURL(file);
-    e.target.value = null;
+    e.target.value = "";
   };
 
   const triggerImageUpload = () => {
@@ -164,7 +179,9 @@ const Tiptap = ({
               <Italic className="h-4 w-4 text-gray-400" />
             </Button>
             <Button
-              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              onClick={() =>
+                editor.chain().focus().toggleMark("underline").run()
+              }
               className={`h-auto w-auto p-1 hover:bg-white/10 ${
                 editor.isActive("underline") ? "ring-1 ring-white" : ""
               }`}
