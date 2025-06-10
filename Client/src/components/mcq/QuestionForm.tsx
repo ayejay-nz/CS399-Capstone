@@ -60,7 +60,7 @@ export default function QuestionForm({
       const newIds = optionEditors.map((_, i) =>
         i < optionIds.length ? optionIds[i] : generateOptionId(),
       );
-      setOptionIds(newIds);
+      setOptionIds(() => newIds);
     }
   }, [optionEditors.length, optionIds.length, setOptionIds]);
 
@@ -222,7 +222,7 @@ export default function QuestionForm({
               isQuestionEditor={true}
               isAppendix={isAppendix}
               error={validationErrors.question}
-              onUpdate={(html, text) => {
+              onUpdate={(html: string, text: string) => {
                 const hasImages = html.includes("<img");
                 setValidationErrors((prev) => ({
                   ...prev,
@@ -253,7 +253,7 @@ export default function QuestionForm({
                     <div className="flex-1 w-full relative">
                       <Tiptap
                         key={`${optionId}-editor-${version}`}
-                        setEditor={(editor) => {
+                        setEditor={(editor: any) => {
                           setOptionEditors((prev) => {
                             const updated = [...prev];
                             updated[i] = editor;
@@ -261,7 +261,7 @@ export default function QuestionForm({
                           });
                         }}
                         content={optionContents[i]}
-                        onUpdate={(html, text) => {
+                        onUpdate={(html: string, text: string) => {
                           setOptionContents((prev) => {
                             const newContents = [...prev];
                             newContents[i] = html;
