@@ -44,7 +44,7 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-center mt-4 md:mt-6 gap-2 text-base md:text-xl">
+                <div className="flex items-center justify-center mt-4 md:mt-6 gap-2 text-base md:text-xl hover:text-[#8CAEDB]">
                   <svg
                     className="w-5 h-5 md:w-6 md:h-6"
                     viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-center mt-4 md:mt-6 gap-2 text-base md:text-xl">
+                <div className="flex items-center justify-center mt-4 md:mt-6 gap-2 text-base md:text-xl hover:text-[#8CAEDB]">
                   <svg
                     className="w-5 h-5 md:w-6 md:h-6"
                     viewBox="0 0 24 24"
