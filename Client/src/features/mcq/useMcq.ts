@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { Editor } from "@tiptap/react";
 // TODO: Why are we importing from Server? We may have to split Client and Server later on
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse"; // Clean these imports up
 import { ExamData } from "../../../../Server/src/dataTypes/examData";
@@ -8,9 +9,9 @@ import { toast } from "sonner";
 export function useMcq() {
   const [optionContents, setOptionContents] = useState<string[]>([]);
   const [optionIds, setOptionIds] = useState<string[]>([]);
-  const [questionEditor, setQuestionEditor] = useState(null);
+  const [questionEditor, setQuestionEditor] = useState<Editor | null>(null);
   const [optionCount, setOptionCount] = useState(5);
-  const [optionEditors, setOptionEditors] = useState([
+  const [optionEditors, setOptionEditors] = useState<(Editor | null)[]>([
     null,
     null,
     null,
@@ -38,6 +39,8 @@ export function useMcq() {
   };
 
   const handleAddOrUpdateQuestion = () => {
+    if (!questionEditor) return;
+    
     const content = questionEditor.getHTML();
     const options = optionContents;
     const displayText = extractTextFromHTML(content) || "Question";
