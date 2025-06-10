@@ -36,7 +36,7 @@ export default function Home() {
                     style={{ paddingTop: "65%" }}
                   >
                     <Image
-                      src="/assets/shuffleQuestionEditor.png"
+                      src="/assets/genMCQ.png"
                       alt="Generate MCQ Interface"
                       fill
                       className="object-contain"

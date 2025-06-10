@@ -431,14 +431,12 @@ export default function GenerateMCQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0B0B] text-white flex flex-col relative overflow-hidden">
       <Navbar />
 
-      <div
-        className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pt-4 pb-4"
-        style={{ backgroundColor: "oklch(0 0 0)" }}
-      >
-        <div className="flex justify-end mb-4">
+      <div className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pt-4 pb-4">
+        <div className="flex justify-end mb-4 border-[#27272a]">
+          {/* <span className="text-2xl font-bold pl-12">Generate MCQ</span> */}
           <Toolbar
             mode={mcq.activeButton}
             setMode={mcq.setActiveButton}
