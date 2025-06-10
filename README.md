@@ -42,7 +42,7 @@ docker compose up
 First checkout the production branch:
 ```bash
 git checkout -b production/v1
-cd 
+cd capstone-project-2025-s1-team-1
 ```
 
 Build and start all services for production:
