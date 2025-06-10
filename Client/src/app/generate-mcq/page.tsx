@@ -13,7 +13,11 @@ import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
 import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
 
-import { AppendixPage, Coverpage, CoverpageDocx } from "../../../../Server/src/dataTypes/coverpage";
+import {
+  AppendixPage,
+  Coverpage,
+  CoverpageDocx,
+} from "../../../../Server/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -152,13 +156,10 @@ export default function GenerateMCQPage() {
     try {
       const formData = new FormData();
       formData.append("coverPageFile", file);
-      const res = await fetch(
-        "/api/v1/cover-page/upload-file",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const res = await fetch("/api/v1/cover-page/upload-file", {
+        method: "POST",
+        body: formData,
+      });
 
       let responseData;
       const contentType = res.headers.get("Content-Type");
@@ -195,7 +196,6 @@ export default function GenerateMCQPage() {
         }
         return;
       }
-
 
       const { data: coverpageJson } =
         responseData as ApiSuccessResponse<CoverpageDocx>;
@@ -237,8 +237,10 @@ export default function GenerateMCQPage() {
       mcq.setQuestions((prev) => [...prev, ...newAppendices]);
 
       if (newAppendices.length > 0) {
-        toast.success(`${newAppendices.length} appendix(es) uploaded successfully`);
-      } 
+        toast.success(
+          `${newAppendices.length} appendix(es) uploaded successfully`,
+        );
+      }
     } catch (err) {
       console.error("Error uploading cover page:", err);
       toast.error("Failed to connect to server");
@@ -255,10 +257,9 @@ export default function GenerateMCQPage() {
       } else if (item.__type === "TableURI") {
         htmlContent += `<table>${item.tableUri}</table>`;
       }
-    })
+    });
     return htmlContent;
-  }
-
+  };
 
   const handleUploadAppendix = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -270,13 +271,10 @@ export default function GenerateMCQPage() {
       const formData = new FormData();
       formData.append("coverPageFile", file);
 
-      const res = await fetch(
-        "/api/v1/appendix/upload-file",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const res = await fetch("/api/v1/appendix/upload-file", {
+        method: "POST",
+        body: formData,
+      });
 
       // Always attempt to parse as JSON if the content type is JSON
       let responseData;
@@ -377,7 +375,6 @@ export default function GenerateMCQPage() {
             input.click();
           }}
         />
-
       );
     }
 
@@ -434,14 +431,12 @@ export default function GenerateMCQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0B0B] text-white flex flex-col relative overflow-hidden">
       <Navbar />
 
-      <div
-        className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pb-4"
-        style={{ backgroundColor: "oklch(0 0 0)" }}
-      >
-        <div className="flex justify-end mb-4">
+      <div className="flex-grow justify-between items-center px-8 md:px-12 lg:px-16 pt-4 pb-4">
+        <div className="flex justify-end mb-4 border-[#27272a]">
+          {/* <span className="text-2xl font-bold pl-12">Generate MCQ</span> */}
           <Toolbar
             mode={mcq.activeButton}
             setMode={mcq.setActiveButton}

@@ -4,6 +4,7 @@ export default function Documentation() {
   return (
     <div className="min-h-screen bg-black text-white ">
       <Navbar />
+      <div className="border-b border-[#27272A]"></div>
       <h1 className="text-4xl font-bold mb-4 py-6 text-center">Demo Video</h1>
       <div className="max-w-5xl mx-auto mt-8 flex flex-col items-center">
         <div className="flex justify-center w-full">

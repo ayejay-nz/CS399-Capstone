@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className="flex justify-between items-center px-8 md:px-12 lg:px-16 py-4">
+    <nav className="flex justify-between items-center px-8 md:px-12 lg:px-16 py-5 bg-[#0B0B0B]">
       <div className="pl-2">
         <Link href="/" className="block">
           <Image
@@ -17,7 +17,10 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="space-x-4 md:space-x-8 pr-2">
-        <Link href="/docs" className="hover:text-gray-300 text-white text-sm md:text-base">
+        <Link
+          href="/docs"
+          className="hover:text-gray-300 text-white text-sm md:text-base"
+        >
           Demo
         </Link>
         <Link

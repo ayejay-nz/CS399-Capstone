@@ -39,21 +39,55 @@ const fieldConfigs: {
 }[] = [
   { name: "semester", label: "Semester", placeholder: "e.g. Semester 1, 2025" },
   { name: "campus", label: "Campus", placeholder: "e.g. Campus: City" },
-  { name: "department", label: "Department", placeholder: "e.g. Computer Science" },
-  { name: "courseCode", label: "Course Code", placeholder: "e.g. COMPSCI 399 : Capstone: Computer" },
+  {
+    name: "department",
+    label: "Department",
+    placeholder: "e.g. Computer Science",
+  },
+  {
+    name: "courseCode",
+    label: "Course Code",
+    placeholder: "e.g. COMPSCI 399 : Capstone: Computer",
+  },
   { name: "courseName", label: "Course Name", placeholder: "e.g. COMPSCI 399" },
-  { name: "examTitle", label: "Exam Title", placeholder: "e.g. Mid-Semester Test" },
-  { name: "duration", label: "Duration", placeholder: "e.g. (Time Allowed: ONE hour)" },
-  { name: "versionNumber", label: "Version Number", placeholder: "e.g. original" },
-  { name: "noteContent", label: "Note Content", as: "textarea", placeholder: "e.g. This exam is restricted book. You are permitted to bring one A4 sheet of handwritten or typed notes" },
+  {
+    name: "examTitle",
+    label: "Exam Title",
+    placeholder: "e.g. Mid-Semester Test",
+  },
+  {
+    name: "duration",
+    label: "Duration",
+    placeholder: "e.g. (Time Allowed: ONE hour)",
+  },
+  {
+    name: "versionNumber",
+    label: "Version Number",
+    placeholder: "e.g. original",
+  },
+  {
+    name: "noteContent",
+    label: "Note Content",
+    as: "textarea",
+    placeholder:
+      "e.g. This exam is restricted book. You are permitted to bring one A4 sheet of handwritten or typed notes",
+  },
 ];
+
+const formFields = fieldConfigs.filter(
+  (config) => config.name !== "isImported",
+) as {
+  name: Exclude<keyof CoverPageFormValues, "isImported">;
+  label: string;
+  as?: "textarea";
+  placeholder?: string;
+}[];
 
 interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
   onUpload: () => void;
-
 }
 
 export default function CoverPageForm({
@@ -61,22 +95,25 @@ export default function CoverPageForm({
   cancelEdit,
   initialValues,
   onUpload,
-
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
-    defaultValues:
-      initialValues ||
-      (Object.fromEntries(
-        fieldConfigs.map((f) => [f.name, ""]),
-      ) as CoverPageFormValues),
+    defaultValues: initialValues || {
+      semester: "",
+      campus: "",
+      department: "",
+      courseCode: "",
+      courseName: "",
+      examTitle: "",
+      duration: "",
+      versionNumber: "",
+      noteContent: "",
+      isImported: false,
+    },
   });
 
   return (
-    <div
-      className="flex-1 p-6 pr-6 rounded-md border border-[#27272a]"
-      style={{ backgroundColor: "oklch(0 0 0)" }}
-    >
+    <div className="flex-1 p-6 pr-6 rounded-md border border-[#27272a] bg-[#0B0B0B]">
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
       </div>
@@ -84,7 +121,7 @@ export default function CoverPageForm({
       <div className="ml-6 mr-4">
         <Form {...form}>
           <form className="grid gap-4 md:grid-cols-2">
-            {fieldConfigs.map((config) => (
+            {formFields.map((config) => (
               <FormField
                 key={config.name}
                 control={form.control}
@@ -132,7 +169,6 @@ export default function CoverPageForm({
         <Button variant="secondary" onClick={onUpload}>
           Upload Cover Page
         </Button>
-
       </div>
     </div>
   );
