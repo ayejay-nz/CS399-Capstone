@@ -1,28 +1,16 @@
 "use client";
 
 import React from "react";
-import {
-  useReactTable,
-  ColumnDef,
-  getCoreRowModel,
-  getFilteredRowModel,
-  flexRender,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/src/components/ui/table";
+import { useReactTable, ColumnDef, getCoreRowModel, getFilteredRowModel, flexRender } from "@tanstack/react-table";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/src/components/ui/table";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
-import type {
-  StudentBreakdown,
-  Answer,
-} from "@/src/dataTypes/examBreakdown";
+import type { StudentBreakdown, Answer } from "@/src/dataTypes/examBreakdown";
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Download } from "lucide-react";
+import { formatStudentResultText } from "@/src/utils/statsFormatter";
 
 interface IndividualPerformanceTabProps {
   students: StudentBreakdown[];
@@ -70,7 +58,9 @@ export function IndividualPerformanceTab({
         cell: ({ row }) => {
           const marks = row.original.mark;
           return percentageView ? (
-            <div className="w-20 text-center">{Math.round((marks / examMarks) * 100)}%</div>
+            <div className="w-20 text-center">
+              {Math.round((marks / examMarks) * 100)}%
+            </div>
           ) : (
             <div className="w-20 text-center">{marks}</div>
           );
@@ -98,6 +88,28 @@ export function IndividualPerformanceTab({
     [selectedRowId, students]
   );
 
+  // Generate and download a single student's stats as plain-text
+  async function handleDownloadStudent() {
+    if (!selectedStudent) return;
+
+    try {
+      const txt = formatStudentResultText(selectedStudent);
+      const blob = new Blob([txt], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedStudent.auid}_stats.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Downloaded student stats");
+    } catch (err: any) {
+      console.error("Download failed:", err);
+      toast.error(`Failed to download student stats: ${err.message}`);
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,24 +172,49 @@ export function IndividualPerformanceTab({
       </div>
 
       <div className="rounded-xl border border-[#27272A] p-4 min-h-[200px] overflow-auto">
+        <div className="mb-4">
+          {selectedStudent && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadStudent}
+              className="
+                gap-2
+                border-black
+                text-black
+                hover:bg-black
+                hover:text-white
+                hover:border-white
+                transition-colors
+                duration-200
+                ease-in-out
+              "
+            >
+              <Download className="h-4 w-4" />
+              Download This Student’s Stats
+            </Button>
+          )}
+        </div>
         {selectedStudent ? (
           <Table>
             <TableHeader>
               <TableRow className="border-b border-[#27272A]">
-                {["Question","Marks","Option","Feedback"].map((h) => (
-                  <TableHead key={h} className="text-white">{h}</TableHead>
+                {["Question", "Marks", "Option", "Feedback"].map((h) => (
+                  <TableHead key={h} className="text-white">
+                    {h}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {selectedStudent.answers.map((ans: Answer) => {
                 const letter = ans.optionSelected != null
-                  ? String.fromCharCode(65 + ans.optionSelected)
+                  ? String.fromCharCode(65 + Math.log2(ans.optionSelected))
                   : "";
                 return (
                   <TableRow key={ans.questionId} className="border-b border-[#27272A]">
                     <TableCell>{ans.questionId}</TableCell>
-                    <TableCell className="text-center">{ans.mark}</TableCell>
+                    <TableCell>{ans.mark}</TableCell>
                     <TableCell>{letter}</TableCell>
                     <TableCell>
                       <Input
@@ -192,12 +229,11 @@ export function IndividualPerformanceTab({
                               selectedStudent.auid,
                               val
                             );
-                            // blur to remount with new feedback or revert on cancel
                             (e.target as HTMLInputElement).blur();
                           }
                         }}
-                       className="w-full border border-[#27272A] text-white"
-                     />
+                        className="w-full border border-[#27272A] text-white"
+                      />
                     </TableCell>
                   </TableRow>
                 );

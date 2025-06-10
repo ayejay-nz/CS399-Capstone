@@ -4,60 +4,48 @@ import React from "react";
 import { Button } from "./ui/button";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import { useExam } from "@/src/context/ExamContext";
+import { formatStatsTxt, formatStudentResultText } from "@/src/utils/statsFormatter";
 
 export function DownloadAnswers() {
-  // TODO: Aidan update this for downloading the .txt and excel file in zip (this would be tied to a session)
+  const { stats: exam } = useExam();
+
   async function handleClick() {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/marking/download", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/zip",
-        },
+      // 1) Fetch the backend ZIP
+      const res = await fetch(
+        "/api/v1/marking/generate-stats",
+        { method: "POST", credentials: "include" }
+      );
+      if (!res.ok) {
+        const message = await res.text();
+        throw new Error(message || `${res.status} ${res.statusText}`);
+      }
+      const blob = await res.blob();
+
+      // 2) Load into JSZip
+      const zip = await JSZip.loadAsync(blob);
+
+      // 3) Overwrite (or add) the overall stats.txt
+      if (!exam) throw new Error("Exam data not available");
+      zip.file("original_stats.txt", formatStatsTxt(exam));
+
+      // 4) Add a folder of per-student files
+      exam.students.forEach((student) => {
+        const txt = formatStudentResultText(student);
+        zip.file(`students/${student.auid}.txt`, txt);
       });
 
-      // Always attempt to parse as JSON if the content type is JSON
-      let responseData;
-      const contentType = res.headers.get("Content-Type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await res.json();
-      } else {
-        responseData = await res.text();
-      }
-
-      if (!res.ok) {
-        if (
-          responseData &&
-          typeof responseData === "object" &&
-          responseData.message
-        ) {
-          toast.error(responseData.message);
-        } else if (
-          typeof responseData === "string" &&
-          responseData.length > 0
-        ) {
-          toast.error(`Server error: ${responseData}`);
-        } else {
-          toast.error(`Server error: ${res.status} ${res.statusText}`);
-        }
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "stats_information.zip";
-      document.body.appendChild(a);
-      a.click();
-
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      // 5) Rebuild & download
+      const finalBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(finalBlob, "stats_with_students.zip");
       toast.success("Download completed successfully");
-    } catch (error) {
-      console.error("Error downloading answers:", error);
+    } catch (err: any) {
+      console.error("Error downloading answers:", err);
       toast.error(
-        "Network error or unexpected response format. Please try again.",
+        "Network error or unexpected response format. Please try again."
       );
     }
   }
@@ -68,14 +56,14 @@ export function DownloadAnswers() {
       size="sm"
       onClick={handleClick}
       className="
-        gap-2 
-        border-black 
-        text-black 
-        hover:bg-black 
-        hover:text-white 
-        hover:border-white 
-        transition-colors 
-        duration-200 
+        gap-2
+        border-black
+        text-black
+        hover:bg-black
+        hover:text-white
+        hover:border-white
+        transition-colors
+        duration-200
         ease-in-out
       "
     >

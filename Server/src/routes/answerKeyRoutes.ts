@@ -11,6 +11,9 @@ import path from 'path';
 import { AnswerKey } from '../dataTypes/answerKey';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 import { parseAnswerKeyXLSX } from '../parsers/answerKeyParser';
+import sessionManager from '../services/sessionManager';
+import { setSessionCookie } from '../middlewares/sessionMiddleware';
+import { SessionCreatedResponse } from '../dataTypes/session';
 
 const router = express.Router();
 
@@ -28,8 +31,8 @@ router.post(
             }
 
             const fileBuffer = req.file.buffer;
-            const originalFilename = req.file.originalname;
-            const fileExt = path.extname(originalFilename).toLowerCase();
+            const answerKeyFilename = req.file.originalname;
+            const fileExt = path.extname(answerKeyFilename).toLowerCase();
 
             let parseResult: AnswerKey;
 
@@ -46,11 +49,28 @@ router.post(
                         { receivedType: fileExt },
                     );
             }
+            
+            // Create session for parsed answer key
+            const sessionId = sessionManager.createSession(parseResult, {
+                answerKeyFilename,
+                answerKeyFileSize: req.file.size,
+                uploadedBy: req.ip,
+            });
 
-            const response: ApiSuccessResponse<AnswerKey> = {
+            setSessionCookie(res, sessionId);
+
+            const session = sessionManager.getSession(sessionId)!;
+
+            const responseData: SessionCreatedResponse = {
+                sessionId,
+                expiresAt: session.expiresAt,
+                answerKey: parseResult,
+            };
+
+            const response: ApiSuccessResponse<SessionCreatedResponse> = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
-                data: parseResult,
+                data: responseData,
             };
             res.status(response.status).json(response);
         } catch (error) {

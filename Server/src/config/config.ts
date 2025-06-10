@@ -15,6 +15,7 @@ interface Config {
         port: number;
         nodeEnv: string;
         apiPrefix: string;
+        internalApiUrl: string;
     };
     upload: {
         maxExamSourceFileSize: number;
@@ -23,6 +24,16 @@ interface Config {
         maxAnswerKeyFileSize: number;
         maxAssetFileSize: number;
     };
+    session: {
+        defaultExpiryHours: number;
+        maxSessions: number;
+        maxMemoryUsageMB: number;
+        cleanupIntervalMinutes: number;
+        cookieName: string;
+        cookieSecure: boolean;
+        cookieHttpOnly: boolean;
+        cookieSameSite: 'strict' | 'lax' | 'none';
+    };
 }
 
 const config: Config = {
@@ -30,6 +41,7 @@ const config: Config = {
         port: Number(process.env.PORT) || 8000,
         nodeEnv: process.env.NODE_ENV || 'development',
         apiPrefix: process.env.API_PREFIX || '/api/v1',
+        internalApiUrl: process.env.INTERNAL_API_URL || 'http://shuffle-backend:8000',
     },
     upload: {
         maxExamSourceFileSize: MAX_EXAM_SOURCE_FILE_MB * MB,
@@ -38,6 +50,16 @@ const config: Config = {
         maxAnswerKeyFileSize: MAX_ANSWER_KEY_FILE_MB * MB,
         maxAssetFileSize: MAX_ASSET_FILE_MB * MB,
     },
+    session: {
+        defaultExpiryHours: Number(process.env.SESSION_EXPIRY_HOURS) || 2,
+        maxSessions: Number(process.env.MAX_SESSIONS) || 128,
+        maxMemoryUsageMB: Number(process.env.SESSION_MAX_MEMORY_USAGE_MB) || 32,
+        cleanupIntervalMinutes: Number(process.env.SESSION_CLEANUP_INTERVAL_MINUTES) || 15,
+        cookieName: 'answerkey_session',
+        cookieSecure: process.env.NODE_ENV === 'production',
+        cookieHttpOnly: true,
+        cookieSameSite: 'lax',
+    }
 };
 
 export default config;

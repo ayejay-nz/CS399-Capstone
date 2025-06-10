@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { TeleformData } from '../dataTypes/teleformData';
-import { AnswerKey } from '../dataTypes/answerKey';
+import { AnswerKey, AnswerKeyQuestion } from '../dataTypes/answerKey';
 import { generateExamBreakdown } from '../services/examMarking';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
 import { ExamBreakdown } from '../dataTypes/examBreakdown';
@@ -15,6 +15,19 @@ import config from '../config/config';
 import ApiError from '../utils/apiError';
 import { ApiErrorResponse } from '../dataTypes/apiErrorResponse';
 import { uploadMarkingFiles } from '../middlewares/uploadMiddleware';
+import {
+    optionalSession,
+    setSessionCookie,
+    validateSession,
+} from '../middlewares/sessionMiddleware';
+import { SessionCreatedResponse } from '../dataTypes/session';
+import sessionManager from '../services/sessionManager';
+import {
+    CorrectnessUpdateRequest,
+    FeedbackUpdateRequest,
+    UpdateRequest,
+} from '../dataTypes/updateRequest';
+import { indexToTeleformAnswer } from '../utils/answerKey';
 
 const router = express.Router();
 
@@ -36,27 +49,21 @@ router.post(
     uploadMarkingFiles,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            let answerKey: AnswerKey;
+
+            // Process answer key file
             const answerKeyFileObj = (req.files as any)['answerKeyFile'][0];
             const answerKeyBuffer = answerKeyFileObj.buffer as Buffer;
             const answerKeyOriginalName = answerKeyFileObj.originalname as string;
             const answerKeyMimeType = answerKeyFileObj.mimetype as string;
 
-            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
-            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
-            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
-            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
-
             const answerKeyForm = new FormData();
             const answerKeyBlob = new Blob([answerKeyBuffer], { type: answerKeyMimeType });
             answerKeyForm.append('answerKeyFile', answerKeyBlob, answerKeyOriginalName);
 
-            const teleformDataForm = new FormData();
-            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
-            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
-
             // Parse answer key
             const answerKeyRes = await fetch(
-                `${req.protocol}://${req.get('host')}${config.server.apiPrefix}/answer-key/upload`,
+                `${config.server.internalApiUrl}${config.server.apiPrefix}/answer-key/upload`,
                 {
                     method: 'POST',
                     body: answerKeyForm,
@@ -65,9 +72,9 @@ router.post(
 
             if (!answerKeyRes.ok) await propagateApiError(answerKeyRes);
 
-            const { data: answerKey } =
-                (await answerKeyRes.json()) as ApiSuccessResponse<AnswerKey>;
-
+            const { data: answerKeyResponse } =
+                (await answerKeyRes.json()) as ApiSuccessResponse<any>;
+            answerKey = answerKeyResponse.answerKey;
             if (!answerKey) {
                 throw new ApiError(
                     HTTP_STATUS_CODE.BAD_REQUEST,
@@ -77,11 +84,25 @@ router.post(
                 );
             }
 
+            // Forward the session cookie to the client
+            const sessionId = answerKeyResponse.sessionId;
+            if (sessionId) {
+                setSessionCookie(res, sessionId);
+                console.log(`Set session cookie for client: ${sessionId}`);
+            }
+
+            const teleformDataFileObj = (req.files as any)['teleformDataFile'][0];
+            const teleformDataBuffer = teleformDataFileObj.buffer as Buffer;
+            const teleformDataOriginalName = teleformDataFileObj.originalname as string;
+            const teleformDataMimeType = teleformDataFileObj.mimetype as string;
+
+            const teleformDataForm = new FormData();
+            const teleformDataBlob = new Blob([teleformDataBuffer], { type: teleformDataMimeType });
+            teleformDataForm.append('teleformDataFile', teleformDataBlob, teleformDataOriginalName);
+
             // Parse teleform data
             const teleformDataRes = await fetch(
-                `${req.protocol}://${req.get('host')}${
-                    config.server.apiPrefix
-                }/teleform-data/upload`,
+                `${config.server.internalApiUrl}${config.server.apiPrefix}/teleform-data/upload`,
                 {
                     method: 'POST',
                     body: teleformDataForm,
@@ -101,13 +122,26 @@ router.post(
                     { message: 'No teleform data detected' },
                 );
             }
-
             const examBreakdown = generateExamBreakdown(answerKey, teleformData);
 
-            const response: ApiSuccessResponse<ExamBreakdown> = {
+            // Store exam breakdown and teleform data in session
+            if (sessionId) {
+                sessionManager.addTeleformData(sessionId, teleformData, teleformDataOriginalName);
+                sessionManager.updateExamBreakdown(sessionId, examBreakdown);
+                console.log(`Stored exam breakdown and teleform data in session: ${sessionId}`);
+            }
+
+            const responseData = [{ stats: examBreakdown }, { questions: answerKey.source }] as [
+                { stats: ExamBreakdown },
+                { questions: AnswerKeyQuestion[] },
+            ];
+
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
                 status: HTTP_STATUS_CODE.OK,
                 message: API_SUCCESS_MESSAGE.ok,
-                data: examBreakdown,
+                data: responseData,
             };
             res.status(response.status).json(response);
         } catch (err) {
@@ -116,15 +150,101 @@ router.post(
     },
 );
 
+/**
+ * Generate stats from session data
+ */
+router.post(
+    '/generate-stats-from-session',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+
+            if (!session.teleformData) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noTeleformData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
+            sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
+
+            const responseData = [
+                { stats: examBreakdown },
+                { questions: session.answerKey.source },
+            ] as [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }];
+
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
+                status: HTTP_STATUS_CODE.OK,
+                message: API_SUCCESS_MESSAGE.ok,
+                data: responseData,
+            };
+            res.status(response.status).json(response);
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+/**
+ * Generate stats from session data
+ */
+router.post(
+    '/generate-stats-from-session',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+            
+            if (!session.teleformData) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noTeleformData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
+            sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
+
+            const responseData = [{ stats: examBreakdown }, { questions: session.answerKey.source }] as [
+                { stats: ExamBreakdown },
+                { questions: AnswerKeyQuestion[] },
+            ];
+
+            const response: ApiSuccessResponse<
+                [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+            > = {
+                status: HTTP_STATUS_CODE.OK,
+                message: API_SUCCESS_MESSAGE.ok,
+                data: responseData,
+            };
+            res.status(response.status).json(response);
+        } catch (err) {
+            next(err);
+        }
+    }
+)
+
 router.post(
     '/generate-stats',
-    async (
-        req: Request<Record<string, never>, unknown, { examBreakdown: ExamBreakdown }>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const examBreakdown = req.body.examBreakdown;
+            const session = req.examMarkingSession!;
+            if (!session.examBreakdown) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noExamBreakdown,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
+            const examBreakdown = session.examBreakdown;
 
             const zipBuffer = await exportGeneratedStats(examBreakdown);
 
@@ -135,6 +255,223 @@ router.post(
                     'Content-Length': zipBuffer.length,
                 })
                 .send(zipBuffer);
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
+    '/update-dashboard',
+    validateSession,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const session = req.examMarkingSession!;
+            const updateRequest = req.body as UpdateRequest;
+
+            // Check we have both answer key and teleform data
+            if (!session.answerKey) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.missingRequiredData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                    { message: 'Session does not contain answer key data' },
+                );
+            }
+
+            if (!session.teleformData) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.missingRequiredData,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                    { message: 'Session does not contain teleform data' },
+                );
+            }
+
+            // Check update request structure
+            if (!updateRequest.type || !updateRequest.questionId) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.invalidEditInput,
+                    API_ERROR_CODE.INVALID_EDIT_INPUT,
+                    { message: 'Missing required fields: type and questionId' },
+                );
+            }
+
+            // Handle correctness update
+            if (updateRequest.type === 'correctness') {
+                const correctnessUpdate = updateRequest as CorrectnessUpdateRequest;
+
+                // Check if question exists in answer key
+                const question = session.answerKey.source.find(
+                    (q) => q.id === correctnessUpdate.questionId,
+                );
+                if (!question) {
+                    throw new ApiError(
+                        HTTP_STATUS_CODE.BAD_REQUEST,
+                        API_ERROR_MESSAGE.editTargetNotFound,
+                        API_ERROR_CODE.EDIT_TARGET_NOT_FOUND,
+                        {
+                            message: `Question with ID ${correctnessUpdate.questionId} not found in answer key`,
+                        },
+                    );
+                }
+
+                // --- Preserve custom feedback before regenerating breakdown ---
+                const feedbackMap = new Map();
+                if (session.examBreakdown && session.examBreakdown.students) {
+                    for (const student of session.examBreakdown.students) {
+                        for (const answer of student.answers) {
+                            if (answer.customFeedback) {
+                                feedbackMap.set(`${student.auid}-${answer.questionId}`, answer.customFeedback);
+                            }
+                        }
+                    }
+                }
+                // -------------------------------------------------------------
+
+                // Update version solutions for allTrue
+                if (correctnessUpdate.allTrue) {
+                    // Update answer key
+                    session.answerKey.versionSolutions.forEach((version) => {
+                        const questionSolution = version.questionSolutions.find(
+                            (qs) => qs.questionId === correctnessUpdate.questionId,
+                        );
+
+                        if (questionSolution) {
+                            // Set all options as correct
+                            const numOptions = question.options.length;
+                            const allAnswers = [];
+                            for (let i = 0; i < numOptions; i++) {
+                                allAnswers.push(indexToTeleformAnswer(i));
+                            }
+
+                            questionSolution.answers = allAnswers;
+                        }
+                    });
+                } else {
+                    // Update answer key
+                    session.answerKey.versionSolutions.forEach((version) => {
+                        const questionSolution = version.questionSolutions.find(
+                            (qs) => qs.questionId === correctnessUpdate.questionId,
+                        );
+
+                        if (questionSolution) {
+                            // Go back to only having one correct answer
+                            const originalCorrectIndex = questionSolution.optionSequence.indexOf(
+                                correctnessUpdate.originalValue,
+                            );
+                            const correctAnswer = indexToTeleformAnswer(originalCorrectIndex);
+                            questionSolution.answers = [correctAnswer];
+                        }
+                    });
+                }
+
+                // Regenerate exam breakdown with new answer key
+                const updatedExamBreakdown = generateExamBreakdown(
+                    session.answerKey,
+                    session.teleformData,
+                );
+
+                // --- Re-apply custom feedback after regenerating breakdown ---
+                if (updatedExamBreakdown && updatedExamBreakdown.students) {
+                    for (const student of updatedExamBreakdown.students) {
+                        for (const answer of student.answers) {
+                            const key = `${student.auid}-${answer.questionId}`;
+                            if (feedbackMap.has(key)) {
+                                answer.customFeedback = feedbackMap.get(key);
+                                answer.feedback = feedbackMap.get(key); // Also update display feedback
+                            }
+                        }
+                    }
+                }
+                // ------------------------------------------------------------
+
+                sessionManager.updateExamBreakdown(session.sessionId, updatedExamBreakdown);
+
+                // Prepare response
+                const responseData = [
+                    { stats: updatedExamBreakdown },
+                    { questions: session.answerKey.source },
+                ] as [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }];
+
+                const response: ApiSuccessResponse<
+                    [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+                > = {
+                    status: HTTP_STATUS_CODE.OK,
+                    message: API_SUCCESS_MESSAGE.ok,
+                    data: responseData,
+                };
+                res.status(response.status).json(response);
+            } else if (updateRequest.type === 'feedback') {
+                const feedbackUpdate = updateRequest as FeedbackUpdateRequest;
+                const currentExamBreakdown = session.examBreakdown;
+
+                if (!currentExamBreakdown) {
+                    throw new ApiError(
+                        HTTP_STATUS_CODE.BAD_REQUEST,
+                        API_ERROR_MESSAGE.noExamBreakdown,
+                        API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                        { message: 'Session does not contain exam breakdown data' },
+                    );
+                }
+
+                // Find specified student
+                const student = currentExamBreakdown.students.find(
+                    (s) => s.auid === feedbackUpdate.auid,
+                );
+                if (!student) {
+                    throw new ApiError(
+                        HTTP_STATUS_CODE.BAD_REQUEST,
+                        API_ERROR_MESSAGE.editTargetNotFound,
+                        API_ERROR_CODE.EDIT_TARGET_NOT_FOUND,
+                        {
+                            message: `Student with AUID ${feedbackUpdate.auid} not found in exam breakdown`,
+                        },
+                    );
+                }
+
+                // Update students custom feedback
+                const answer = student.answers.find(
+                    (a) => a.questionId === feedbackUpdate.questionId,
+                );
+                if (!answer) {
+                    throw new ApiError(
+                        HTTP_STATUS_CODE.BAD_REQUEST,
+                        API_ERROR_MESSAGE.editTargetNotFound,
+                        API_ERROR_CODE.EDIT_TARGET_NOT_FOUND,
+                        {
+                            message: `Answer for question ${feedbackUpdate.questionId} not found for student ${feedbackUpdate.auid}`,
+                        },
+                    );
+                }
+
+                // Update the display feedback with custom feedback
+                answer.feedback = feedbackUpdate.customFeedback;
+                answer.customFeedback = feedbackUpdate.customFeedback;
+
+                const responseData: [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }] =
+                    [{ stats: currentExamBreakdown }, { questions: session.answerKey.source }];
+
+                const response: ApiSuccessResponse<
+                    [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+                > = {
+                    status: HTTP_STATUS_CODE.OK,
+                    message: API_SUCCESS_MESSAGE.ok,
+                    data: responseData,
+                };
+                res.status(response.status).json(response);
+            } else {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.invalidEditInput,
+                    API_ERROR_CODE.INVALID_EDIT_INPUT,
+                    { message: 'Invalid update request type' },
+                );
+            }
+
+            // Refresh cookie after successful update
+            sessionManager.refreshSession(session.sessionId);
         } catch (err) {
             next(err);
         }

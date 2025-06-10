@@ -11,7 +11,7 @@ describe('parseTeleformData()', () => {
         expect(result.studentAnswers).toHaveLength(1);
 
         const expected: StudentTeleformData = {
-            auid: '01123456712',
+            auid: '123456712',
             lastName: 'NGWERUME',
             firstName: 'MUGOVEV',
             courseNumber: '111',
@@ -31,7 +31,7 @@ describe('parseTeleformData()', () => {
         expect(result.studentAnswers).toHaveLength(1);
 
         const expected: StudentTeleformData = {
-            auid: '01123456712',
+            auid: '123456712',
             lastName: 'NGWERUME',
             firstName: 'MUGOVEV',
             courseNumber: '111',
@@ -62,7 +62,7 @@ describe('parseTeleformData()', () => {
         const result = teleformParser(raw);
         expect(result.studentAnswers).toHaveLength(2);
         expect(result.studentAnswers[1]).toMatchObject({
-            auid: '01122344411',
+            auid: '122344411',
             lastName: 'DDMELLO',
             firstName: 'MERVIN',
             courseNumber: '111',

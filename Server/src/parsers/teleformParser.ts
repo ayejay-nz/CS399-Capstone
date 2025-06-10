@@ -17,7 +17,7 @@ export function teleformParser(data: Buffer | string): TeleformData {
         const trimmed = line.trim();
         if (!trimmed) continue;
 
-        const auid = trimmed.slice(0, 11).trim();
+        const auid = trimmed.slice(2, 11).trim();
         const lastName = trimmed.slice(12, 25).trim() || undefined;
         const firstName = trimmed.slice(25, 32).trim() || undefined;
         const middleInitial = trimmed.slice(32, 33).trim() || undefined;
@@ -28,6 +28,13 @@ export function teleformParser(data: Buffer | string): TeleformData {
             throw new ParserError(
                 API_ERROR_CODE.TELEFORM_PARSE_FAILED,
                 'Invalid lines: missing fields',
+            );
+        }
+        // Check if id length if between 7 and 9 characters
+        if (auid.length < 7 || auid.length > 9) {
+            throw new ParserError(
+                API_ERROR_CODE.TELEFORM_PARSE_FAILED,
+                'Invalid lines: Student ID length is not between 7 and 9 characters',
             );
         }
 

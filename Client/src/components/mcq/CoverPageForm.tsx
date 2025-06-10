@@ -35,30 +35,33 @@ const fieldConfigs: {
   name: keyof CoverPageFormValues;
   label: string;
   as?: "textarea";
+  placeholder?: string;
 }[] = [
-  { name: "semester", label: "Semester" },
-  { name: "campus", label: "Campus" },
-  { name: "department", label: "Department" },
-  { name: "courseCode", label: "Course Code" },
-  { name: "courseName", label: "Course Name" },
-  { name: "examTitle", label: "Exam Title" },
-  { name: "duration", label: "Duration" },
-  { name: "versionNumber", label: "Version Number" },
-  { name: "noteContent", label: "Note Content", as: "textarea" },
+  { name: "semester", label: "Semester", placeholder: "e.g. Semester 1, 2025" },
+  { name: "campus", label: "Campus", placeholder: "e.g. Campus: City" },
+  { name: "department", label: "Department", placeholder: "e.g. Computer Science" },
+  { name: "courseCode", label: "Course Code", placeholder: "e.g. COMPSCI 399 : Capstone: Computer" },
+  { name: "courseName", label: "Course Name", placeholder: "e.g. COMPSCI 399" },
+  { name: "examTitle", label: "Exam Title", placeholder: "e.g. Mid-Semester Test" },
+  { name: "duration", label: "Duration", placeholder: "e.g. (Time Allowed: ONE hour)" },
+  { name: "versionNumber", label: "Version Number", placeholder: "e.g. original" },
+  { name: "noteContent", label: "Note Content", as: "textarea", placeholder: "e.g. This exam is restricted book. You are permitted to bring one A4 sheet of handwritten or typed notes" },
 ];
 
 interface Props {
   handleAddOrUpdate: (values: CoverPageFormValues) => void;
   cancelEdit: () => void;
   initialValues?: CoverPageFormValues;
-  onUploadFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpload: () => void;
+
 }
 
 export default function CoverPageForm({
   handleAddOrUpdate,
   cancelEdit,
   initialValues,
-  onUploadFile,
+  onUpload,
+
 }: Props) {
   const form = useForm<CoverPageFormValues>({
     resolver: zodResolver(coverPageSchema),
@@ -76,28 +79,6 @@ export default function CoverPageForm({
     >
       <div className="flex justify-between items-center mb-4">
         <h1 className="ml-6 text-2xl font-bold">Cover Page</h1>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            onClick={form.handleSubmit(handleAddOrUpdate)}
-          >
-            Update
-          </Button>
-          <Button variant="secondary" onClick={cancelEdit}>
-            Cancel
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.onchange = (e) => onUploadFile?.(e as any);
-              input.click();
-            }}
-          >
-            Upload Cover Page
-          </Button>
-        </div>
       </div>
 
       <div className="ml-6 mr-4">
@@ -120,11 +101,13 @@ export default function CoverPageForm({
                         <Textarea
                           {...field}
                           className="border-[#27272A] text-white"
+                          placeholder={config.placeholder}
                         />
                       ) : (
                         <Input
                           {...field}
                           className="border-[#27272A] text-white"
+                          placeholder={config.placeholder}
                         />
                       )}
                     </FormControl>
@@ -146,20 +129,10 @@ export default function CoverPageForm({
         <Button variant="secondary" onClick={cancelEdit}>
           Cancel
         </Button>
-        <div className="relative">
-          <input
-            type="file"
-            accept=".doc,.docx,.pdf"
-            onChange={handleFileUpload}
-            className="hidden"
-            id="cover-page-upload"
-          />
-          <label htmlFor="cover-page-upload">
-            <Button variant="secondary" asChild>
-              <span>Upload Cover Page</span>
-            </Button>
-          </label>
-        </div>
+        <Button variant="secondary" onClick={onUpload}>
+          Upload Cover Page
+        </Button>
+
       </div>
     </div>
   );

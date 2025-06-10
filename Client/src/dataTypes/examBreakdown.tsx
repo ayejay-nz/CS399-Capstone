@@ -66,3 +66,8 @@ export interface ExamBreakdown {
   students: StudentBreakdown[];
   questions: QuestionBreakdown[];
 }
+
+export interface UpdateQuestionFields {
+  allTrue: boolean;
+  originalValue: number;
+}

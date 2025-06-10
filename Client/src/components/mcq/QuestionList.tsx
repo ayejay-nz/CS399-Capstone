@@ -145,21 +145,10 @@ async function handlePreview(questions: Question[], coverPage: any) {
       }),
     ],
   };
-  console.log(payload);
-  const jsonBlob = new Blob([JSON.stringify(payload, null, 2)], {
-    type: "application/json",
-  });
-  const jsonUrl = URL.createObjectURL(jsonBlob);
-  const jsonLink = document.createElement("a");
-  jsonLink.href = jsonUrl;
-  jsonLink.download = "exam-payload.json";
-  document.body.appendChild(jsonLink);
-  jsonLink.click();
-  document.body.removeChild(jsonLink);
-  URL.revokeObjectURL(jsonUrl);
+
   try {
     const res = await fetch(
-      "http://localhost:8000/api/v1/exam-source/upload-json",
+      "/api/v1/exam-source/upload-json",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -284,7 +273,7 @@ async function handlePreview2(
 
   try {
     const res = await fetch(
-      "http://localhost:8000/api/v1/exam-bundle/preview-pdf",
+      "/api/v1/exam-bundle/preview-pdf",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -338,7 +327,7 @@ export default function QuestionList({
         className="lg:w-[400px] rounded-lg p-6 flex flex-col border border-[#27272a]"
         style={{ backgroundColor: "oklch(0 0 0)", height: "665px" }}
       >
-        <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Edit Examination</h2>
             <button
@@ -360,9 +349,8 @@ export default function QuestionList({
               onEdit(coverPage as Question);
             }}
           >
-            <div className="flex items-start gap-2">
-              <span className=""></span>
-              <div className="line-clamp-1">Cover Page</div>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="font-bold truncate">Cover Page</span>
             </div>
           </div>
 
@@ -393,15 +381,18 @@ export default function QuestionList({
                             onEdit(q);
                           }}
                         >
-                          <div className="flex items-start gap-2">
-                            <span className="font-semibold">{index + 1}.</span>
-                            <div className="line-clamp-1">
-                              {q.displayText ||
-                                (q.isAppendix ? "Appendix" : "Question")}
+                          <div className="flex items-start gap-2 flex-1 min-w-0">
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-bold truncate">
+                                {q.isAppendix ? "Appendix" : `Question ${index + 1}`}
+                              </span>
+                              <div className="truncate">
+                                {q.displayText || (q.isAppendix ? "..." : "Question")}
+                              </div>
                             </div>
                           </div>
                           <button
-                            className="p-1"
+                            className="p-1 flex-shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDelete(q.id);
