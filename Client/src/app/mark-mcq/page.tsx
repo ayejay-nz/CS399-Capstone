@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ImageUpload } from "../../components/ui/image-upload";
+import { FileUpload } from "../../components/ui/file-upload";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
 import Navbar from "@/src/components/layout/Navbar";
@@ -21,56 +21,66 @@ export default function MarkMCQ() {
   const router = useRouter();
   const ready = !!answerKeyFile && !!teleformDataFile;
 
-async function handleMarkingUpload() {
-  if (!ready) {
-    toast.error("Please upload both files first.");
-    return;
-  }
-
-  try {
-    const form = new FormData();
-    form.append("answerKeyFile", answerKeyFile!);
-    form.append("teleformDataFile", teleformDataFile!);
-
-    const res = await fetch("/api/v1/marking/upload", {
-      method: "POST",
-      body: form,
-      credentials: "include",
-    });
-
-    const responseData = await (async () => {
-      const contentType = res.headers.get("Content-Type") || "";
-      if (contentType.includes("application/json")) {
-        return (await res.json()) as ApiSuccessResponse<
-          [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
-        >;
-      } else {
-        return { status: res.status, message: await res.text(), data: null } as any;
-      }
-    })();
-
-    if (!res.ok) {
-      if (responseData && typeof responseData === "object" && responseData.message) {
-        toast.error(responseData.message);
-      } else {
-        toast.error(`Server error: ${res.status} ${res.statusText}`);
-      }
+  async function handleMarkingUpload() {
+    if (!ready) {
+      toast.error("Please upload both files first.");
       return;
     }
 
-    const payload = responseData.data;
-    if (!payload) {
-      toast.error("No payload from server");
-      return;
-    }
+    try {
+      const form = new FormData();
+      form.append("answerKeyFile", answerKeyFile!);
+      form.append("teleformDataFile", teleformDataFile!);
 
-    await handleResponse(payload, true);
-    router.push("/mark-mcq/dashboard");
-  } catch (error) {
-    console.error("Fetch error:", error);
-    toast.error("Network error or unexpected response format. Please try again.");
+      const res = await fetch("/api/v1/marking/upload", {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
+
+      const responseData = await (async () => {
+        const contentType = res.headers.get("Content-Type") || "";
+        if (contentType.includes("application/json")) {
+          return (await res.json()) as ApiSuccessResponse<
+            [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
+          >;
+        } else {
+          return {
+            status: res.status,
+            message: await res.text(),
+            data: null,
+          } as any;
+        }
+      })();
+
+      if (!res.ok) {
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          responseData.message
+        ) {
+          toast.error(responseData.message);
+        } else {
+          toast.error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        return;
+      }
+
+      const payload = responseData.data;
+      if (!payload) {
+        toast.error("No payload from server");
+        return;
+      }
+
+      await handleResponse(payload, true);
+      router.push("/mark-mcq/dashboard");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error(
+        "Network error or unexpected response format. Please try again.",
+      );
+    }
   }
-}
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
@@ -83,24 +93,26 @@ async function handleMarkingUpload() {
           {/* file uploads */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
             <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
-              <ImageUpload
+              <FileUpload
                 title="Upload Student Answers"
                 subtitle="Supported format: TXT"
                 onUpload={(file) => setTeleformDataFile(file)}
                 accept="text/plain"
                 maxSizeMB={5}
                 className="h-full"
+                successMessage="Student Answers successfully uploaded!"
               />
             </div>
 
             <div className="aspect-[4/3] relative w-full max-w-[400px] mx-auto">
-              <ImageUpload
+              <FileUpload
                 title="Upload Answer Key"
                 subtitle="Supported format: XLSX"
                 onUpload={(file) => setAnswerKeyFile(file)}
                 accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 maxSizeMB={5}
                 className="h-full"
+                successMessage="Answer Key successfully uploaded!"
               />
             </div>
           </div>
