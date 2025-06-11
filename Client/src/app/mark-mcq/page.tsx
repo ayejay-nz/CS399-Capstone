@@ -87,7 +87,7 @@ export default function MarkMCQ() {
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* nav bar */}
         <Navbar />
-
+        <div className="border-b border-[#27272A]"></div>
         {/* main content */}
         <main className="flex-1 max-w-[1200px] mx-auto w-full px-4 flex flex-col items-center justify-center">
           {/* file uploads */}
