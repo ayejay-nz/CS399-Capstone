@@ -19,13 +19,13 @@ export default function Navbar() {
       <div className="space-x-4 md:space-x-8 pr-2">
         <Link
           href="/docs"
-          className="hover:text-gray-300 text-white text-sm md:text-base"
+          className="hover:text-gray-300 text-white text-sm md:text-base font-bold"
         >
           Demo
         </Link>
         <Link
           href="/documentation"
-          className="hover:text-gray-300 text-white text-sm md:text-base"
+          className="hover:text-gray-300 text-white text-sm md:text-base font-bold"
         >
           Documentation
         </Link>
