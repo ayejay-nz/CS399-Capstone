@@ -36,47 +36,6 @@ export default function GenerateMCQPage() {
     isImported: false,
   });
 
-  const handleAddOrUpdateQuestion = () => {
-    if (!mcq.questionEditor) return;
-
-    const content = mcq.questionEditor.getHTML();
-    const displayText = mcq.questionEditor.getText().trim() || "Question";
-    const options = mcq.optionContents;
-    const marks = mcq.marks;
-
-    if (mcq.currentQuestionId !== null) {
-      mcq.setQuestions((prev) =>
-        prev.map((q) =>
-          q.id === mcq.currentQuestionId
-            ? {
-                ...q,
-                content,
-                options,
-                marks,
-                displayText: q.isAppendix ? "Appendix" : displayText,
-              }
-            : q,
-        ),
-      );
-    } else {
-      const newQuestion = {
-        id: Date.now(),
-        content,
-        options,
-        marks,
-        displayText,
-        optionIds: [...mcq.optionIds],
-      };
-      mcq.setQuestions((prev) => [...prev, newQuestion]);
-    }
-
-    mcq.questionEditor.commands.setContent("");
-    mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
-    mcq.setCurrentQuestionId(null);
-    mcq.setMarks(1);
-    setSelectedId(null);
-  };
-
   const handleCoverPageUpdate = (values: any) => {
     setCoverPage({
       ...coverPage,
@@ -92,16 +51,6 @@ export default function GenerateMCQPage() {
         .fill(null)
         .map(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`),
     );
-  };
-
-  const handleEditQuestion = (q: any) => {
-    if (q.id === -1) {
-      setCoverPage(q);
-      mcq.setCurrentQuestionId(-1);
-    } else {
-      mcq.handleEdit(q);
-    }
-    setSelectedId(q.id);
   };
 
   const handleAddAppendix = () => {
@@ -408,7 +357,7 @@ export default function GenerateMCQPage() {
         optionEditors={mcq.optionEditors}
         setOptionEditors={mcq.setOptionEditors}
         currentQuestionId={mcq.currentQuestionId}
-        handleAddOrUpdate={handleAddOrUpdateQuestion}
+        handleAddOrUpdate={mcq.handleAddOrUpdateQuestion}
         cancelEdit={() => {
           mcq.questionEditor?.commands.setContent("");
           mcq.optionEditors.forEach((e: any) => e?.commands.setContent(""));
@@ -450,7 +399,7 @@ export default function GenerateMCQPage() {
           <QuestionList
             coverPage={coverPage}
             questions={mcq.questions}
-            onEdit={handleEditQuestion}
+            onEdit={mcq.handleEdit}
             onDelete={(id) => {
               if (id === -1) {
                 setCoverPage({

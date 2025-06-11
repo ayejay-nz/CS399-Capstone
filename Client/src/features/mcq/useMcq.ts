@@ -27,6 +27,26 @@ export function useMcq() {
   const [editingQuestion, setEditingQuestion] = useState<any | null>(null);
   const [version, setVersion] = useState(0);
 
+  function getTextWithBreaks(editor: Editor): string {
+  const doc = editor.getJSON();
+  const lines: string[] = [];
+  for (const node of doc.content || []) {
+    if (node.type === "paragraph" || node.type === "heading") {
+      const text = (node.content || []).map((c: any) => c.text || "").join("");
+      lines.push(text);
+    }
+  }
+  return lines.join("\n");
+}
+
+function textToEditorHtml(text: string): string {
+  return text
+    .split(/\n+/)
+    .filter(l => l.trim())
+    .map(l => `<p>${l}</p>`)
+    .join("");
+}
+
   const extractTextFromHTML = (html: string) => {
     if (!html) return "";
     const temp = document.createElement("div");
@@ -35,13 +55,13 @@ export function useMcq() {
   };
 
   const adjustMarks = (amount: number) => {
-    setMarks((prev) => Math.max(1, prev + amount));
+    setMarks((prev) => Math.max(0.5, prev + amount));
   };
 
   const handleAddOrUpdateQuestion = () => {
     if (!questionEditor) return;
     
-    const content = questionEditor.getHTML();
+    const content = getTextWithBreaks(questionEditor);
     const options = optionContents;
     const displayText = extractTextFromHTML(content) || "Question";
 
@@ -98,7 +118,8 @@ export function useMcq() {
 
   useEffect(() => {
     if (editingQuestion && questionEditor) {
-      questionEditor.commands.setContent(editingQuestion.content);
+      const html = textToEditorHtml(editingQuestion.content);
+      questionEditor.commands.setContent(html);
       setTimeout(() => {
         setOptionContents(editingQuestion.options);
         setEditingQuestion(null);
