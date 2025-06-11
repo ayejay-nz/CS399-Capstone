@@ -39,11 +39,13 @@ export function useMcq() {
   return lines.join("\n");
 }
 
-function textToEditorHtml(text: string): string {
-  return text
+function textToEditorHtml(text?: string): string {
+  if (!text) return "";             
+  const trimmed = text.replace(/^\s+/, "");
+  return trimmed
     .split(/\n+/)
     .filter(l => l.trim())
-    .map(l => `<p>${l}</p>`)
+    .map(l => `<p>${l.trim()}</p>`)  
     .join("");
 }
 
@@ -100,18 +102,21 @@ function textToEditorHtml(text: string): string {
     setVersion((prev) => prev + 1);
   };
 
-  const handleEdit = (q: any) => {
-    setEditingQuestion(q);
-    setCurrentQuestionId(q.id);
-    setOptionCount(q.options.length);
-    setOptionEditors(Array(q.options.length).fill(null));
-    setOptionContents(q.options);
-    setOptionIds(
-      q.optionIds || q.options.map((_: any, i: number) => `${q.id}-${i}`),
-    );
-    setMarks(q.marks || 1);
-    setVersion((prev) => prev + 1);
-  };
+const handleEdit = (q: any) => {
+  setEditingQuestion(q);
+  setCurrentQuestionId(q.id);
+  const opts = Array.isArray(q.options) ? q.options : [];
+  setOptionCount(opts.length);
+  setOptionEditors(Array(opts.length).fill(null));
+  setOptionContents(opts);
+  setOptionIds(
+    Array.isArray(q.optionIds)
+      ? q.optionIds
+      : opts.map((_: any, i: number) => `${q.id}-${i}`)
+  );
+  setMarks(q.marks ?? 1);
+  setVersion((prev) => prev + 1);
+};
 
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
