@@ -84,45 +84,54 @@ function renderExamQuestion(
   const marks = question.question.marks ?? 1;
   const markText = `[${marks} mark${marks === 1 ? '' : 's'}]`;
 
-  // Question header (no marks, no border)
-  // rawParagraphs.push({
-  //   children: [new TextRun({ text: `Question ${question.question.id}`, bold: true })],
-  // });
-
-  // Prepare options and calculate image space
   const opts = reorderQuestionOptions(question.question.options, optionOrder);
   const reservedHeight = opts.length * OPTION_LINE_HEIGHT_PX;
   const maxImageHeight =
     PAGE_HEIGHT_PX - MARGIN_TOP_PX - MARGIN_BOTTOM_PX - reservedHeight;
   const maxImageWidth = PAGE_WIDTH_PX - MARGIN_LEFT_PX - MARGIN_RIGHT_PX;
 
-  // Question stem content (merge header, marks, and text)
+  // 1) Build the question header + first line of stem
   let markPrepended = false;
   question.question.content.forEach((blk) => {
     if (isQuestionText(blk)) {
-      // split incoming text on literal "\n"
+      // split on literal "\n"
       const lines = blk.questionText.split('\n');
-      let children: TextRun[];
 
       if (!markPrepended) {
-        // first paragraph: "Question X [Y marks] first line"
-        children = [
-          new TextRun({ text: `Question ${question.question.id} `, bold: true }),
-          new TextRun({ text: `${markText} ${lines[0]}` }),
-          // any further lines become new lines in same paragraph
-          ...lines.slice(1).map(line => new TextRun({ text: line, break: 1 })),
-        ];
+        // First paragraph: header only
+        rawParagraphs.push({
+          children: [
+            new TextRun({ text: `Question ${question.question.id}`, bold: true }),
+          ],
+        });
+        // Paragraph 2: mark + first line
+        rawParagraphs.push({
+          children: [
+            new TextRun({ text: markText }),
+            new TextRun({ text: ' ' + lines[0] }),
+          ],
+        });
+
+        // If the stem had more lines, each gets its own paragraph:
+        for (let i = 1; i < lines.length; i++) {
+          rawParagraphs.push({
+            children: [ new TextRun({ text: lines[i] }) ]
+          });
+        }
+
       } else {
-        // subsequent paragraphs: each line, with breaks
-        children = lines.map((line, i) =>
-          new TextRun({ text: line, break: i < lines.length - 1 ? 1 : 0 })
-        );
+        // For any later text blocks: each line as its own paragraph
+        lines.forEach(line => {
+          rawParagraphs.push({
+            children: [ new TextRun({ text: line }) ]
+          });
+        });
       }
 
-      rawParagraphs.push({ children });
       markPrepended = true;
 
     } else if (isImageURI(blk) && blk.imageUri) {
+      // images
       const img = imageFromBase64(blk.imageUri, {
         width: maxImageWidth,
         height: maxImageHeight,
@@ -134,16 +143,19 @@ function renderExamQuestion(
     }
   });
 
-  // blank line before the options
+  // 2) Blank line before options
   rawParagraphs.push({ text: '' });
 
-  // Options (no extra blank lines)
+  // 3) Options list
   opts.slice(0, 5).forEach((opt, idx) => {
     const letter = String.fromCharCode(97 + idx);
-    rawParagraphs.push({ text: `(${letter}) ${opt}`, indent: { left: 360 } });
+    rawParagraphs.push({
+      text: `(${letter}) ${opt}`,
+      indent: { left: 360 },
+    });
   });
 
-  // Convert to Paragraphs, keeping blocks together
+  // 4) Convert to actual Paragraph objects
   return rawParagraphs.map((paraOpts, idx) =>
     new Paragraph({
       ...paraOpts,
