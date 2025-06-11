@@ -36,9 +36,8 @@ import type {
 } from "@/src/dataTypes/examBreakdown";
 import { useExam } from "@/src/context/ExamContext";
 
-// We know each label is one of these:
 const allLabels = ["A", "B", "C", "D", "E"] as const;
-type Label = typeof allLabels[number];
+type Label = (typeof allLabels)[number];
 
 type QuestionPerf = {
   questionId: number;
@@ -56,12 +55,12 @@ interface QuestionPerformanceTabProps {
   answerKey: AnswerKeyQuestion[];
   onCorrectnessChange: (
     questionId: number,
-    updatedFields: { allTrue: boolean; originalValue: number }
+    updatedFields: { allTrue: boolean; originalValue: number },
   ) => Promise<void>;
   onFeedbackChange?: (
     questionId: number,
     auid: string,
-    customFeedback: string
+    customFeedback: string,
   ) => Promise<void>;
 }
 
@@ -104,7 +103,7 @@ export function QuestionPerformanceTab({
         opts[String.fromCharCode(65 + idx)] = content;
       });
       const computedCorrectOptions = qb.correctAnswers.map((i) =>
-        String.fromCharCode(65 + i)
+        String.fromCharCode(65 + i),
       );
       return {
         questionId: qb.questionId,
@@ -119,10 +118,8 @@ export function QuestionPerformanceTab({
     });
   }, [questionStats, answerKey]);
 
-  // ─── allTrueMap keyed by questionId, but namespaced by sessionId ───
-  // Use a Record<questionId, boolean>, persisted under "dashboardAllTrueMap_<sessionId>"
   const [allTrueMap, setAllTrueMap] = React.useState<Record<number, boolean>>(
-    {}
+    {},
   );
 
   // Whenever sessionId changes, load that session’s map from localStorage
@@ -145,7 +142,7 @@ export function QuestionPerformanceTab({
     }
   }, [sessionId]);
 
-  // Helper to toggle a question’s allTrue flag and persist under the current session’s key
+  // Helper to toggle a question's allTrue flag and persist under the current session's key
   const toggleAllTrue = (questionId: number, flag: boolean) => {
     if (!sessionId) return; // no session ⇒ do nothing
     setAllTrueMap((prev) => {
@@ -161,46 +158,49 @@ export function QuestionPerformanceTab({
   };
 
   // ─── Table columns ───
-  const columns = React.useMemo<ColumnDef<QuestionPerf>[]>(() => [
-    {
-      accessorKey: "questionId",
-      header: "ID",
-      cell: ({ getValue }) => (
-        <div className="w-8 text-center">{getValue<number>()}</div>
-      ),
-    },
-    {
-      accessorKey: "questionText",
-      header: "Question",
-      cell: ({ getValue }) => {
-        const txt = getValue<string>();
-        return (
-          <div className="truncate max-w-[400px]" title={txt}>
-            {txt}
-          </div>
-        );
+  const columns = React.useMemo<ColumnDef<QuestionPerf>[]>(
+    () => [
+      {
+        accessorKey: "questionId",
+        header: "ID",
+        cell: ({ getValue }) => (
+          <div className="w-8 text-center">{getValue<number>()}</div>
+        ),
       },
-    },
-    {
-      accessorKey: "marks",
-      header: "Marks",
-      cell: ({ getValue }) => (
-        <div className="w-12 text-center">{getValue<number>()}</div>
-      ),
-    },
-    {
-      id: "correct",
-      header: percentageView ? "% Correct" : "# Correct",
-      cell: ({ row }) => {
-        const q = row.original;
-        return percentageView ? (
-          <div className="w-16 text-center">{q.correctPct}%</div>
-        ) : (
-          <div className="w-16 text-center">{q.correctNumber}</div>
-        );
+      {
+        accessorKey: "questionText",
+        header: "Question",
+        cell: ({ getValue }) => {
+          const txt = getValue<string>();
+          return (
+            <div className="truncate max-w-[400px]" title={txt}>
+              {txt}
+            </div>
+          );
+        },
       },
-    },
-  ], [percentageView]);
+      {
+        accessorKey: "marks",
+        header: "Marks",
+        cell: ({ getValue }) => (
+          <div className="w-12 text-center">{getValue<number>()}</div>
+        ),
+      },
+      {
+        id: "correct",
+        header: percentageView ? "% Correct" : "# Correct",
+        cell: ({ row }) => {
+          const q = row.original;
+          return percentageView ? (
+            <div className="w-16 text-center">{q.correctPct}%</div>
+          ) : (
+            <div className="w-16 text-center">{q.correctNumber}</div>
+          );
+        },
+      },
+    ],
+    [percentageView],
+  );
 
   const table = useReactTable({
     data: questions,
@@ -225,7 +225,8 @@ export function QuestionPerformanceTab({
             <Input
               placeholder="Search by question…"
               value={
-                (table.getColumn("questionText")?.getFilterValue() as string) ?? ""
+                (table.getColumn("questionText")?.getFilterValue() as string) ??
+                ""
               }
               onChange={(e) =>
                 table.getColumn("questionText")?.setFilterValue(e.target.value)
@@ -258,7 +259,10 @@ export function QuestionPerformanceTab({
                       return (
                         <TableHead key={h.id} className={`text-white ${extra}`}>
                           {!h.isPlaceholder &&
-                            flexRender(h.column.columnDef.header, h.getContext())}
+                            flexRender(
+                              h.column.columnDef.header,
+                              h.getContext(),
+                            )}
                         </TableHead>
                       );
                     })}
@@ -283,7 +287,10 @@ export function QuestionPerformanceTab({
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} className="text-white">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>
@@ -310,12 +317,19 @@ export function QuestionPerformanceTab({
     const fill = isAllTrue
       ? "#10B981"
       : defaultCorrectSet.has(letter)
-      ? "#10B981"
-      : wrongColors[idx];
-    return { name: letter, value: selectedQuestion.answerCounts[letter] || 0, fill };
+        ? "#10B981"
+        : wrongColors[idx];
+    return {
+      name: letter,
+      value: selectedQuestion.answerCounts[letter] || 0,
+      fill,
+    };
   });
   const radialData = [
-    { correct: selectedQuestion.correctPct, incorrect: 100 - selectedQuestion.correctPct },
+    {
+      correct: selectedQuestion.correctPct,
+      incorrect: 100 - selectedQuestion.correctPct,
+    },
   ];
 
   // ─── Render options using text‐color highlight only ───
@@ -327,8 +341,8 @@ export function QuestionPerformanceTab({
           const textColor = highlightAll
             ? "text-green-600"
             : highlightDefaults && isDefaultCorrect
-            ? "text-green-600"
-            : "text-white";
+              ? "text-green-600"
+              : "text-white";
           return (
             <div key={letter} className={`flex space-x-2 ${textColor}`}>
               <span className="font-bold">{letter}.</span>
@@ -348,7 +362,8 @@ export function QuestionPerformanceTab({
           <Input
             placeholder="Search by question…"
             value={
-              (table.getColumn("questionText")?.getFilterValue() as string) ?? ""
+              (table.getColumn("questionText")?.getFilterValue() as string) ??
+              ""
             }
             onChange={(e) =>
               table.getColumn("questionText")?.setFilterValue(e.target.value)
@@ -378,7 +393,7 @@ export function QuestionPerformanceTab({
                     if (id === "questionId") extra = "w-12";
                     if (id === "marks") extra = "w-20";
                     if (id === "correct") extra = "w-25";
-                    return (  
+                    return (
                       <TableHead key={h.id} className={`text-white ${extra}`}>
                         {!h.isPlaceholder &&
                           flexRender(h.column.columnDef.header, h.getContext())}
@@ -406,7 +421,10 @@ export function QuestionPerformanceTab({
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="text-white">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -601,7 +619,7 @@ export function QuestionPerformanceTab({
               Answer Distribution
             </h5>
             <ChartContainer
-              config={{ theme: "dark" }}
+              config={{ chart: { color: "#fff" } }}
               className="mx-auto w-full max-w-[350px] h-[350px] [&_.recharts-pie-label-text]:fill-white"
             >
               <PieChart width={350} height={350}>
@@ -637,25 +655,27 @@ export function QuestionPerformanceTab({
                 outerRadius={100}
                 margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
               >
-                <PolarRadiusAxis
-                  tick={false}
-                  tickLine={false}
-                  axisLine={false}
-                >
+                <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
                   <ChartLabel
-                    content={({ viewBox }) =>
-                      viewBox?.cx != null && viewBox?.cy != null ? (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+                    content={({ viewBox }) => {
+                      const polarViewBox = viewBox as any;
+                      return polarViewBox?.cx != null &&
+                        polarViewBox?.cy != null ? (
+                        <text
+                          x={polarViewBox.cx}
+                          y={polarViewBox.cy}
+                          textAnchor="middle"
+                        >
                           <tspan
-                            x={viewBox.cx}
-                            y={viewBox.cy - 8}
+                            x={polarViewBox.cx}
+                            y={polarViewBox.cy - 8}
                             className="fill-white text-2xl font-bold"
                           >
                             {selectedQuestion.correctPct}%
                           </tspan>
                         </text>
-                      ) : null
-                    }
+                      ) : null;
+                    }}
                   />
                 </PolarRadiusAxis>
                 <RadialBar
@@ -663,7 +683,6 @@ export function QuestionPerformanceTab({
                   stackId="a"
                   cornerRadius={5}
                   fill="#10B981"
-                  clockWise={false}
                   className="stroke-transparent stroke-2"
                 />
                 <RadialBar
@@ -671,7 +690,6 @@ export function QuestionPerformanceTab({
                   stackId="a"
                   cornerRadius={5}
                   fill="#EF4444"
-                  clockWise={false}
                   className="stroke-transparent stroke-2"
                 />
               </RadialBarChart>
