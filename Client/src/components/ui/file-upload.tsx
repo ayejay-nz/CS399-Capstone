@@ -77,6 +77,7 @@ interface FileUploadProps {
   className?: string;
   title?: string;
   subtitle?: string;
+  successMessage?: string;
 }
 
 export function FileUpload({
@@ -86,6 +87,7 @@ export function FileUpload({
   className,
   title = "Upload File",
   subtitle = "Supported formats: TXT, XLSX, PDF, JPG, PNG",
+  successMessage,
 }: FileUploadProps) {
   const {
     previewUrl,
@@ -157,7 +159,7 @@ export function FileUpload({
           ) : isFileUploaded && fileName ? (
             <div className="relative w-full h-full flex flex-col items-center justify-center text-center px-4">
               <p className="text-lg font-medium text-white mb-2">
-                File uploaded successfully!
+                {successMessage || "File uploaded successfully!"}
               </p>
               <p className="text-sm text-gray-400 break-all">{fileName}</p>
               <button

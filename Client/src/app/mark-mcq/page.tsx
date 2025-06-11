@@ -100,6 +100,7 @@ export default function MarkMCQ() {
                 accept="text/plain"
                 maxSizeMB={5}
                 className="h-full"
+                successMessage="Student Answers successfully uploaded!"
               />
             </div>
 
@@ -111,6 +112,7 @@ export default function MarkMCQ() {
                 accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 maxSizeMB={5}
                 className="h-full"
+                successMessage="Answer Key successfully uploaded!"
               />
             </div>
           </div>
