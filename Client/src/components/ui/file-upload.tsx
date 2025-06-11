@@ -137,7 +137,7 @@ export function FileUpload({
                   e.stopPropagation();
                   handleRemove();
                 }}
-                className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70"
+                className="absolute top-0 right-0 p-2 bg-black/50 rounded-full hover:bg-black/70"
                 aria-label="Remove file"
               >
                 <svg
@@ -146,7 +146,7 @@ export function FileUpload({
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 >
                   <path
                     strokeLinecap="round"
@@ -167,7 +167,7 @@ export function FileUpload({
                   e.stopPropagation();
                   handleRemove();
                 }}
-                className="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-black/70"
+                className="absolute top-0 right-0 p-2 bg-black/50 rounded-full hover:bg-black/70"
                 aria-label="Remove file"
               >
                 <svg
@@ -176,7 +176,7 @@ export function FileUpload({
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                 >
                   <path
                     strokeLinecap="round"
