@@ -1,7 +1,7 @@
 # 📝 Shuffle
 
 ## 📋 Project Management
-- Replace with lin
+
 
 ## 📖 Project Overview
 Shuffle is a web-based exam generation and marking tool designed to automate the process of creating, and grading multiple-choice university exams. It generates multiple shuffled versions of an exam, handles answer sheet parsing, and allows instructors to manually adjust results with real-time feedback. 
@@ -89,5 +89,3 @@ Future features may include:
 . Screen reader support
 . Better filtering/sorting of results
 . Richer performance analytics
-
-These improvements would enhance the overall accessibility and insightfulness of the platform.
