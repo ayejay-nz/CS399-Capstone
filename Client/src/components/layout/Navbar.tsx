@@ -29,6 +29,14 @@ export default function Navbar() {
         >
           Documentation
         </Link>
+        {/* Download ZIP from public/test-data.zip */}
+        <a
+          href="/shuffle_test_data.zip"
+          download
+          className="hover:text-gray-300 text-white text-sm md:text-base font-bold"
+        >
+          Download Test Data
+        </a>
       </div>
     </nav>
   );
