@@ -338,7 +338,7 @@ export default function GenerateMCQPage() {
           questionEditor={mcq.questionEditor}
           setQuestionEditor={mcq.setQuestionEditor}
           currentQuestionId={mcq.currentQuestionId}
-          handleAddOrUpdate={handleAddOrUpdateQuestion}
+          handleAddOrUpdate={mcq.handleAddOrUpdateQuestion}
           cancelEdit={() => {
             mcq.questionEditor?.commands.setContent("");
             mcq.setCurrentQuestionId(null);
