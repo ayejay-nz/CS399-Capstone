@@ -62,11 +62,7 @@ export function isTableURI(content: object): content is TableURI {
 }
 
 export function isImageURI(content: object): content is ImageURI {
-    return (
-        isBrandType(content, 'ImageURI') &&
-        (content as ImageURI).imageUri !== undefined &&
-        typeof (content as ImageURI).imageUri === 'string'
-    );
+    return isBrandType(content, 'ImageURI');
 }
 
 export function isAppendixText(content: object): content is AppendixText {
