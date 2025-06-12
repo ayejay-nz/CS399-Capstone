@@ -270,23 +270,27 @@ export function exportExamVersionsDocx(
   exam: ExamData
 ): { versionNumber: string; paragraphs: Paragraph[] }[] {
   return versions.map((v) => {
+    // pointer for question ordering
     const ptr = { current: 0 };
-    
-    // Split content into exam and appendix sections
-    const examParas: Paragraph[] = [];
-    const appendixParas: Paragraph[] = [];
-    let inAppendix = false;
+    const children: Paragraph[] = [];
+    let lastWasAppendix = false;
 
-    exam.content.forEach((blk) => {
+    for (const blk of exam.content) {
       if (isAppendixPage(blk)) {
-        inAppendix = true;
-        appendixParas.push(...renderExamAppendix(blk));
-      } else if (!inAppendix) {
-        examParas.push(...renderExamQuestionBlocks(blk, v, ptr));
+        // render the appendix (renderExamAppendix already adds a pageBreakBefore on its first para)
+        children.push(...renderExamAppendix(blk));
+        lastWasAppendix = true;
+      } else {
+        // if the previous block was an appendix, force the next question onto its own page
+        if (lastWasAppendix) {
+          children.push(new Paragraph({ pageBreakBefore: true }));
+        }
+        // render questions or sections
+        children.push(...renderExamQuestionBlocks(blk, v, ptr));
+        lastWasAppendix = false;
       }
-    });
+    }
 
-    // Create document with two sections
     const doc = new Document({
       sections: [
         {
@@ -304,29 +308,18 @@ export function exportExamVersionsDocx(
             default: createHeader(v.versionNumber),
             first: createHeader(v.versionNumber),
           },
-          children: examParas,
-        },
-        {
-          properties: { 
-            type: SectionType.NEXT_PAGE,
-            page: {
-              margin: {
-                top: MARGIN_TOP_PX,
-                bottom: MARGIN_BOTTOM_PX,
-                left: MARGIN_LEFT_PX,
-                right: MARGIN_RIGHT_PX,
-              },
-            },
-          },
-          headers: {
-            default: createAppendixHeader(v.versionNumber),
-            first: createAppendixHeader(v.versionNumber),
-          },
-          children: appendixParas,
+          children,
         },
       ],
     });
 
-    return { versionNumber: v.versionNumber, paragraphs: [...examParas, ...appendixParas] };
+    return {
+      versionNumber: v.versionNumber,
+      paragraphs: children,
+    };
   });
 }
+
+
+
+

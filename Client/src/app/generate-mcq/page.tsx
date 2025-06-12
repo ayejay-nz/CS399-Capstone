@@ -53,6 +53,20 @@ export default function GenerateMCQPage() {
     );
   };
 
+const handleBackCoverPage = () => {
+  mcq.setCurrentQuestionId(null);
+  setSelectedId(null);
+
+  mcq.setOptionEditors(Array(5).fill(null));
+  mcq.setOptionContents(Array(5).fill(""));
+  mcq.setOptionCount(5);
+  mcq.setOptionIds(
+    Array(5)
+      .fill(null)
+      .map(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`)
+  );
+  mcq.setMarks(1);
+};
   const handleAddAppendix = () => {
     const newAppendix = {
       id: Date.now(),
@@ -288,6 +302,7 @@ export default function GenerateMCQPage() {
         return (
           <CustomCover
             onReset={handleResetCoverPage}
+            onBack={handleBackCoverPage}
             onUpload={() => {
               const input = document.createElement("input");
               input.type = "file";

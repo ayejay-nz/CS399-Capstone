@@ -64,7 +64,12 @@ function convertHtmlToPlainText(html: string) {
   return temp.textContent || temp.innerText || "";
 }
 
-async function handlePreview(questions: Question[], coverPage: any) {
+async function handlePreview(
+  questions: Question[],
+  coverPage: any
+) {
+  let questionCounter = 0;
+
   const payload = {
     content: [
       {
@@ -85,11 +90,10 @@ async function handlePreview(questions: Question[], coverPage: any) {
               },
         },
       },
-      ...questions.map((q, idx) => {
+      ...questions.map((q) => {
         if (q.isAppendix) {
           const temp = document.createElement("div");
           temp.innerHTML = q.content || "";
-
           const content: AppendixContent[] = [];
           temp.childNodes.forEach((node) => {
             if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
@@ -98,36 +102,36 @@ async function handlePreview(questions: Question[], coverPage: any) {
                 __type: "AppendixText",
               });
             } else if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as HTMLElement;
-              if (element.tagName === "P" && element.textContent?.trim()) {
+              const el = node as HTMLElement;
+              if (el.tagName === "P" && el.textContent?.trim()) {
                 content.push({
-                  appendixText: element.textContent.trim(),
+                  appendixText: el.textContent.trim(),
                   __type: "AppendixText",
                 });
-              } else if (element.tagName === "IMG") {
+              } else if (el.tagName === "IMG") {
                 content.push({
-                  imageUri: element.getAttribute("src") || "",
+                  imageUri: el.getAttribute("src") || "",
                   __type: "ImageURI",
                 });
               }
             }
           });
-
           return {
             appendix: {
               isUploaded: q.isImported || false,
-              content: content,
+              content,
             },
           };
         } else {
+          questionCounter++;
           const questionText = convertHtmlToPlainText(q.content || "");
-          const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
-          const imageUri = imgSrcMatch?.[1] || "";
+          const imgMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+          const imageUri = imgMatch?.[1] || "";
 
           return {
             question: {
+              id: questionCounter,
               marks: q.marks || 1,
-              id: idx + 1,
               feedback: {
                 correctFeedback: "Correct",
                 incorrectFeedback: "Incorrect",
@@ -136,9 +140,7 @@ async function handlePreview(questions: Question[], coverPage: any) {
                 { questionText, __type: "QuestionText" },
                 ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
               ],
-              options:
-                q.options?.map((optHtml) => convertHtmlToPlainText(optHtml)) ||
-                [],
+              options: q.options?.map(convertHtmlToPlainText) || [],
             },
           };
         }
@@ -147,18 +149,16 @@ async function handlePreview(questions: Question[], coverPage: any) {
   };
 
   try {
-    const res = await fetch(
-      "/api/v1/exam-source/upload-json",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    );
+    const res = await fetch("/api/v1/exam-source/upload-json", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
     if (!res.ok) {
-      const errorText = await res.text();
-      const errorJson = JSON.parse(errorText);
-      toast.error(errorJson.message);
+      const text = await res.text();
+      const err = JSON.parse(text);
+      toast.error(err.message);
       return;
     }
 
@@ -180,8 +180,10 @@ async function handlePreview(questions: Question[], coverPage: any) {
 async function handlePreview2(
   questions: Question[],
   coverPage: any,
-  setPreviewUrl: (url: string | null) => void,
+  setPreviewUrl: (url: string | null) => void
 ) {
+  let questionCounter = 0;
+
   const payload = {
     exam: {
       content: [
@@ -203,37 +205,33 @@ async function handlePreview2(
                 },
           },
         },
-        ...questions.map((q, idx) => {
+        ...questions.map((q) => {
           if (q.isAppendix) {
+            // same appendix logic
             const temp = document.createElement("div");
             temp.innerHTML = q.content || "";
-
             const content: AppendixContent[] = [];
             temp.childNodes.forEach((node) => {
-              if (
-                node.nodeType === Node.TEXT_NODE &&
-                node.textContent?.trim()
-              ) {
+              if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
                 content.push({
                   appendixText: node.textContent.trim(),
                   __type: "AppendixText",
                 });
               } else if (node.nodeType === Node.ELEMENT_NODE) {
-                const element = node as HTMLElement;
-                if (element.tagName === "P" && element.textContent?.trim()) {
+                const el = node as HTMLElement;
+                if (el.tagName === "P" && el.textContent?.trim()) {
                   content.push({
-                    appendixText: element.textContent.trim(),
+                    appendixText: el.textContent.trim(),
                     __type: "AppendixText",
                   });
-                } else if (element.tagName === "IMG") {
+                } else if (el.tagName === "IMG") {
                   content.push({
-                    imageUri: element.getAttribute("src") || "",
+                    imageUri: el.getAttribute("src") || "",
                     __type: "ImageURI",
                   });
                 }
               }
             });
-
             return {
               appendix: {
                 isUploaded: q.isImported || false,
@@ -241,14 +239,15 @@ async function handlePreview2(
               },
             };
           } else {
+            questionCounter++;
             const questionText = convertHtmlToPlainText(q.content || "");
-            const imgSrcMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
-            const imageUri = imgSrcMatch?.[1] || "";
+            const imgMatch = q.content?.match(/<img[^>]+src="([^">]+)"/);
+            const imageUri = imgMatch?.[1] || "";
 
             return {
               question: {
+                id: questionCounter,
                 marks: q.marks || 1,
-                id: idx + 1,
                 feedback: {
                   correctFeedback: "Correct",
                   incorrectFeedback: "Incorrect",
@@ -257,10 +256,7 @@ async function handlePreview2(
                   { questionText, __type: "QuestionText" },
                   ...(imageUri ? [{ imageUri, __type: "ImageURI" }] : []),
                 ],
-                options:
-                  q.options?.map((optHtml) =>
-                    convertHtmlToPlainText(optHtml),
-                  ) || [],
+                options: q.options?.map(convertHtmlToPlainText) || [],
               },
             };
           }
@@ -272,18 +268,15 @@ async function handlePreview2(
   console.log(payload);
 
   try {
-    const res = await fetch(
-      "/api/v1/exam-bundle/preview-pdf",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    );
+    const res = await fetch("/api/v1/exam-bundle/preview-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     if (!res.ok) {
-      const errorText = await res.text();
-      const errorJson = JSON.parse(errorText);
-      toast.error(errorJson.message);
+      const text = await res.text();
+      const err = JSON.parse(text);
+      toast.error(err.message);
       return;
     }
 
@@ -353,77 +346,78 @@ export default function QuestionList({
               <span className="font-bold truncate">Cover Page</span>
             </div>
           </div>
-
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="questions-list">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
-                  {questions.map((q, index) => (
-                    <Draggable
-                      key={q.id}
-                      draggableId={q.id.toString()}
-                      index={index}
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="questions-list">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {questions.map((q, index) => {
+  
+              const questionNumber = questions
+                .slice(0, index + 1)
+                .filter(item => !item.isAppendix).length;
+              return (
+                <Draggable key={q.id} draggableId={q.id.toString()} index={index}>
+                  {(prov, snapshot) => (
+                    <div
+                      ref={prov.innerRef}
+                      {...prov.draggableProps}
+                      {...prov.dragHandleProps}
+                      className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
+                        q.id === selectedId
+                          ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
+                          : "bg-[oklch(0_0_0)]"
+                      } hover:bg-[oklch(19%_0_0)] transition-colors ${
+                        snapshot.isDragging ? "opacity-80" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedId(q.id);
+                        onEdit(q);
+                      }}
                     >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`cursor-pointer rounded-lg flex justify-between items-center px-2 py-1 mb-4 ${
-                            q.id === selectedId
-                              ? "bg-[oklch(19%_0_0)] border border-[#27272A]"
-                              : "bg-[oklch(0_0_0)]"
-                          } hover:bg-[oklch(19%_0_0)] transition-colors ${
-                            snapshot.isDragging ? "opacity-80" : ""
-                          }`}
-                          onClick={() => {
-                            setSelectedId(q.id);
-                            onEdit(q);
-                          }}
-                        >
-                          <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-bold truncate">
-                                {q.isAppendix ? "Appendix" : `Question ${index + 1}`}
-                              </span>
-                              <div className="truncate">
-                                {q.displayText || (q.isAppendix ? "..." : "Question")}
-                              </div>
-                            </div>
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-bold truncate">
+                            {q.isAppendix ? "Appendix" : `Question ${questionNumber}`}
+                          </span>
+                          <div className="truncate">
+                            {q.displayText || (q.isAppendix ? "..." : "Question")}
                           </div>
-                          <button
-                            className="p-1 flex-shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(q.id);
-                              if (selectedId === q.id) setSelectedId(null);
-                            }}
-                          >
-                            <svg
-                              width="14"
-                              height="16"
-                              viewBox="0 0 14 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-gray-400 hover:text-white transition-colors"
-                            >
-                              <path
-                                d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
                         </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+                      </div>
+
+                      <button
+                        className="p-1 ml-2 flex-shrink-0 text-gray-400 hover:text-white transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(q.id);
+                          if (selectedId === q.id) setSelectedId(null);
+                        }}
+                      >
+                        <svg
+                          width="14"
+                          height="16"
+                          viewBox="0 0 14 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M1 3.99967H2.33333M2.33333 3.99967H13M2.33333 3.99967V13.333C2.33333 13.6866 2.47381 14.0258 2.72386 14.2758C2.97391 14.5259 3.31304 14.6663 3.66667 14.6663H10.3333C10.687 14.6663 11.0261 14.5259 11.2761 14.2758C11.5262 14.0258 11.6667 13.6866 11.6667 13.333V3.99967M4.33333 3.99967V2.66634C4.33333 2.31272 4.47381 1.97358 4.72386 1.72353C4.97391 1.47348 5.31304 1.33301 5.66667 1.33301H8.33333C8.68696 1.33301 9.02609 1.47348 9.27614 1.72353C9.52619 1.97358 9.66667 2.31272 9.66667 2.66634V3.99967M5.66667 7.33301V11.333M8.33333 7.33301V11.333"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </Draggable>
+              );
+            })}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
 
           <Button
             variant="secondary"
