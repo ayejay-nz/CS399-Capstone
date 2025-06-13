@@ -121,17 +121,6 @@ const handleEdit = (q: any) => {
   const generateOptionId = () =>
     `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  useEffect(() => {
-    if (editingQuestion && questionEditor) {
-      const html = textToEditorHtml(editingQuestion.content);
-      questionEditor.commands.setContent(html);
-      setTimeout(() => {
-        setOptionContents(editingQuestion.options);
-        setEditingQuestion(null);
-      }, 0);
-    }
-  }, [editingQuestion, questionEditor]);
-
   const simulateProcessQuestions = async (file: File) => {
     const formData = new FormData();
     formData.append("examSourceFile", file);

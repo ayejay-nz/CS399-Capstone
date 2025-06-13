@@ -21,7 +21,7 @@ export interface Question {
         marks: number;
         id: number;
         feedback: Feedback;
-        content: (QuestionText | ImageURI | TableURI)[];
+        content: (QuestionText | ImageURI | TableURI | MathBlock)[];
         options: string[]; // first option is correct
     };
 }
@@ -35,4 +35,9 @@ export interface Section {
 
 export interface ExamData {
     content: (Question | Section | AppendixPage | Coverpage)[]; // Remove Section later -- made redundant by AppendixPage, although may have to add attachments? Angela doesn't make it very clear. could be better to store a reference to once instead.
+}
+
+export interface MathBlock {
+  mathXml: string;
+  __type: "MathBlock";
 }

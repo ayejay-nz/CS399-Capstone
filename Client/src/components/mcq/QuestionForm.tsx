@@ -24,6 +24,15 @@ interface Props {
   isCoverPage?: boolean;
 }
 
+function textToEditorHtml(text: string): string {
+  return text
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => `<p>${l}</p>`)
+    .join("");
+}
+
 export default function QuestionForm({
   questionEditor,
   setQuestionEditor,
@@ -50,6 +59,13 @@ export default function QuestionForm({
   });
 
   const currentQuestion = questions.find((q) => q.id === currentQuestionId);
+
+  const formattedHtml = currentQuestion
+  ? textToEditorHtml(
+      currentQuestion.content.replace(/<\/?p>/g, "")
+    )
+  : "";
+
   const isAppendix = currentQuestion?.isAppendix;
 
   const generateOptionId = () =>
@@ -215,21 +231,28 @@ export default function QuestionForm({
       <div className="ml-6 mr-4">
         <div className="flex items-center gap-2">
           <div className="flex-1 w-full mr-30">
-            <Tiptap
-              key={`${isCoverPage ? "cover" : "question"}-${currentQuestionId}-${version}`}
-              setEditor={setQuestionEditor}
-              allowImageUpload
-              isQuestionEditor={true}
-              isAppendix={isAppendix}
-              error={validationErrors.question}
-              onUpdate={(html: string, text: string) => {
-                const hasImages = html.includes("<img");
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  question: !text && !hasImages,
-                }));
-              }}
-            />
+          <Tiptap
+            key={`question-${currentQuestionId}`}
+            content={
+              currentQuestion
+                ? textToEditorHtml(
+                    currentQuestion.content.replace(/<\/?p>/g, "")
+                  )
+                : ""
+            }
+            setEditor={setQuestionEditor}
+            allowImageUpload
+            isQuestionEditor={true}
+            isAppendix={isAppendix}
+            error={validationErrors.question}
+            onUpdate={(html: string, text: string) => {
+              const hasImages = html.includes("<img");
+              setValidationErrors((prev) => ({
+                ...prev,
+                question: !text && !hasImages,
+              }));
+            }}
+          />
           </div>
         </div>
 
