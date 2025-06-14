@@ -5,6 +5,7 @@ import config from '../config/config';
 import { configDotenv } from 'dotenv';
 import { TeleformData } from '../dataTypes/teleformData';
 import { ExamBreakdown } from '../dataTypes/examBreakdown';
+import { isCoverpage } from '../utils/typeGuards';
 
 class SessionManager implements SessionStore {
     public sessions: Map<string, ExamMarkingSession> = new Map();
@@ -17,7 +18,10 @@ class SessionManager implements SessionStore {
     /**
      * Create a new session for an answer key
      */
-    createSession(answerKey: AnswerKey, metadata?: Partial<ExamMarkingSession['metadata']>): string {
+    createSession(
+        answerKey?: AnswerKey,
+        metadata?: Partial<ExamMarkingSession['metadata']>,
+    ): string {
         // Check session limits
         if (this.sessions.size >= config.session.maxSessions) {
             this.evictOldestSession();
@@ -31,7 +35,9 @@ class SessionManager implements SessionStore {
 
         const sessionId = uuidv4();
         const now = new Date();
-        const expiresAt = new Date(now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000);
+        const expiresAt = new Date(
+            now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000,
+        );
 
         const session: ExamMarkingSession = {
             sessionId,
@@ -40,7 +46,7 @@ class SessionManager implements SessionStore {
             expiresAt,
             lastAccessedAt: now,
             metadata,
-        }
+        };
 
         this.sessions.set(sessionId, session);
 
@@ -90,7 +96,7 @@ class SessionManager implements SessionStore {
         if (existed) {
             console.log(`Deleted session: ${sessionId}`);
         }
-        
+
         return existed;
     }
 
@@ -168,7 +174,9 @@ class SessionManager implements SessionStore {
             this.cleanup();
         }, interalMins);
 
-        console.log(`Session cleanup process started (interval: ${config.session.cleanupIntervalMinutes} minutes)`);
+        console.log(
+            `Session cleanup process started (interval: ${config.session.cleanupIntervalMinutes} minutes)`,
+        );
     }
 
     /**
@@ -183,7 +191,7 @@ class SessionManager implements SessionStore {
     }
 
     /**
-     * Extend session expiry 
+     * Extend session expiry
      */
     refreshSession(sessionId: string): boolean {
         const session = this.getSession(sessionId);
@@ -193,10 +201,14 @@ class SessionManager implements SessionStore {
         }
 
         const now = new Date();
-        session.expiresAt = new Date(now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000);
+        session.expiresAt = new Date(
+            now.getTime() + config.session.defaultExpiryHours * 60 * 60 * 1000,
+        );
         session.lastAccessedAt = now;
 
-        console.log(`Refreshed session ${sessionId}, new expiry: ${session.expiresAt.toISOString()}`);
+        console.log(
+            `Refreshed session ${sessionId}, new expiry: ${session.expiresAt.toISOString()}`,
+        );
         return true;
     }
 
@@ -211,7 +223,7 @@ class SessionManager implements SessionStore {
 
         session.teleformData = teleformData;
         session.lastAccessedAt = new Date();
-        
+
         if (filename && session.metadata) {
             session.metadata.teleformDataFilename = filename;
         }
@@ -242,6 +254,37 @@ class SessionManager implements SessionStore {
     isSessionComplete(sessionId: string): boolean {
         const session = this.getSession(sessionId);
         return !!(session?.answerKey && session?.teleformData);
+    }
+
+    /**
+     * Add unparsed coverpage buffer to existing session
+     */
+    addUnparsedCoverpage(sessionId: string, coverpageBuffer: Buffer, filename?: string): boolean {
+        const session = this.getSession(sessionId);
+        if (!session) {
+            return false;
+        }
+
+        session.unparsedCoverpageBuffer = coverpageBuffer;
+        session.lastAccessedAt = new Date();
+
+        if (filename && session.metadata) {
+            session.metadata.coverpageFilename = filename;
+            session.metadata.coverpageFileSize = coverpageBuffer.length;
+        }
+
+        console.log(`Unparsed coverpage buffer added to session: ${sessionId}`);
+        return true;
+    }
+
+    /**
+     * Check if session has coverpage (unparsed)
+     */
+    hasCoverpage(sessionId: string): boolean {
+        const session = this.getSession(sessionId);
+        // Note: For now, we only check for unparsed coverpage buffer
+        // Parsed coverpage would be in ExamData when exam is generated, not stored in session
+        return !!session?.unparsedCoverpageBuffer;
     }
 }
 

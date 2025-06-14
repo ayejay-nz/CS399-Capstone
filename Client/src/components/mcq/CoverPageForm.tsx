@@ -112,6 +112,12 @@ export default function CoverPageForm({
     },
   });
 
+    React.useEffect(() => {
+    if (initialValues) {
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
+
   return (
     <div className="flex-1 p-6 pr-6 rounded-md border border-[#27272a] bg-[#0B0B0B]">
       <div className="flex justify-between items-center mb-4">

@@ -1,4 +1,4 @@
-import { BrandType, ImageURI, TableURI } from './examData';
+import { BrandType, ImageURI, TableURI } from '@/src/dataTypes/examData';
 
 export type AppendixText = BrandType<{ appendixText: string }, 'AppendixText'>;
 
@@ -28,5 +28,4 @@ export interface Coverpage {
 
 export interface CoverpageDocx {
     content: (Coverpage | AppendixPage)[]; // ensure coverpage is first and only appears once if present
-    unparsedCoverpageBuffer?: Buffer; // temp return type for mixed parsing results
 }

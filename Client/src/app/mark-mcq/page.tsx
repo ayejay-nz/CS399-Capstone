@@ -9,7 +9,7 @@ import Navbar from "@/src/components/layout/Navbar";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useExam } from "@/src/context/ExamContext";
-import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
+import { ApiSuccessResponse } from "@/src/dataTypes/apiSuccessResponse";
 import { ExamBreakdown } from "@/src/dataTypes/examBreakdown";
 import type { AnswerKeyQuestion } from "@/src/dataTypes/examBreakdown";
 import { toast } from "sonner";

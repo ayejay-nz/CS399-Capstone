@@ -9,9 +9,11 @@ import {
 } from '../constants/constants';
 import path from 'path';
 import { ApiSuccessResponse } from '../dataTypes/apiSuccessResponse';
-import { Coverpage, CoverpageDocx } from '../dataTypes/coverpage';
+import { Coverpage, CoverpageDocx, AppendixPage } from '../dataTypes/coverpage';
 import { parseCoverPage } from '../parsers/coverPageParser';
 import { parseCoverpageDocx } from '../services/coverpageDocxParser';
+import sessionManager from '../services/sessionManager';
+import { extractSessionCookie, setSessionCookie } from '../middlewares/sessionMiddleware';
 
 const router = express.Router();
 
@@ -31,12 +33,21 @@ router.post('/upload-json', async (req: Request, res: Response, next: NextFuncti
 
         // Validate required fields
         const { content } = coverpage.coverpage;
-        const requiredFields = ['semester', 'campus', 'department', 'courseCode', 'examTitle', 'duration', 'noteContent', 'courseName'];
-        const missingFields = requiredFields.filter(field => {
+        const requiredFields = [
+            'semester',
+            'campus',
+            'department',
+            'courseCode',
+            'examTitle',
+            'duration',
+            'noteContent',
+            'courseName',
+        ];
+        const missingFields = requiredFields.filter((field) => {
             const value = content[field as keyof typeof content];
             return !value || value.trim() === '';
         });
-        
+
         if (missingFields.length > 0) {
             throw new ApiError(
                 HTTP_STATUS_CODE.BAD_REQUEST,
@@ -78,23 +89,58 @@ router.post(
             switch (fileExt) {
                 case '.docx':
                     const parseResult = await parseCoverpageDocx(fileBuffer);
-                    
+
+                    // Create a new session if no session exists, or refresh existing session
+                    let sessionId = extractSessionCookie(req);
+                    if (!sessionId) {
+                        sessionId = sessionManager.createSession();
+                    } else {
+                        // Check if session still exists and refresh it
+                        const refreshed = sessionManager.refreshSession(sessionId);
+                        if (!refreshed) {
+                            // Session doesn't exist anymore, create a new one
+                            console.log(`Session ${sessionId} not found, creating new session`);
+                            sessionId = sessionManager.createSession();
+                        }
+                    }
+
                     // Check if parsing was successful (returned CoverpageDocx object, not Buffer)
                     if (Buffer.isBuffer(parseResult)) {
-                        // TODO: Store the buffer for manual processing
-                        console.log(`Coverpage file ${originalFilename} could not be parsed automatically - storing for manual processing`);
-                        
+                        // Store the buffer in session
+                        sessionManager.addUnparsedCoverpage(
+                            sessionId,
+                            parseResult,
+                            originalFilename,
+                        );
+
+                        // Set session cookie in the response
+                        setSessionCookie(res, sessionId);
+
                         const response: ApiSuccessResponse = {
                             status: HTTP_STATUS_CODE.ACCEPTED,
-                            message: API_SUCCESS_MESSAGE.coverpageFileStoredForProcessing,
+                            message: API_SUCCESS_MESSAGE.coverpageStoredInSession,
                         };
                         res.status(response.status).json(response);
                     } else {
-                        // Successfully parsed - return the coverpage docx data
-                        const response: ApiSuccessResponse<CoverpageDocx> = {
+                        // Handle mixed results (coverpage failed, appendices succeeded)
+                        if ('unparsedCoverpageBuffer' in parseResult) {
+                            sessionManager.addUnparsedCoverpage(
+                                sessionId,
+                                parseResult.unparsedCoverpageBuffer!,
+                                originalFilename,
+                            );
+
+                            // Set session cookie in the response
+                            setSessionCookie(res, sessionId);
+                        }
+
+                        // Return ONLY the parsed content (appendices) - no buffer sent to frontend
+                        const response: ApiSuccessResponse<{
+                            content: (Coverpage | AppendixPage)[];
+                        }> = {
                             status: HTTP_STATUS_CODE.OK,
                             message: API_SUCCESS_MESSAGE.ok,
-                            data: parseResult,
+                            data: { content: parseResult.content },
                         };
                         res.status(response.status).json(response);
                     }

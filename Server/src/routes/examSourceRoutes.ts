@@ -80,12 +80,19 @@ router.post('/upload-json', async (req: Request, res: Response, next: NextFuncti
         // Dynamic import of fetch
         const { default: fetch } = await import('node-fetch');
 
+        // Forward session cookie if present to include unparsed coverpage
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const cookieHeader = req.headers.cookie;
+        if (cookieHeader) {
+            headers['Cookie'] = cookieHeader;
+        }
+
         // Generate randomised exam versions and answer key
         const generateRes = await fetch(
             `${config.server.internalApiUrl}${config.server.apiPrefix}/exam-bundle`,
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({
                     exam: exam,
                     versions: examVersions,

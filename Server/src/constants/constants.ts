@@ -65,6 +65,7 @@ export const API_ERROR_MESSAGE = {
     sessionMemoryLimitReached: 'The maximum memory usage has been reached. Please try again later',
     invalidSessionId: 'Invalid session identifier provided',
     noTeleformData: 'No teleform data detected in the session. Please upload a teleform data file',
+    noAnswerKey: 'No answer key detected in the session. Please upload an answer key file',
     noExamBreakdown: 'No exam breakdown detected in the session. Please try again',
 };
 
@@ -112,7 +113,9 @@ export const API_SUCCESS_MESSAGE = {
     ok: 'Request processed successfully',
     created: 'Resource created successfully',
     accepted: 'Request accepted and is being processed',
-    coverpageFileStoredForProcessing: 'File uploaded but could not be parsed automatically - stored for manual processing',
+    coverpageFileStoredForProcessing:
+        'File uploaded but could not be parsed automatically - stored for manual processing',
+    coverpageStoredInSession: 'Coverpage stored in session - will be included in exported exams',
 };
 
 export const DEFAULT_EXAM_VERSIONS = 4;

@@ -3,14 +3,15 @@ import { exportGeneratedExam } from '../fileExporters/examGenerator';
 import { ExamData } from '../dataTypes/examData';
 import { AnswerKey } from '../dataTypes/answerKey';
 import { VersionedExam } from '../dataTypes/versionedExam';
-import { HTTP_STATUS_CODE } from '../constants/constants';
+import { HTTP_STATUS_CODE, API_ERROR_CODE, API_ERROR_MESSAGE } from '../constants/constants';
 import { isSection } from '../utils/typeGuards';
 import { exportExamVersionsDocx } from '../fileExporters/examVersionsDocx';
 import libre from 'libreoffice-convert';
 import { Document, HeadingLevel, Packer, Paragraph } from 'docx';
 import { promisify } from 'util';
 import { exportSingleExamVersionDocx } from '../fileExporters/exportSingleExamVersionDocx';
-
+import { validateSession, optionalSession } from '../middlewares/sessionMiddleware';
+import ApiError from '../utils/apiError';
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ const convertAsync = promisify(libre.convert);
 
 router.post(
     '/',
+    optionalSession, // Use optional session to check if coverpage is available
     async (
         req: Request<
             Record<string, never>,
@@ -35,7 +37,15 @@ router.post(
         try {
             const { exam, versions, answerKey } = req.body;
 
-            const zipBuffer = await exportGeneratedExam(exam, versions, answerKey);
+            // Check if session exists and has an unparsed coverpage
+            const unparsedCoverpageBuffer = req.examMarkingSession?.unparsedCoverpageBuffer;
+
+            const zipBuffer = await exportGeneratedExam(
+                exam,
+                versions,
+                answerKey,
+                unparsedCoverpageBuffer,
+            );
 
             res.status(HTTP_STATUS_CODE.OK)
                 .set({
@@ -50,33 +60,29 @@ router.post(
     },
 );
 
-router.post(
-  '/preview-pdf',
-  async (req: Request<{}, unknown, { exam: ExamData }>, res, next) => {
+router.post('/preview-pdf', async (req: Request<{}, unknown, { exam: ExamData }>, res, next) => {
     try {
-      const { exam } = req.body;
-      const version: VersionedExam = {
-        versionNumber: 'original',
-        optionOrders: exam.content
-          .filter(b => 'question' in b)
-          .map((b: any) => b.question.options.map((_: any, i: number) => i)),
-      };
+        const { exam } = req.body;
+        const version: VersionedExam = {
+            versionNumber: 'original',
+            optionOrders: exam.content
+                .filter((b) => 'question' in b)
+                .map((b: any) => b.question.options.map((_: any, i: number) => i)),
+        };
 
-      const docxBuffer = await exportSingleExamVersionDocx(exam, version);
-      const pdfBuffer = await convertAsync(docxBuffer, '.pdf', undefined);
+        const docxBuffer = await exportSingleExamVersionDocx(exam, version);
+        const pdfBuffer = await convertAsync(docxBuffer, '.pdf', undefined);
 
-      res
-        .status(HTTP_STATUS_CODE.OK)
-        .set({
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'inline; filename="exam_preview.pdf"',
-          'Content-Length': pdfBuffer.length,
-        })
-        .send(pdfBuffer);
+        res.status(HTTP_STATUS_CODE.OK)
+            .set({
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'inline; filename="exam_preview.pdf"',
+                'Content-Length': pdfBuffer.length,
+            })
+            .send(pdfBuffer);
     } catch (err) {
-      next(err);
+        next(err);
     }
-  }
-);
+});
 
 export default router;

@@ -1,9 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
-// TODO: Why are we importing from Server? We may have to split Client and Server later on
-import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse"; // Clean these imports up
-import { ExamData } from "../../../../Server/src/dataTypes/examData";
 import { toast } from "sonner";
 
 export function useMcq() {

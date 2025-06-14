@@ -168,6 +168,14 @@ router.post(
                 );
             }
 
+            if (!session.answerKey) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noAnswerKey,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
             const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
             sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
 
@@ -199,7 +207,7 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const session = req.examMarkingSession!;
-            
+
             if (!session.teleformData) {
                 throw new ApiError(
                     HTTP_STATUS_CODE.BAD_REQUEST,
@@ -208,13 +216,21 @@ router.post(
                 );
             }
 
+            if (!session.answerKey) {
+                throw new ApiError(
+                    HTTP_STATUS_CODE.BAD_REQUEST,
+                    API_ERROR_MESSAGE.noAnswerKey,
+                    API_ERROR_CODE.MISSING_REQUIRED_DATA,
+                );
+            }
+
             const examBreakdown = generateExamBreakdown(session.answerKey, session.teleformData);
             sessionManager.updateExamBreakdown(session.sessionId, examBreakdown);
 
-            const responseData = [{ stats: examBreakdown }, { questions: session.answerKey.source }] as [
-                { stats: ExamBreakdown },
-                { questions: AnswerKeyQuestion[] },
-            ];
+            const responseData = [
+                { stats: examBreakdown },
+                { questions: session.answerKey.source },
+            ] as [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }];
 
             const response: ApiSuccessResponse<
                 [{ stats: ExamBreakdown }, { questions: AnswerKeyQuestion[] }]
@@ -227,8 +243,8 @@ router.post(
         } catch (err) {
             next(err);
         }
-    }
-)
+    },
+);
 
 router.post(
     '/generate-stats',
@@ -323,7 +339,10 @@ router.post(
                     for (const student of session.examBreakdown.students) {
                         for (const answer of student.answers) {
                             if (answer.customFeedback) {
-                                feedbackMap.set(`${student.auid}-${answer.questionId}`, answer.customFeedback);
+                                feedbackMap.set(
+                                    `${student.auid}-${answer.questionId}`,
+                                    answer.customFeedback,
+                                );
                             }
                         }
                     }

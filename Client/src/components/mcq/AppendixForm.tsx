@@ -75,20 +75,22 @@ export default function AppendixForm({
         <Button variant="secondary" onClick={cancelEdit}>
           Cancel
         </Button>
-        <div className="relative">
-          <input
-            type="file"
-            accept=".doc,.docx,.pdf"
-            onChange={handleFileUpload}
-            className="hidden"
-            id="appendix-upload"
-          />
-          <label htmlFor="appendix-upload">
-            <Button variant="secondary" asChild>
-              <span>Upload Appendix</span>
-            </Button>
-          </label>
-        </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".docx,.txt,.xml,.tex";
+            input.onchange = (e) => {
+              if (onUploadFile) {
+                onUploadFile((e as unknown) as React.ChangeEvent<HTMLInputElement>);
+              }
+            };
+            input.click();
+          }}
+        >
+          Upload Appendix
+        </Button>
       </div>
     </div>
   );

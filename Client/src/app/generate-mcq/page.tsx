@@ -11,18 +11,28 @@ import CustomCover from "@/src/components/mcq/CustomCover";
 import CustomAppendix from "@/src/components/mcq/CustomAppendix";
 import Toolbar from "@/src/components/mcq/Toolbar";
 import { toast } from "sonner";
-import { ApiSuccessResponse } from "../../../../Server/src/dataTypes/apiSuccessResponse";
+import { ApiSuccessResponse } from "@/src/dataTypes/apiSuccessResponse";
 
 import {
   AppendixPage,
   Coverpage,
   CoverpageDocx,
-} from "../../../../Server/src/dataTypes/coverpage";
+} from "@/src/dataTypes/coverpage";
+import type { Coverpage as CoverpageWrapper } from "@/src/dataTypes/coverpage";
 export default function GenerateMCQPage() {
   const mcq = useMcq();
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const [coverPage, setCoverPage] = useState({
+  type CoverContent = CoverpageWrapper["coverpage"]["content"];
+  type AppendixItem = AppendixPage["appendix"]["content"][number];
+
+
+  interface CoverPageState extends CoverContent {
+    id: number;
+    isImported: boolean;
+  }
+
+  const [coverPage, setCoverPage] = useState<CoverPageState>({
     id: -1,
     semester: "",
     campus: "",
@@ -31,10 +41,11 @@ export default function GenerateMCQPage() {
     courseName: "",
     examTitle: "",
     duration: "",
-    versionNumber: "",
+    versionNumber: "original",
     noteContent: "",
     isImported: false,
   });
+
 
   const handleCoverPageUpdate = (values: any) => {
     setCoverPage({
@@ -110,118 +121,96 @@ const handleBackCoverPage = () => {
     );
   };
 
-  const handleUploadCoverPage = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+const handleUploadCoverPage = async (
+  event: React.ChangeEvent<HTMLInputElement>,
+) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("coverPageFile", file);
-      const res = await fetch("/api/v1/cover-page/upload-file", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const formData = new FormData();
+    formData.append("coverPageFile", file);
+    const res = await fetch("/api/v1/cover-page/upload-file", {
+      method: "POST",
+      body: formData,
+    });
 
-      let responseData;
-      const contentType = res.headers.get("Content-Type");
-      console.log("Response Content-Type:", contentType);
+    const contentType = res.headers.get("Content-Type") || "";
+    const responseData =
+      contentType.includes("application/json")
+        ? await res.json()
+        : await res.text();
 
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await res.json();
-        console.log("JSON Response Data:", responseData);
-      } else {
-        responseData = await res.text();
-        console.log("Text Response Data:", responseData);
-      }
-
-      if (!res.ok) {
-        console.log("Error Response:", {
-          status: res.status,
-          statusText: res.statusText,
-          responseData,
-        });
-
-        if (
-          responseData &&
-          typeof responseData === "object" &&
-          responseData.message
-        ) {
-          toast.error(responseData.message);
-        } else if (
-          typeof responseData === "string" &&
-          responseData.length > 0
-        ) {
-          toast.error(`Server error: ${responseData}`);
-        } else {
-          toast.error(`Server error: ${res.status} ${res.statusText}`);
-        }
-        return;
-      }
-
-      const { data: coverpageJson } =
-        responseData as ApiSuccessResponse<CoverpageDocx>;
-      if (!coverpageJson) {
-        toast.error("No coverpage data received from server.");
-        return;
-      }
-      setCoverPage((prev) => ({
-        ...prev,
-        isImported: true,
-      }));
-      toast.success(responseData.message);
-
-      // Add appendices
-      const isAppendix = (
-        page: Coverpage | AppendixPage,
-      ): page is AppendixPage => {
-        return "appendix" in page;
-      };
-      const appendices = coverpageJson.content.filter((page) =>
-        isAppendix(page),
-      );
-
-      // Create new appendix entries for each appendix found
-      const newAppendices = appendices.map((appendix, index) => {
-        const htmlContent = getAppendixHtml(appendix);
-        return {
-          id: Date.now() + index, // Ensure unique IDs
-          content: htmlContent,
-          options: Array(5).fill(""),
-          marks: 0,
-          displayText: "Appendix",
-          isAppendix: true,
-          isImported: true,
-        };
-      });
-
-      // Add all appendices together
-      mcq.setQuestions((prev) => [...prev, ...newAppendices]);
-
-      if (newAppendices.length > 0) {
-        toast.success(
-          `${newAppendices.length} appendix(es) uploaded successfully`,
-        );
-      }
-    } catch (err) {
-      console.error("Error uploading cover page:", err);
-      toast.error("Failed to connect to server");
+    if (!res.ok) {
+      const msg =
+        typeof responseData === "object" && responseData.message
+          ? responseData.message
+          : typeof responseData === "string"
+          ? responseData
+          : `${res.status} ${res.statusText}`;
+      toast.error(msg);
+      return;
     }
-  };
 
-  const getAppendixHtml = (appendix: AppendixPage) => {
-    let htmlContent = "";
-    appendix.appendix.content.forEach((item: any) => {
+    // ← INSERT HERE: pull out the pages array and guard it
+    const apiResp = responseData as ApiSuccessResponse<CoverpageDocx>;
+    if (!apiResp.data?.content) { toast.error("No pages returned from the server."); return; }
+    const rawPages = apiResp.data.content as CoverpageDocx["content"];
+
+    // find the coverpage wrapper
+    const coverWrapper = rawPages.find(
+      (p): p is CoverpageWrapper => "coverpage" in p
+    );
+
+    if (coverWrapper) {
+      const parsed = coverWrapper.coverpage.content;
+      setCoverPage({
+        id: -1,
+        ...parsed,         // semester, campus, department, courseCode, courseName, examTitle, duration, noteContent, versionNumber?
+        isImported: false, // keep you in the form-editing branch
+      });
+      toast.success(apiResp.message);
+    } else {
+      // no coverpage → switch to your CustomCover UI
+      setCoverPage(prev => ({ ...prev, isImported: true }));
+      return;
+    }
+
+    // …and the rest of your appendix logic stays exactly as it is…
+    const appendixWrappers = rawPages.filter(
+      (p): p is AppendixPage => "appendix" in p
+    );
+    const newAppendices = appendixWrappers.map((p, idx) => ({
+      id: Date.now() + idx,
+      content: getAppendixHtml(p.appendix),
+      options: Array(5).fill(""),
+      marks: 0,
+      displayText: "Appendix",
+      isAppendix: true,
+      isImported: true,
+    }));
+    mcq.setQuestions(prev => [...prev, ...newAppendices]);
+    if (newAppendices.length) {
+      toast.success(`${newAppendices.length} appendix(es) uploaded successfully`);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to connect to server");
+  }
+};
+
+  const getAppendixHtml = (appendix: AppendixPage["appendix"]) => {
+    let html = "";
+    appendix.content.forEach(item => {
       if (item.__type === "AppendixText") {
-        htmlContent += `<p>${item.appendixText}</p>`;
+        html += `<p>${item.appendixText}</p>`;
       } else if (item.__type === "ImageURI") {
-        htmlContent += `<img src="${item.imageUri}" />`;
+        html += `<img src="${item.imageUri}" />`;
       } else if (item.__type === "TableURI") {
-        htmlContent += `<table>${item.tableUri}</table>`;
+        html += `<table>${item.tableUri}</table>`;
       }
     });
-    return htmlContent;
+    return html;
   };
 
   const handleUploadAppendix = async (
@@ -266,10 +255,13 @@ const handleBackCoverPage = () => {
         return;
       }
 
-      // Assume successful response always JSON and has expected structure
-      const { data } = responseData;
-
-      let htmlContent = getAppendixHtml(data);
+      const apiResp = responseData as ApiSuccessResponse<AppendixPage>;
+      if (!apiResp.data?.appendix) {
+        toast.error("No appendix returned from server.");
+        return;
+      }
+      
+      const htmlContent = getAppendixHtml(apiResp.data.appendix);
 
       if (mcq.currentQuestionId !== null) {
         mcq.setQuestions((prev) =>

@@ -4,18 +4,21 @@ import { TeleformData } from './teleformData';
 
 export interface ExamMarkingSession {
     sessionId: string;
-    answerKey: AnswerKey;
+    answerKey?: AnswerKey;
     teleformData?: TeleformData;
     examBreakdown?: ExamBreakdown;
+    unparsedCoverpageBuffer?: Buffer;
     createdAt: Date;
     expiresAt: Date;
     lastAccessedAt: Date;
     metadata?: {
         answerKeyFilename?: string;
         teleformDataFilename?: string;
+        coverpageFilename?: string;
         uploadedBy?: string;
         answerKeyFileSize?: number;
         teleformDataFileSize?: number;
+        coverpageFileSize?: number;
     };
 }
 
