@@ -2,6 +2,9 @@
 
 ## 📋 Project Management
 
+Gantt Chart Here
+
+We used a combination of tools and methods to manage the project effectively, including a Gantt chart for planning, GitHub Issues for task tracking, and Discord for real-time communication. Weekly internal meetings helped us review progress, resolve blockers, and reassign tasks. Regular client meetings ensured feedback was incorporated throughout development.
 
 ## 📖 Project Overview
 Shuffle is a web-based exam generation and marking tool designed to automate the process of creating, and grading multiple-choice university exams. It generates multiple shuffled versions of an exam, handles answer sheet parsing, and allows instructors to manually adjust results with real-time feedback. 
