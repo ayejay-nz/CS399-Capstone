@@ -2,7 +2,7 @@
 
 ## 📋 Project Management
 
-Gantt Chart Here
+![Gantt Chart](ganttchart.png)
 
 We used a combination of tools and methods to manage the project effectively, including a Gantt chart for planning, GitHub Issues for task tracking, and Discord for real-time communication. Weekly internal meetings helped us review progress, resolve blockers, and reassign tasks. Regular client meetings ensured feedback was incorporated throughout development.
 
