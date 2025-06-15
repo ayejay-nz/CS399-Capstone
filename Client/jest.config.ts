@@ -7,9 +7,9 @@ export default createJestConfig(<Config>{
   rootDir: ".",
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.tsx"],
-  roots: ["<rootDir>/tests"],               //   ← look only in /tests
+  roots: ["<rootDir>/tests"],              
   moduleNameMapper: {
-    "^@/src/(.*)$": "<rootDir>/src/$1",      // support @/src alias
+    "^@/src/(.*)$": "<rootDir>/src/$1",      
   },
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.json" }],

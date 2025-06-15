@@ -152,12 +152,11 @@ const handleUploadCoverPage = async (
       return;
     }
 
-    // ← INSERT HERE: pull out the pages array and guard it
     const apiResp = responseData as ApiSuccessResponse<CoverpageDocx>;
     if (!apiResp.data?.content) { toast.error("No pages returned from the server."); return; }
     const rawPages = apiResp.data.content as CoverpageDocx["content"];
 
-    // find the coverpage wrapper
+
     const coverWrapper = rawPages.find(
       (p): p is CoverpageWrapper => "coverpage" in p
     );
@@ -166,17 +165,15 @@ const handleUploadCoverPage = async (
       const parsed = coverWrapper.coverpage.content;
       setCoverPage({
         id: -1,
-        ...parsed,         // semester, campus, department, courseCode, courseName, examTitle, duration, noteContent, versionNumber?
-        isImported: false, // keep you in the form-editing branch
+        ...parsed,         
+        isImported: false, 
       });
       toast.success(apiResp.message);
     } else {
-      // no coverpage → switch to your CustomCover UI
       setCoverPage(prev => ({ ...prev, isImported: true }));
       return;
     }
 
-    // …and the rest of your appendix logic stays exactly as it is…
     const appendixWrappers = rawPages.filter(
       (p): p is AppendixPage => "appendix" in p
     );
@@ -228,7 +225,6 @@ const handleUploadCoverPage = async (
         body: formData,
       });
 
-      // Always attempt to parse as JSON if the content type is JSON
       let responseData;
       const contentType = res.headers.get("Content-Type");
       if (contentType && contentType.includes("application/json")) {

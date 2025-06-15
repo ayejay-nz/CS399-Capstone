@@ -207,7 +207,6 @@ async function handlePreview2(
         },
         ...questions.map((q) => {
           if (q.isAppendix) {
-            // same appendix logic
             const temp = document.createElement("div");
             temp.innerHTML = q.content || "";
             const content: AppendixContent[] = [];

@@ -25,7 +25,6 @@ export function AnswerOptionsEditor({
     setIsEditing(false);
   };
 
-  // Only include labels that actually exist in answerOptions
   const availableLabels = allLabels.filter((lbl) => lbl in answerOptions);
   const allAreTrue = temp.length === availableLabels.length;
 
@@ -37,7 +36,6 @@ export function AnswerOptionsEditor({
     setTemp(correctOptions);
   };
 
-  // Determine if temp differs from correctOptions
   const hasChanges =
     temp.length !== correctOptions.length ||
     temp.some((lbl, idx) => lbl !== correctOptions[idx]);

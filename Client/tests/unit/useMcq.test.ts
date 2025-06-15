@@ -6,7 +6,7 @@ describe("useMcq", () => {
   it("adds a new question when currentId is null", () => {
     const { result } = renderHook(() => useMcq());
 
-    // step 1: attach stub editors
+ 
     act(() => {
       result.current.setQuestionEditor(fakeEditor("<p>What?</p>"));
       result.current.setOptionEditors([
@@ -18,7 +18,7 @@ describe("useMcq", () => {
       ]);
     });
 
-    // step 2: call handler after state flush
+ 
     act(() => result.current.handleAddOrUpdateQuestion());
 
     expect(result.current.questions).toHaveLength(1);
@@ -28,7 +28,7 @@ describe("useMcq", () => {
   it("updates an existing question when currentId is set", () => {
     const { result } = renderHook(() => useMcq());
 
-    /* create initial entry */
+ 
     act(() => {
       result.current.setQuestionEditor(fakeEditor("<p>Old</p>"));
       result.current.setOptionEditors(Array(5).fill(fakeEditor("<p>a</p>")));
@@ -37,10 +37,10 @@ describe("useMcq", () => {
 
     const original = result.current.questions[0];
 
-    /* load into edit‑mode */
+ 
     act(() => result.current.handleEdit(original));
 
-    /* change HTML and save */
+
     act(() => {
       result.current.setQuestionEditor(fakeEditor("<p>New!</p>"));
     });
@@ -54,14 +54,14 @@ describe("useMcq", () => {
   it("clears all questions & resets editors", () => {
     const { result } = renderHook(() => useMcq());
 
-    /* add something */
+ 
     act(() => {
       result.current.setQuestionEditor(fakeEditor("<p>Q</p>"));
       result.current.setOptionEditors(Array(5).fill(fakeEditor("<p>a</p>")));
     });
     act(() => result.current.handleAddOrUpdateQuestion());
 
-    /* mimic clear‑all logic */
+  
     act(() => {
       result.current.setQuestions([]);
       result.current.setCurrentQuestionId(null);

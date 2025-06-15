@@ -1,4 +1,3 @@
-// QuestionPerformanceTab.tsx
 "use client";
 
 import * as React from "react";

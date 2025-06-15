@@ -27,5 +27,5 @@ export interface Coverpage {
 }
 
 export interface CoverpageDocx {
-    content: (Coverpage | AppendixPage)[]; // ensure coverpage is first and only appears once if present
+    content: (Coverpage | AppendixPage)[]; 
 }

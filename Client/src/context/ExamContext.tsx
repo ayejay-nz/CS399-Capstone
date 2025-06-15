@@ -1,4 +1,3 @@
-// ExamContext.tsx
 "use client";
 
 import React, {
@@ -80,7 +79,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       if (sessionId) {
         localStorage.removeItem(`dashboardAllTrueMap_${sessionId}`);
       }
-      // 2) Clear out old session info
       setSessionId(null);
       setSessionExpiry(null);
       localStorage.removeItem("answerkey_session_id");
@@ -92,7 +90,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Now proceed to process the payload (stats + answerKey)
     const statsPayload = payload[0].stats;
     const keyPayload = payload[1].questions;
 
@@ -163,7 +160,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("answerkey_session_expiry");
   };
 
-  // ─── Check server for “current session” (cookie-based). If found, store it.
   const checkSessionStatus = async (): Promise<boolean> => {
     try {
       const res = await fetch("/api/v1/sessions/current", {
@@ -173,18 +169,15 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
         const { data } = await res.json();
         console.log(`Active session found on server: ${data.sessionId}`);
 
-        // If server‐returned session differs from local state, remove old map
         if (data.sessionId !== sessionId && sessionId) {
           localStorage.removeItem(`dashboardAllTrueMap_${sessionId}`);
         }
 
-        // Store server’s session info in React + localStorage
         setSessionId(data.sessionId);
         setSessionExpiry(new Date(data.expiresAt));
         localStorage.setItem("answerkey_session_id", data.sessionId);
         localStorage.setItem("answerkey_session_expiry", data.expiresAt);
 
-        // Initialize its “all-true” map if missing
         const mapKey = `dashboardAllTrueMap_${data.sessionId}`;
         if (!localStorage.getItem(mapKey)) {
           localStorage.setItem(mapKey, JSON.stringify({}));
@@ -199,7 +192,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
-  // ─── Load exam data from the current session on the server ───
   const loadSessionData = async (): Promise<void> => {
     try {
       const res = await fetch(
@@ -226,25 +218,21 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       toast.error("Failed to load session data");
     }
   }
-  // ─── On mount: check if localStorage has a valid (unexpired) sessionId/expiry ───
   useEffect(() => {
     const storedSessionId = localStorage.getItem("answerkey_session_id");
     const storedSessionExpiry = localStorage.getItem("answerkey_session_expiry");
 
     if (storedSessionId && storedSessionExpiry) {
       const expiryDate = new Date(storedSessionExpiry);
-      // If expiry is still in the future, restore that session:
       if (expiryDate > new Date()) {
         setSessionId(storedSessionId);
         setSessionExpiry(expiryDate);
 
-        // Ensure its “all-true” map exists (init if missing)
         const mapKey = `dashboardAllTrueMap_${storedSessionId}`;
         if (!localStorage.getItem(mapKey)) {
           localStorage.setItem(mapKey, JSON.stringify({}));
         }
 
-        // Then verify with server and load data if ready
         checkSessionStatus().then((hasData) => {
           if (hasData) {
             console.log("Complete session found, loading data");
@@ -252,18 +240,14 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
           }
         });
       } else {
-        // Already expired locally → clear everything
         clearSession();
       }
     } else {
-      // No stored session → ask server if a cookie-based session exists
       checkSessionStatus();
     }
   }, []);
 
-  // ─── “Update dashboard” endpoint ───
   const update = async (change: object) => {
-    const test_data_stuff = JSON.stringify(change);
     try {
       const res = await fetch(
         "/api/v1/marking/update-dashboard",
@@ -319,7 +303,6 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       customFeedback,
     });
 
-  // ─── Derived slices for easier consumption in components ───
   const summary = stats?.summary ?? null;
   const questionStats = stats?.questions ?? null;
   const students = stats?.students ?? null;

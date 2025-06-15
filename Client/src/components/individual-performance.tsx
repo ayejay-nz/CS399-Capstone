@@ -88,7 +88,6 @@ export function IndividualPerformanceTab({
     [selectedRowId, students]
   );
 
-  // Generate and download a single student's stats as plain-text
   async function handleDownloadStudent() {
     if (!selectedStudent) return;
 

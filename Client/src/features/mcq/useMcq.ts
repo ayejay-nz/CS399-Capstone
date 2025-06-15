@@ -155,7 +155,6 @@ const handleEdit = (q: any) => {
 
     const newQuestions = data.content
       .map(({ question, section }: any) => {
-        // Handle both question and section types
         if (question) {
           const questionTextObj = question.content.find(
             (c: any) => c.__type === "QuestionText" || "questionText" in c,
@@ -181,8 +180,6 @@ const handleEdit = (q: any) => {
             optionIds: question.options.map(generateOptionId),
           };
         } else if (section) {
-          // Handle section type if needed
-          // You can return a different format for sections
           const sectionText = section.content?.[0]?.sectionText || "Section";
           return {
             id: Date.now() + Math.random(),

@@ -34,5 +34,5 @@ export interface Section {
 }
 
 export interface ExamData {
-    content: (Question | Section | AppendixPage | Coverpage)[]; // Remove Section later -- made redundant by AppendixPage, although may have to add attachments? Angela doesn't make it very clear. could be better to store a reference to once instead.
+    content: (Question | Section | AppendixPage | Coverpage)[];
 }

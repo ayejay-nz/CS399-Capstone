@@ -36,7 +36,7 @@ export async function exportSingleExamVersionDocx(
   // 3) pack to .docx
   let docxBuffer = await Packer.toBuffer(doc);
 
-  // 4) inject your real coverpage as header1.xml
+  // 4) inject real coverpage as header1.xml
   const coverpageBlock = exam.content.find(isCoverpage);
   if (!coverpageBlock) throw new Error('No coverpage found');
   coverpageBlock.coverpage.content.versionNumber = version.versionNumber;
