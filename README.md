@@ -4,7 +4,7 @@
 
 ![Gantt Chart](ganttchart.png)
 
-We used a combination of tools and methods to manage the project effectively, including a Gantt chart for planning, GitHub Issues for task tracking, and Discord for real-time communication. Weekly internal meetings helped us review progress, resolve blockers, and reassign tasks. Regular client meetings ensured feedback was incorporated throughout development.
+Note: Due to our GanttPRO trial expiring before final submission, we are unable to provide a live link to the full interactive chart. However, the timeline above closely reflects the actual schedule and key milestones we followed throughout the project.
 
 ## 📖 Project Overview
 Shuffle is a web-based exam generation and marking tool designed to automate the process of creating, and grading multiple-choice university exams. It generates multiple shuffled versions of an exam, handles answer sheet parsing, and allows instructors to manually adjust results with real-time feedback. 
@@ -70,25 +70,15 @@ Check out the demo:
 
 ## 🚀 Future Plans
 
-🔗 Integrations
-One of the most impactful future improvements would be integration with existing university systems such as Canvas. This would allow lecturers to directly export marked grades and exam data, reducing manual entry and ensuring data consistency.
+Our platform now meets all core client requirements and provides a robust, extensible foundation for digital exam creation and marking at the university. Looking ahead, there are several promising directions for further enhancement that will add even more value for lecturers and the wider academic community.
 
-✍️ Notion-Style Editor
-A key area for future development is the implementation of a Notion-style, block-based text editor. This editor would provide an alternative to the current structured exam editor and help us fully replace the reliance on Microsoft Word for creating exams. More technically-inclined lecturers who prefer a flexible, keyboard-driven workflow could use intuitive slash commands (such as /question or /option) to build exams quickly and efficiently. At the same time, lecturers who prefer a traditional, form-based approach could continue using the existing editor.
+**Integrations:**  
+One impactful avenue for future improvement is integration with existing university systems such as Canvas. This would streamline the workflow for lecturers by enabling direct export of marked grades and exam data, reducing manual effort and ensuring greater data consistency across platforms.
 
-👀 Live Preview
-Currently, our platform offers a manual preview feature. A future live preview would provide immediate feedback as lecturers build and edit their exams. This enhancement would help catch formatting issues and improve user efficiency.
+**Support for Additional Input Formats:**  
+To make the platform even more versatile, we are considering support for additional file formats such as LaTeX. This would enable more seamless inclusion of mathematical notation, scientific formulas, images, and tables—helping the system better serve departments like Mathematics and Physics.
 
-✏️ Manual Marking Capabilities
-Enhancing the platform with manual marking options would support edge cases not covered by automated marking. Lecturers could upload single Teleform answer sheets or manually enter scores.
+**Accessibility & UX Enhancements:**  
+We are committed to ongoing improvements in accessibility and user experience. Planned features include options for light and dark modes, larger text, screen reader compatibility, and enhanced filtering and analytics for deeper insights into student performance.
 
-📂 Support for Additional Input Formats
-Adding support for LaTeX and richer image/table formatting would make the platform suitable for Math, Physics, and other departments with more complex exam needs.
-
-♿ Accessibility & UX Improvements
-Future features may include:
-. Light/dark mode toggle
-. Larger text options
-. Screen reader support
-. Better filtering/sorting of results
-. Richer performance analytics
+With these future enhancements, our platform is well positioned to continue evolving, enhancing exam creation and marking experience that adapts to the changing needs of staff and students.
